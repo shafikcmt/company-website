@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Meta Tags (Static) -->
+
+    <link rel="shortcut icon" href="../media/site/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="../media/site/favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Meta Tags (Dynamic) -->
+    {% block meta_description %}
+      <meta name="description" content="Humana Apparels Pvt. Ltd.">
+    {% endblock meta_description %}
+    {% block meta_keywords %}
+      <meta name="keywords" content="humana, apparels, pvt, ltd">
+    {% endblock meta_keywords %}
+    {% block meta_author %}
+      <meta name="author" content="Humana Apparels Pvt. Ltd.">
+    {% endblock meta_author %}
+    {% block meta_robots %}
+      <meta name="robots" content="index, follow">
+    {% endblock meta_robots %}
+    {% block meta_revisit_after %}
+      <meta name="revisit-after" content="7 days">
+    {% endblock meta_revisit_after %}
+    {% block meta_language %}
+      <meta name="language" content="English">
+    {% endblock meta_language %}
+    {% block meta_publisher %}
+      <meta name="publisher" content="Humana Apparels Pvt. Ltd.">
+    {% endblock meta_publisher %}
+    {% block meta_rating %}
+      <meta name="rating" content="General">
+    {% endblock meta_rating %}
+    {% block meta_distribution %}
+      <meta name="distribution" content="Global">
+    {% endblock meta_distribution %}
+    {% block meta_category %}
+      <meta name="category" content="Business">
+    {% endblock meta_category %}
+    {% block meta_coverage %}
+      <meta name="coverage" content="Worldwide">
+    {% endblock meta_coverage %}
+    {% block meta_rating_age %}
+      <meta name="rating-age" content="13+">
+    {% endblock meta_rating_age %}
+    <!-- SEO Title -->
+    <title>
+      {% block title %}
+        Humana Apparels Pvt. Ltd.
+      {% endblock title %}
+    </title>
+    <!-- Tailwind CSS -->
+    <link href="{% static "css/public.styles.css" %}" rel="stylesheet">
+    <!-- Load Phosphor Icons -->
+    <link href="{% static "css/phosphor-duotone.css" %}" rel="stylesheet">
+    <!-- TAOS -->
+    <script>document.documentElement.classList.add('js')</script>
+    <!-- Fonts: Inter (body) + Playfair Display (headings) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;600;700;800&display=swap"
+          rel="stylesheet">
+    <style>
+      body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
+      h1, h2, h3, h4, h5, h6, .font-display {
+        font-family: 'Playfair Display', ui-serif, Georgia, serif;
+      }
+    </style>
+    {% block extra_head %}
+    {% endblock extra_head %}
+    {% block extra_css %}
+    {% endblock extra_css %}
+  </head>
+  <body class="font-sans antialiased bg-background text-foreground">
+    {% block header %}
+      {% include "partials/header.html" %}
+    {% endblock header %}
+    <main class="w-full overflow-hidden">
+      {% block content %}
+      {% endblock content %}
+    </main>
+    {% block footer %}
+      {% include "partials/footer.html" %}
+    {% endblock footer %}
+    <!-- TAOS -->
+    <script src="https://unpkg.com/taos@1.0.5/dist/taos.js"></script>
+    <!-- Preline Module -->
+    <script src="{% static "js/preline.js" %}"></script>
+    {% block extra_scripts %}
+    {% endblock extra_scripts %}
+    {% block extra_js %}
+    {% endblock extra_js %}
+  </body>
+</html>

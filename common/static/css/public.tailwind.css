@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        /* Humana Apparels brand palette */
+        --foreground: 217 33% 17%;   /* Dark text  #1e293b */
+        --background: 225 33% 98%;    /* Soft gray  #f8f9fc */
+
+        --card: 0 0% 100%;            /* Clean white #ffffff */
+        --border: 214 32% 91%;        /* Subtle border #e2e8f0 */
+
+        --primary: 222 45% 18%;       /* Deep navy  #1a2744 */
+        --accent: 37 57% 51%;         /* Warm gold  #c9933a */
+    }
+
+    .dark {
+        --foreground: 0 0% 89.8%;
+        --background: 222 47% 6%;
+
+        --card: 222 40% 11%;
+        --border: 222 25% 22%;
+        /* --primary (navy) and --accent (gold) are shared across themes */
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply font-sans bg-background text-foreground antialiased;
+    }
+
+    ::-webkit-scrollbar {
+        @apply w-1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply rounded-full bg-foreground/20 transition duration-150 hover:bg-foreground/40;
+    }
+
+    ::-webkit-scrollbar-track {
+        @apply bg-card;
+    }
+}

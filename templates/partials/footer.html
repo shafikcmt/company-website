@@ -1,0 +1,114 @@
+{% load static %}
+<footer class="mt-16 w-full bg-primary text-white/80">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-8">
+    <!-- Newsletter -->
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 pb-10 mb-10 border-b border-white/10">
+      <div>
+        <h3 class="font-display text-2xl text-white">Stay in the loop</h3>
+        <p class="text-sm text-white/60 mt-1">Subscribe for company news, sustainability updates and career openings.</p>
+      </div>
+      <form class="flex w-full max-w-md gap-2" onsubmit="return false;">
+        <label for="footer-email" class="sr-only">Email address</label>
+        <input id="footer-email"
+               type="email"
+               required
+               placeholder="Enter your email"
+               class="flex-1 rounded-lg border border-white/20 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent">
+        <button type="submit"
+                class="inline-flex items-center gap-x-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-accent/90 focus:outline-none transition-colors">
+          Subscribe
+          <i class="ph ph-duotone ph-paper-plane-tilt"></i>
+        </button>
+      </form>
+    </div>
+    <!-- Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+      <!-- Col 1: Company info -->
+      <div>
+        <a class="inline-flex items-center gap-x-2" href="{% url 'home' %}" aria-label="Humana Apparels Ltd">
+          <img class="h-12 brightness-0 invert" src="{% static 'images/humana_logo.png' %}" alt="Humana Apparels Ltd">
+        </a>
+        <p class="mt-4 text-sm text-white/60 leading-relaxed">
+          Humana Apparels Ltd is a compliant, sustainability-driven garments manufacturer
+          delivering quality apparel to global brands with integrity and care.
+        </p>
+        <div class="mt-5 flex items-center gap-2 text-lg">
+          <a href="#" aria-label="Facebook"
+             class="inline-flex justify-center items-center size-9 rounded-full bg-white/10 text-white hover:bg-accent hover:text-primary transition-colors">
+            <i class="ph ph-duotone ph-facebook-logo"></i>
+          </a>
+          <a href="#" aria-label="LinkedIn"
+             class="inline-flex justify-center items-center size-9 rounded-full bg-white/10 text-white hover:bg-accent hover:text-primary transition-colors">
+            <i class="ph ph-duotone ph-linkedin-logo"></i>
+          </a>
+          <a href="#" aria-label="YouTube"
+             class="inline-flex justify-center items-center size-9 rounded-full bg-white/10 text-white hover:bg-accent hover:text-primary transition-colors">
+            <i class="ph ph-duotone ph-youtube-logo"></i>
+          </a>
+          <a href="#" aria-label="Instagram"
+             class="inline-flex justify-center items-center size-9 rounded-full bg-white/10 text-white hover:bg-accent hover:text-primary transition-colors">
+            <i class="ph ph-duotone ph-instagram-logo"></i>
+          </a>
+        </div>
+      </div>
+      <!-- Col 2: Quick Links -->
+      <div>
+        <h4 class="font-display text-lg text-white mb-4">Quick Links</h4>
+        <ul class="space-y-2.5 text-sm">
+          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'home' %}">Home</a></li>
+          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'about' %}">About Us</a></li>
+          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'sustainability' %}">Sustainability</a></li>
+          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'complience' %}">Compliance</a></li>
+          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'gallery' %}">Gallery</a></li>
+          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'activities' %}">Activities</a></li>
+          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'career' %}">Career</a></li>
+        </ul>
+      </div>
+      <!-- Col 3: Products -->
+      <div>
+        <h4 class="font-display text-lg text-white mb-4">Products</h4>
+        <ul class="space-y-2.5 text-sm">
+          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'products' %}">Knitwear</a></li>
+          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'products' %}">Woven</a></li>
+          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'products' %}">Sweaters</a></li>
+          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'products' %}">Outerwear</a></li>
+          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'products' %}">Activewear</a></li>
+          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'customers' %}">Our Customers</a></li>
+        </ul>
+      </div>
+      <!-- Col 4: Contact info -->
+      <div>
+        <h4 class="font-display text-lg text-white mb-4">Get in Touch</h4>
+        <ul class="space-y-3 text-sm text-white/60">
+          <li class="flex items-start gap-x-3">
+            <i class="ph ph-duotone ph-map-pin text-accent text-lg mt-0.5"></i>
+            <span>Humana Apparels Ltd,<br>Dhaka, Bangladesh</span>
+          </li>
+          <li class="flex items-center gap-x-3">
+            <i class="ph ph-duotone ph-phone text-accent text-lg"></i>
+            <a href="tel:+880000000000" class="hover:text-accent transition-colors">+880 0000 000000</a>
+          </li>
+          <li class="flex items-center gap-x-3">
+            <i class="ph ph-duotone ph-envelope-simple text-accent text-lg"></i>
+            <a href="mailto:info@humanaapparels.com" class="hover:text-accent transition-colors">info@humanaapparels.com</a>
+          </li>
+          <li class="flex items-center gap-x-3">
+            <i class="ph ph-duotone ph-clock text-accent text-lg"></i>
+            <span>Sat – Thu, 9:00 – 18:00</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!-- Copyright bar -->
+  <div class="border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/50">
+      <p>&copy; <span id="footer-year">2026</span> Humana Apparels Ltd. All rights reserved.</p>
+      <div class="flex items-center gap-x-5">
+        <a href="#" class="hover:text-accent transition-colors">Privacy Policy</a>
+        <a href="#" class="hover:text-accent transition-colors">Terms of Use</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>

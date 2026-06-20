@@ -1,0 +1,160 @@
+{% extends "www/base.html" %}
+{% load static %}
+{% block title %}About Us — Humana Apparels Ltd{% endblock %}
+{% block meta_description %}
+  <meta name="description" content="About Humana Apparels Ltd — company overview, core values, leadership team and FAQs.">
+{% endblock %}
+{% block content %}
+
+  <!-- ========================= PAGE HEADER ========================= -->
+  <section class="relative bg-gray-900 py-24 px-4 overflow-hidden">
+    {% if about.image %}
+      <img src="{{ about.image.url }}" alt="About" class="absolute inset-0 w-full h-full object-cover opacity-30">
+    {% endif %}
+    <div class="relative max-w-7xl mx-auto">
+      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white">About Us</h1>
+      <nav class="mt-3 flex items-center gap-2 text-sm text-gray-300" aria-label="Breadcrumb">
+        <a href="{% url 'home' %}" class="hover:text-amber-400">Home</a>
+        <i class="ph ph-duotone ph-caret-right text-xs"></i><span class="text-amber-400">About</span>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ========================= ABOUT 2-COL ========================= -->
+  {% if about %}
+    <section class="py-20 px-4 bg-white">
+      <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+        <div>
+          {% if about.image %}
+            <img src="{{ about.image.url }}" alt="{{ about.title|default:'About' }}" class="w-full aspect-[4/3] object-cover rounded-2xl shadow-md">
+          {% else %}
+            <div class="w-full aspect-[4/3] rounded-2xl bg-gray-100 flex items-center justify-center text-gray-300"><i class="ph ph-duotone ph-buildings text-6xl"></i></div>
+          {% endif %}
+        </div>
+        <div>
+          <span class="text-sm font-semibold uppercase tracking-wide text-amber-600">Company Overview</span>
+          <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">{{ about.title|default:"Crafting Quality Apparel" }}</h2>
+          {% if about.subtitle %}<p class="mt-4 text-lg text-gray-600">{{ about.subtitle }}</p>{% endif %}
+          {% if about.content %}<div class="mt-4 text-gray-600 leading-relaxed">{{ about.content|safe }}</div>{% endif %}
+          {% if key_facts %}
+            <div class="mt-8 grid grid-cols-2 gap-6">
+              {% for fact in key_facts %}
+                <div class="flex items-center gap-3">
+                  {% if fact.icon %}<i class="ph ph-duotone {{ fact.icon }} text-3xl text-amber-600"></i>{% endif %}
+                  <div>
+                    <div class="text-2xl font-extrabold text-gray-900">{{ fact.value }}</div>
+                    <div class="text-xs uppercase tracking-wide text-gray-500">{{ fact.title }}</div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  <!-- ========================= CORE VALUES ========================= -->
+  {% if core_values %}
+    <section class="py-20 px-4 bg-gray-50">
+      <div class="max-w-7xl mx-auto">
+        <div class="max-w-2xl mx-auto text-center">
+          <span class="text-sm font-semibold uppercase tracking-wide text-amber-600">What Drives Us</span>
+          <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">Our Core Values</h2>
+        </div>
+        <div class="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {% for value in core_values %}
+            <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow p-7">
+              <span class="inline-flex items-center justify-center size-14 rounded-xl bg-amber-50 text-amber-600"><i class="ph ph-duotone {{ value.icon }} text-2xl"></i></span>
+              <h3 class="mt-5 text-xl font-bold tracking-tight text-gray-900">{{ value.title }}</h3>
+              <p class="mt-2 text-gray-600 leading-relaxed">{{ value.description }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  <!-- ========================= TEAM ========================= -->
+  {% if team.management or team.staff %}
+    <section class="py-20 px-4 bg-white">
+      <div class="max-w-7xl mx-auto">
+        <div class="max-w-2xl mx-auto text-center">
+          <span class="text-sm font-semibold uppercase tracking-wide text-amber-600">Leadership</span>
+          <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">{{ team.title|default:"Meet Our Team" }}</h2>
+          {% if team.subtitle %}<p class="mt-4 text-gray-600">{{ team.subtitle }}</p>{% endif %}
+        </div>
+
+        <!-- Management (larger cards) -->
+        {% if team.management %}
+          <div class="mt-14 grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for member in team.management %}
+              <div class="group bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow overflow-hidden">
+                <div class="aspect-[3/4] overflow-hidden bg-gray-100">
+                  {% if member.image %}<img src="{{ member.image.url }}" alt="{{ member.name }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">{% endif %}
+                </div>
+                <div class="p-4 text-center">
+                  <h3 class="font-bold text-gray-900">{{ member.name }}</h3>
+                  <p class="text-sm text-amber-600">{{ member.position }}</p>
+                  {% if member.linkedin_url %}<a href="{{ member.linkedin_url }}" target="_blank" rel="noopener" class="mt-2 inline-flex text-gray-400 hover:text-amber-600"><i class="ph ph-duotone ph-linkedin-logo text-xl"></i></a>{% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <!-- Staff (smaller grid) -->
+        {% if team.staff %}
+          <div class="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
+            {% for member in team.staff %}
+              <div class="text-center">
+                <div class="size-24 mx-auto rounded-full overflow-hidden bg-gray-100">
+                  {% if member.image %}<img src="{{ member.image.url }}" alt="{{ member.name }}" class="w-full h-full object-cover">{% endif %}
+                </div>
+                <h3 class="mt-3 font-semibold text-sm text-gray-900">{{ member.name }}</h3>
+                <p class="text-xs text-gray-500">{{ member.position }}</p>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+
+  <!-- ========================= FAQ ========================= -->
+  {% if faq.faqs %}
+    <section class="py-20 px-4 bg-gray-50">
+      <div class="max-w-3xl mx-auto">
+        <div class="text-center">
+          <span class="text-sm font-semibold uppercase tracking-wide text-amber-600">Got Questions?</span>
+          <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">{{ faq.title|default:"Frequently Asked Questions" }}</h2>
+        </div>
+        <div class="mt-12 space-y-4">
+          {% for item in faq.faqs %}
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+              <button type="button" class="faq-toggle w-full flex items-center justify-between gap-4 text-left p-5 font-semibold text-gray-900">
+                {{ item.question }}
+                <i class="ph ph-duotone ph-caret-down text-amber-600 transition-transform shrink-0"></i>
+              </button>
+              <div class="faq-content hidden px-5 pb-5 text-gray-600 leading-relaxed">{{ item.answer|safe }}</div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+{% endblock content %}
+{% block extra_js %}
+  <script>
+    // FAQ accordion (vanilla)
+    document.querySelectorAll('.faq-toggle').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var content = btn.nextElementSibling;
+        var icon = btn.querySelector('i');
+        content.classList.toggle('hidden');
+        icon.classList.toggle('rotate-180');
+      });
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,219 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ site.site_name|default:"Humana Apparels Ltd" }}{% endblock %}</title>
+    {% if site.site_favicon %}<link rel="icon" href="{{ site.site_favicon.url }}">{% endif %}
+    {% block meta_description %}
+      <meta name="description" content="Humana Apparels Ltd — Bangladesh's premier garment manufacturer delivering quality, compliant and sustainable apparel to global brands.">
+    {% endblock %}
+
+    <!-- Tailwind CSS (CDN) + inline config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Phosphor Icons (already bundled in the project) -->
+    <link href="{% static 'css/phosphor-duotone.css' %}" rel="stylesheet">
+
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body class="font-sans text-gray-600 antialiased bg-white">
+
+    <!-- ============================ NAVBAR ============================ -->
+    {% with current=request.resolver_match.url_name %}
+      <header id="site-header"
+              class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur border-b border-gray-100 transition-shadow duration-300">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between h-20">
+            <!-- Logo (dynamic: admin logo → else site name text) -->
+            <a href="{% url 'home' %}" class="flex items-center gap-2 shrink-0" aria-label="{{ site.site_name|default:'Humana Apparels Ltd' }}">
+              {% if site.site_logo %}
+                <img src="{{ site.site_logo.url }}" alt="{{ site.site_name|default:'Humana Apparels Ltd' }}" class="h-10 w-auto">
+              {% else %}
+                <span class="text-xl font-extrabold tracking-tight text-gray-900">{{ site.site_name|default:"Humana Apparels" }}</span>
+              {% endif %}
+            </a>
+
+            <!-- Desktop nav (each link toggled by NavbarSettings; all shown if no settings row) -->
+            <div class="hidden lg:flex items-center gap-1">
+              {% if not navbar or navbar.show_home %}<a href="{% url 'home' %}"           class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'home' %}text-amber-600{% else %}text-gray-700 hover:text-amber-600{% endif %}">Home</a>{% endif %}
+              {% if not navbar or navbar.show_about %}<a href="{% url 'about' %}"          class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'about' %}text-amber-600{% else %}text-gray-700 hover:text-amber-600{% endif %}">About</a>{% endif %}
+              {% if not navbar or navbar.show_products %}<a href="{% url 'products' %}"    class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'products' %}text-amber-600{% else %}text-gray-700 hover:text-amber-600{% endif %}">Products</a>{% endif %}
+              {% if not navbar or navbar.show_customers %}<a href="{% url 'customers' %}"  class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'customers' %}text-amber-600{% else %}text-gray-700 hover:text-amber-600{% endif %}">Customers</a>{% endif %}
+              {% if not navbar or navbar.show_compliance %}<a href="{% url 'complience' %}" class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'complience' %}text-amber-600{% else %}text-gray-700 hover:text-amber-600{% endif %}">Compliance</a>{% endif %}
+              {% if not navbar or navbar.show_sustainability %}<a href="{% url 'sustainability' %}" class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'sustainability' %}text-amber-600{% else %}text-gray-700 hover:text-amber-600{% endif %}">Sustainability</a>{% endif %}
+              {% if not navbar or navbar.show_gallery %}<a href="{% url 'gallery' %}"      class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'gallery' %}text-amber-600{% else %}text-gray-700 hover:text-amber-600{% endif %}">Gallery</a>{% endif %}
+              {% if not navbar or navbar.show_activities %}<a href="{% url 'activities' %}"  class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'activities' %}text-amber-600{% else %}text-gray-700 hover:text-amber-600{% endif %}">Activities</a>{% endif %}
+              {% if not navbar or navbar.show_career %}<a href="{% url 'career' %}"        class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'career' %}text-amber-600{% else %}text-gray-700 hover:text-amber-600{% endif %}">Career</a>{% endif %}
+            </div>
+
+            <!-- CTA + hamburger -->
+            <div class="flex items-center gap-3">
+              {% if not navbar or navbar.show_contact %}
+                <a href="{% url 'contact' %}"
+                   class="hidden sm:inline-flex items-center rounded-full bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors">
+                  Get in Touch
+                </a>
+              {% endif %}
+              <button type="button" id="mobile-menu-btn" aria-label="Toggle menu"
+                      class="lg:hidden inline-flex items-center justify-center size-10 rounded-lg text-gray-700 hover:bg-gray-100">
+                <i class="ph ph-duotone ph-list text-2xl" id="menu-open-icon"></i>
+                <i class="ph ph-duotone ph-x text-2xl hidden" id="menu-close-icon"></i>
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden lg:hidden border-t border-gray-100 bg-white">
+          <div class="px-4 py-4 space-y-1">
+            {% if not navbar or navbar.show_home %}<a href="{% url 'home' %}"           class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'home' %}bg-amber-50 text-amber-600{% else %}text-gray-700 hover:bg-gray-50{% endif %}">Home</a>{% endif %}
+            {% if not navbar or navbar.show_about %}<a href="{% url 'about' %}"          class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'about' %}bg-amber-50 text-amber-600{% else %}text-gray-700 hover:bg-gray-50{% endif %}">About</a>{% endif %}
+            {% if not navbar or navbar.show_products %}<a href="{% url 'products' %}"    class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'products' %}bg-amber-50 text-amber-600{% else %}text-gray-700 hover:bg-gray-50{% endif %}">Products</a>{% endif %}
+            {% if not navbar or navbar.show_customers %}<a href="{% url 'customers' %}"  class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'customers' %}bg-amber-50 text-amber-600{% else %}text-gray-700 hover:bg-gray-50{% endif %}">Customers</a>{% endif %}
+            {% if not navbar or navbar.show_compliance %}<a href="{% url 'complience' %}" class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'complience' %}bg-amber-50 text-amber-600{% else %}text-gray-700 hover:bg-gray-50{% endif %}">Compliance</a>{% endif %}
+            {% if not navbar or navbar.show_sustainability %}<a href="{% url 'sustainability' %}" class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'sustainability' %}bg-amber-50 text-amber-600{% else %}text-gray-700 hover:bg-gray-50{% endif %}">Sustainability</a>{% endif %}
+            {% if not navbar or navbar.show_gallery %}<a href="{% url 'gallery' %}"      class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'gallery' %}bg-amber-50 text-amber-600{% else %}text-gray-700 hover:bg-gray-50{% endif %}">Gallery</a>{% endif %}
+            {% if not navbar or navbar.show_activities %}<a href="{% url 'activities' %}"  class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'activities' %}bg-amber-50 text-amber-600{% else %}text-gray-700 hover:bg-gray-50{% endif %}">Activities</a>{% endif %}
+            {% if not navbar or navbar.show_career %}<a href="{% url 'career' %}"        class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'career' %}bg-amber-50 text-amber-600{% else %}text-gray-700 hover:bg-gray-50{% endif %}">Career</a>{% endif %}
+            {% if not navbar or navbar.show_contact %}<a href="{% url 'contact' %}"      class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'contact' %}bg-amber-50 text-amber-600{% else %}text-gray-700 hover:bg-gray-50{% endif %}">Contact</a>{% endif %}
+          </div>
+        </div>
+      </header>
+    {% endwith %}
+
+    <!-- ============================ CONTENT ============================ -->
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- ============================ FOOTER ============================ -->
+    <footer class="bg-slate-900 text-slate-300">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <!-- Company + tagline (dynamic) -->
+        <div>
+          <h3 class="text-xl font-extrabold tracking-tight text-white">{{ site.site_name|default:"Humana Apparels Ltd" }}</h3>
+          {% if site.site_tagline %}<p class="mt-1 text-sm font-medium text-amber-400">{{ site.site_tagline }}</p>{% endif %}
+          <p class="mt-4 text-sm leading-relaxed text-slate-400">
+            {% if site.footer_description %}{{ site.footer_description }}{% else %}A compliant, sustainability-driven garment manufacturer delivering quality apparel to global brands from Bangladesh.{% endif %}
+          </p>
+          <div class="mt-6 flex items-center gap-3">
+            <a href="{{ site.facebook_url|default:'#' }}" aria-label="Facebook" class="inline-flex items-center justify-center size-9 rounded-full bg-slate-800 hover:bg-amber-500 hover:text-white transition-colors">
+              <i class="ph ph-duotone ph-facebook-logo"></i>
+            </a>
+            <a href="{{ site.linkedin_url|default:'#' }}" aria-label="LinkedIn" class="inline-flex items-center justify-center size-9 rounded-full bg-slate-800 hover:bg-amber-500 hover:text-white transition-colors">
+              <i class="ph ph-duotone ph-linkedin-logo"></i>
+            </a>
+            <a href="{{ site.youtube_url|default:'#' }}" aria-label="YouTube" class="inline-flex items-center justify-center size-9 rounded-full bg-slate-800 hover:bg-amber-500 hover:text-white transition-colors">
+              <i class="ph ph-duotone ph-youtube-logo"></i>
+            </a>
+            <a href="{{ site.instagram_url|default:'#' }}" aria-label="Instagram" class="inline-flex items-center justify-center size-9 rounded-full bg-slate-800 hover:bg-amber-500 hover:text-white transition-colors">
+              <i class="ph ph-duotone ph-instagram-logo"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Quick links -->
+        <div>
+          <h4 class="text-sm font-semibold uppercase tracking-wide text-white">Quick Links</h4>
+          <ul class="mt-4 space-y-2.5 text-sm">
+            <li><a href="{% url 'about' %}" class="hover:text-amber-400 transition-colors">About Us</a></li>
+            <li><a href="{% url 'products' %}" class="hover:text-amber-400 transition-colors">Products</a></li>
+            <li><a href="{% url 'complience' %}" class="hover:text-amber-400 transition-colors">Compliance</a></li>
+            <li><a href="{% url 'sustainability' %}" class="hover:text-amber-400 transition-colors">Sustainability</a></li>
+            <li><a href="{% url 'career' %}" class="hover:text-amber-400 transition-colors">Career</a></li>
+          </ul>
+        </div>
+
+        <!-- Explore -->
+        <div>
+          <h4 class="text-sm font-semibold uppercase tracking-wide text-white">Explore</h4>
+          <ul class="mt-4 space-y-2.5 text-sm">
+            <li><a href="{% url 'customers' %}" class="hover:text-amber-400 transition-colors">Customers</a></li>
+            <li><a href="{% url 'gallery' %}" class="hover:text-amber-400 transition-colors">Gallery</a></li>
+            <li><a href="{% url 'activities' %}" class="hover:text-amber-400 transition-colors">Activities</a></li>
+            <li><a href="{% url 'contact' %}" class="hover:text-amber-400 transition-colors">Contact</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact info -->
+        <div>
+          <h4 class="text-sm font-semibold uppercase tracking-wide text-white">Get in Touch</h4>
+          <ul class="mt-4 space-y-3 text-sm">
+            <li class="flex items-start gap-3">
+              <i class="ph ph-duotone ph-map-pin text-amber-400 text-lg mt-0.5"></i>
+              <span>Dhaka, Bangladesh</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <i class="ph ph-duotone ph-phone text-amber-400 text-lg"></i>
+              <a href="tel:+880000000000" class="hover:text-amber-400 transition-colors">+880 0000 000000</a>
+            </li>
+            <li class="flex items-center gap-3">
+              <i class="ph ph-duotone ph-envelope-simple text-amber-400 text-lg"></i>
+              <a href="mailto:info@humanaapparels.com" class="hover:text-amber-400 transition-colors">info@humanaapparels.com</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Copyright -->
+      <div class="border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+          <p>{% if site.footer_copyright %}{{ site.footer_copyright }}{% else %}&copy; <span id="year">2026</span> {{ site.site_name|default:"Humana Apparels Ltd" }}. All rights reserved.{% endif %}</p>
+          <p>Designed &amp; built with care.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ============================ GLOBAL JS ============================ -->
+    <script>
+      // Mobile menu toggle
+      (function () {
+        var btn = document.getElementById('mobile-menu-btn');
+        var menu = document.getElementById('mobile-menu');
+        var openIcon = document.getElementById('menu-open-icon');
+        var closeIcon = document.getElementById('menu-close-icon');
+        if (btn && menu) {
+          btn.addEventListener('click', function () {
+            menu.classList.toggle('hidden');
+            openIcon.classList.toggle('hidden');
+            closeIcon.classList.toggle('hidden');
+          });
+        }
+      })();
+
+      // Navbar shadow on scroll
+      (function () {
+        var header = document.getElementById('site-header');
+        if (!header) return;
+        var onScroll = function () {
+          header.classList.toggle('shadow-md', window.scrollY > 8);
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+      })();
+
+      // Current year
+      var y = document.getElementById('year');
+      if (y) y.textContent = new Date().getFullYear();
+    </script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

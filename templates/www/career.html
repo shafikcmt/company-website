@@ -1,0 +1,62 @@
+{% extends "www/base.html" %}
+{% load static %}
+{% block title %}Career — Humana Apparels Ltd{% endblock %}
+{% block meta_description %}
+  <meta name="description" content="Join the team at Humana Apparels Ltd — explore open positions and grow with us.">
+{% endblock %}
+{% block content %}
+
+  <!-- ========================= PAGE HEADER ========================= -->
+  <section class="bg-gray-900 py-24 px-4">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white">{{ career.title|default:"Careers" }}</h1>
+      {% if career.subtitle %}<p class="mt-4 max-w-2xl text-gray-300">{{ career.subtitle }}</p>{% endif %}
+      <nav class="mt-3 flex items-center gap-2 text-sm text-gray-300" aria-label="Breadcrumb">
+        <a href="{% url 'home' %}" class="hover:text-amber-400">Home</a>
+        <i class="ph ph-duotone ph-caret-right text-xs"></i><span class="text-amber-400">Career</span>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ========================= OPEN POSITIONS ========================= -->
+  <section class="py-20 px-4 bg-gray-50">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900 mb-10">Open Positions</h2>
+      {% if career.positions %}
+        <div class="space-y-5">
+          {% for position in career.positions %}
+            <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow p-6 sm:p-7">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h3 class="text-xl font-bold tracking-tight text-gray-900">{{ position.title }}</h3>
+                  <div class="mt-3 flex flex-wrap items-center gap-2 text-sm">
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 text-amber-700 px-3 py-1"><i class="ph ph-duotone ph-buildings"></i>{{ position.department }}</span>
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 text-gray-700 px-3 py-1"><i class="ph ph-duotone ph-briefcase"></i>{{ position.job_type }}</span>
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 text-gray-700 px-3 py-1"><i class="ph ph-duotone ph-map-pin"></i>{{ position.location }}</span>
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 text-gray-700 px-3 py-1"><i class="ph ph-duotone ph-calendar-blank"></i>Posted {{ position.posted_at|date:"M j, Y" }}</span>
+                  </div>
+                </div>
+                <a href="{% url 'career_apply' position.id %}"
+                   class="shrink-0 inline-flex items-center gap-2 rounded-full bg-amber-500 px-6 py-3 font-semibold text-white hover:bg-amber-600 transition-colors">
+                  Apply Now<i class="ph ph-duotone ph-arrow-right"></i>
+                </a>
+              </div>
+              {% if position.description %}
+                <div class="mt-4 text-gray-600 leading-relaxed">{{ position.description|safe }}</div>
+              {% endif %}
+              {% if position.deadline %}
+                <p class="mt-4 text-sm text-red-600"><i class="ph ph-duotone ph-clock"></i> Application deadline: {{ position.deadline|date:"F j, Y" }}</p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-16 bg-white rounded-2xl shadow-sm">
+          <i class="ph ph-duotone ph-briefcase text-6xl text-gray-300"></i>
+          <p class="mt-4 text-gray-500">There are no open positions at the moment. Please check back later.</p>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+{% endblock content %}

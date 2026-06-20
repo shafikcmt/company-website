@@ -1,0 +1,191 @@
+{% extends "www/base.html" %}
+{% load static %}
+{% block title %}Our Products — Humana Apparels Ltd{% endblock %}
+{% block meta_description %}
+  <meta name="description" content="Explore the product portfolio of Humana Apparels Ltd — knitwear, woven, sweaters and more for global brands.">
+{% endblock %}
+{% block extra_css %}
+  <style>
+    .pcarousel-slide { opacity: 0; transition: opacity 1s ease-in-out; }
+    .pcarousel-slide.is-active { opacity: 1; }
+  </style>
+{% endblock %}
+{% block content %}
+
+  <!-- ========================= CAROUSEL / HEADER ========================= -->
+  <section id="pcarousel" class="relative h-[60vh] min-h-[380px] overflow-hidden bg-gray-900">
+    {% for slide in carousel %}
+      <div class="pcarousel-slide absolute inset-0{% if forloop.first %} is-active{% endif %}" data-pslide="{{ forloop.counter0 }}">
+        {% if slide.image %}<img src="{{ slide.image.url }}" alt="{{ slide.alt }}" class="w-full h-full object-cover">{% endif %}
+      </div>
+    {% endfor %}
+    <div class="absolute inset-0 bg-gray-900/50"></div>
+    <div class="relative z-10 h-full max-w-7xl mx-auto px-4 flex flex-col justify-center">
+      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white">Our Products</h1>
+      <nav class="mt-3 flex items-center gap-2 text-sm text-gray-200" aria-label="Breadcrumb">
+        <a href="{% url 'home' %}" class="hover:text-amber-400">Home</a>
+        <i class="ph ph-duotone ph-caret-right text-xs"></i><span class="text-amber-400">Products</span>
+      </nav>
+    </div>
+    {% if carousel|length > 1 %}
+      <button type="button" data-pprev aria-label="Previous" class="absolute z-20 left-4 top-1/2 -translate-y-1/2 size-11 inline-flex items-center justify-center rounded-full bg-white/30 text-white backdrop-blur hover:bg-amber-500 transition-colors"><i class="ph ph-duotone ph-caret-left text-xl"></i></button>
+      <button type="button" data-pnext aria-label="Next" class="absolute z-20 right-4 top-1/2 -translate-y-1/2 size-11 inline-flex items-center justify-center rounded-full bg-white/30 text-white backdrop-blur hover:bg-amber-500 transition-colors"><i class="ph ph-duotone ph-caret-right text-xl"></i></button>
+    {% endif %}
+  </section>
+
+  <!-- ========================= SECTIONS (before portfolio) ========================= -->
+  {% for section in sections %}
+    {% if not section.after_products %}
+      <section class="py-16 px-4 {% cycle 'bg-white' 'bg-gray-50' %}">
+        <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+          <div class="{% cycle '' 'lg:order-2' %}">
+            <span class="text-sm font-semibold uppercase tracking-wide text-amber-600">Capabilities</span>
+            <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">{{ section.title }}</h2>
+            <div class="mt-4 text-gray-600 leading-relaxed">{{ section.description|safe }}</div>
+          </div>
+          <div class="{% cycle '' 'lg:order-1' %}">
+            {% if section.image %}<img src="{{ section.image.url }}" alt="{{ section.title }}" class="w-full aspect-[4/3] object-cover rounded-2xl shadow-md">{% endif %}
+          </div>
+        </div>
+      </section>
+    {% endif %}
+  {% endfor %}
+
+  <!-- ========================= PRODUCT PORTFOLIO (tabs) ========================= -->
+  {% if product_portfolio %}
+    <section class="py-20 px-4 bg-white">
+      <div class="max-w-7xl mx-auto">
+        <div class="max-w-2xl mx-auto text-center mb-12">
+          <span class="text-sm font-semibold uppercase tracking-wide text-amber-600">What We Make</span>
+          <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">Product Portfolio</h2>
+        </div>
+
+        <!-- Category tabs -->
+        <div class="flex flex-wrap justify-center gap-2 mb-10" role="tablist">
+          {% for item in product_portfolio %}
+            <button type="button" data-cat-tab="{{ forloop.counter0 }}"
+                    class="cat-tab rounded-full px-5 py-2 text-sm font-semibold transition-colors {% if forloop.first %}bg-amber-500 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+              {{ item.section }}
+            </button>
+          {% endfor %}
+        </div>
+
+        <!-- Category panels -->
+        {% for item in product_portfolio %}
+          <div class="cat-panel {% if not forloop.first %}hidden{% endif %}" data-cat-panel="{{ forloop.counter0 }}">
+            <!-- Gender filter -->
+            <div class="flex flex-wrap justify-center gap-2 mb-8">
+              <button type="button" class="gender-filter rounded-full px-4 py-1.5 text-sm font-medium bg-gray-900 text-white" data-gender="all">All</button>
+              {% if item.has_male %}<button type="button" class="gender-filter rounded-full px-4 py-1.5 text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200" data-gender="male">Men's</button>{% endif %}
+              {% if item.has_female %}<button type="button" class="gender-filter rounded-full px-4 py-1.5 text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200" data-gender="female">Women's</button>{% endif %}
+              {% if item.has_other %}<button type="button" class="gender-filter rounded-full px-4 py-1.5 text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200" data-gender="other">Other</button>{% endif %}
+            </div>
+            <!-- Product grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+              {% for product in item.male_products %}
+                <div class="product-card group bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow overflow-hidden" data-gender="male">
+                  <div class="aspect-square bg-white overflow-hidden"><img src="{{ product.image }}" alt="{{ product.name }}" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"></div>
+                  <div class="p-4"><h3 class="font-semibold text-gray-900 line-clamp-1">{{ product.name }}</h3><p class="text-sm text-gray-500">Buyer: {{ product.buyer }}</p></div>
+                </div>
+              {% endfor %}
+              {% for product in item.female_products %}
+                <div class="product-card group bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow overflow-hidden" data-gender="female">
+                  <div class="aspect-square bg-white overflow-hidden"><img src="{{ product.image }}" alt="{{ product.name }}" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"></div>
+                  <div class="p-4"><h3 class="font-semibold text-gray-900 line-clamp-1">{{ product.name }}</h3><p class="text-sm text-gray-500">Buyer: {{ product.buyer }}</p></div>
+                </div>
+              {% endfor %}
+              {% for product in item.other_products %}
+                <div class="product-card group bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow overflow-hidden" data-gender="other">
+                  <div class="aspect-square bg-white overflow-hidden"><img src="{{ product.image }}" alt="{{ product.name }}" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"></div>
+                  <div class="p-4"><h3 class="font-semibold text-gray-900 line-clamp-1">{{ product.name }}</h3><p class="text-sm text-gray-500">Buyer: {{ product.buyer }}</p></div>
+                </div>
+              {% endfor %}
+              {% if not item.has_male and not item.has_female and not item.has_other %}
+                <p class="col-span-full text-center text-gray-500 py-8">No products in this category yet.</p>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  <!-- ========================= SECTIONS (after portfolio) ========================= -->
+  {% for section in sections %}
+    {% if section.after_products %}
+      <section class="py-16 px-4 {% cycle 'bg-gray-50' 'bg-white' %}">
+        <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+          <div class="{% cycle '' 'lg:order-2' %}">
+            <span class="text-sm font-semibold uppercase tracking-wide text-amber-600">More</span>
+            <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">{{ section.title }}</h2>
+            <div class="mt-4 text-gray-600 leading-relaxed">{{ section.description|safe }}</div>
+          </div>
+          <div class="{% cycle '' 'lg:order-1' %}">
+            {% if section.image %}<img src="{{ section.image.url }}" alt="{{ section.title }}" class="w-full aspect-[4/3] object-cover rounded-2xl shadow-md">{% endif %}
+          </div>
+        </div>
+      </section>
+    {% endif %}
+  {% endfor %}
+
+  <!-- ========================= CTA ========================= -->
+  <section class="py-16 px-4 bg-gray-900 text-center">
+    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white">Looking for a manufacturing partner?</h2>
+    <p class="mt-3 text-gray-300 max-w-xl mx-auto">Tell us about your product and we'll show you what Humana Apparels can deliver.</p>
+    <a href="{% url 'contact' %}" class="mt-8 inline-flex items-center gap-2 rounded-full bg-amber-500 px-7 py-3.5 font-semibold text-white hover:bg-amber-600 transition-colors">Contact Us<i class="ph ph-duotone ph-arrow-right"></i></a>
+  </section>
+
+{% endblock content %}
+{% block extra_js %}
+  <script>
+    // Product carousel crossfade
+    (function () {
+      var slides = document.querySelectorAll('[data-pslide]');
+      if (slides.length > 1) {
+        var cur = 0, timer;
+        function show(i) { cur = (i + slides.length) % slides.length; slides.forEach(function (s, idx) { s.classList.toggle('is-active', idx === cur); }); }
+        function restart() { clearInterval(timer); timer = setInterval(function () { show(cur + 1); }, 5000); }
+        var n = document.querySelector('[data-pnext]'), p = document.querySelector('[data-pprev]');
+        if (n) n.addEventListener('click', function () { show(cur + 1); restart(); });
+        if (p) p.addEventListener('click', function () { show(cur - 1); restart(); });
+        restart();
+      }
+    })();
+
+    // Category tabs
+    (function () {
+      var tabs = document.querySelectorAll('.cat-tab');
+      var panels = document.querySelectorAll('.cat-panel');
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          var idx = tab.dataset.catTab;
+          tabs.forEach(function (t) {
+            var on = t === tab;
+            t.classList.toggle('bg-amber-500', on); t.classList.toggle('text-white', on);
+            t.classList.toggle('bg-gray-100', !on); t.classList.toggle('text-gray-700', !on);
+          });
+          panels.forEach(function (pnl) { pnl.classList.toggle('hidden', pnl.dataset.catPanel !== idx); });
+        });
+      });
+    })();
+
+    // Gender filter (scoped per panel)
+    (function () {
+      document.querySelectorAll('.cat-panel').forEach(function (panel) {
+        var filters = panel.querySelectorAll('.gender-filter');
+        var cards = panel.querySelectorAll('.product-card');
+        filters.forEach(function (f) {
+          f.addEventListener('click', function () {
+            var g = f.dataset.gender;
+            filters.forEach(function (x) {
+              var on = x === f;
+              x.classList.toggle('bg-gray-900', on); x.classList.toggle('text-white', on);
+              x.classList.toggle('bg-gray-100', !on); x.classList.toggle('text-gray-700', !on);
+            });
+            cards.forEach(function (c) { c.classList.toggle('hidden', g !== 'all' && c.dataset.gender !== g); });
+          });
+        });
+      });
+    })();
+  </script>
+{% endblock %}

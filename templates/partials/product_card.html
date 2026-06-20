@@ -1,0 +1,11 @@
+<div class="group bg-card border border-border rounded-xl shadow-sm hover:shadow-lg hover:border-accent/40 transition-all duration-300 overflow-hidden">
+  <div class="bg-white overflow-hidden">
+    <img src="{{ product.image }}"
+         alt="{{ product.name }}"
+         class="w-full aspect-square object-contain transition-transform duration-500 group-hover:scale-105">
+  </div>
+  <div class="p-4">
+    <h3 class="font-medium text-foreground line-clamp-1">{{ product.name }}</h3>
+    <p class="text-sm text-foreground/60">Buyer: {{ product.buyer }}</p>
+  </div>
+</div>

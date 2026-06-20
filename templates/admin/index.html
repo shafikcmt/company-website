@@ -1,0 +1,203 @@
+{% extends "admin/index.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}
+<style>
+  /*
+   * Dashboard styles are scoped under .hapl-dash and driven by Unfold's brand
+   * variables (--color-primary-*, defined from UNFOLD_CONFIG["COLORS"] in
+   * common/unfold.py). We can't rely on arbitrary Tailwind utilities here
+   * (gradients, object-cover, text-amber-*, etc.) because Unfold ships a
+   * precompiled stylesheet that only scans its own templates, not this one.
+   */
+  /*
+   * Every var() carries a literal amber fallback (matching UNFOLD_CONFIG COLORS)
+   * so a brand color can never resolve to "unset" — which is what previously let
+   * the welcome banner background collapse to white while its text stayed white.
+   * A solid background-color also sits behind the gradient as a last resort.
+   */
+  .hapl-dash .hapl-welcome {
+    background-color: rgb(var(--color-primary-600, 217 119 6));
+    background-image: linear-gradient(
+      135deg,
+      rgb(var(--color-primary-600, 217 119 6)),
+      rgb(var(--color-primary-500, 245 158 11))
+    );
+    color: #ffffff;
+  }
+  .hapl-dash .hapl-welcome-sub { color: rgb(255 255 255 / 0.85); }
+  .hapl-dash .hapl-date-chip { background-color: rgb(255 255 255 / 0.15); }
+  /* Brand accent for icons + key numbers, with proper contrast in dark mode. */
+  .hapl-dash .hapl-accent { color: rgb(var(--color-primary-600, 217 119 6)); }
+  .dark .hapl-dash .hapl-accent { color: rgb(var(--color-primary-300, 252 211 77)); }
+
+  /* Tinted icon chip so icons read as brand-colored, not flat text. */
+  .hapl-dash .hapl-chip {
+    background-color: rgb(var(--color-primary-500, 245 158 11) / 0.12);
+    color: rgb(var(--color-primary-600, 217 119 6));
+  }
+  .dark .hapl-dash .hapl-chip {
+    background-color: rgb(var(--color-primary-400, 251 191 36) / 0.16);
+    color: rgb(var(--color-primary-300, 252 211 77));
+  }
+
+  .hapl-dash .hapl-card:hover { border-color: rgb(var(--color-primary-400, 251 191 36)); }
+
+  /* Square, cropped thumbnails — guarantees object-fit regardless of Tailwind. */
+  .hapl-dash .hapl-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hapl-dash space-y-6 p-4">
+
+  <!-- Welcome header -->
+  <!--
+    Inline style is intentional: it guarantees the dark amber background ships
+    with the white text in the same paint, so this banner can never render as
+    white-on-white even if the <style> block above is stripped or Unfold's
+    --color-primary-* variables fail to resolve.
+  -->
+  <div class="hapl-welcome rounded-xl p-6 shadow-sm flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+       style="background-color:#d97706;background-image:linear-gradient(135deg,#d97706,#f59e0b);color:#ffffff;">
+    <div>
+      <h1 class="text-2xl font-bold text-white" style="color:#ffffff;">
+        Welcome back, {{ user.get_short_name|default:user.get_username }}
+      </h1>
+      <p class="hapl-welcome-sub text-sm mt-1">
+        Here's what's happening at Humana Apparels today.
+      </p>
+    </div>
+    <div class="hapl-date-chip flex items-center gap-2 self-start rounded-lg px-3 py-2 text-white sm:self-auto">
+      <span class="material-symbols-outlined text-xl">calendar_today</span>
+      <span class="text-sm font-medium whitespace-nowrap">{% now "l, j M Y" %}</span>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  {% if dashboard_stats %}
+  <div>
+    <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">Quick Overview</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {% for stat in dashboard_stats %}
+      <a href="{{ stat.url }}"
+         class="hapl-card group rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 transition-all hover:shadow-md">
+        <div class="flex items-center justify-between mb-3">
+          <span class="hapl-chip flex h-10 w-10 items-center justify-center rounded-lg">
+            <span class="material-symbols-outlined text-xl">{{ stat.icon }}</span>
+          </span>
+          <span class="hapl-accent text-3xl font-bold tracking-tight">{{ stat.value }}</span>
+        </div>
+        <p class="text-sm font-medium text-gray-600 dark:text-gray-300">{{ stat.label }}</p>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Quick Actions -->
+  <div>
+    <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">Quick Actions</h2>
+    <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
+      {% with action_class="hapl-card flex flex-col items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 text-center transition-all hover:shadow-md" %}
+      <a href="/admin/hapl/homeherosection/" class="{{ action_class }}">
+        <span class="hapl-chip flex h-9 w-9 items-center justify-center rounded-lg">
+          <span class="material-symbols-outlined text-lg">image</span>
+        </span>
+        <span class="text-xs font-medium text-gray-600 dark:text-gray-300">Hero Banner</span>
+      </a>
+      <a href="/admin/hapl/activitiessection/" class="{{ action_class }}">
+        <span class="hapl-chip flex h-9 w-9 items-center justify-center rounded-lg">
+          <span class="material-symbols-outlined text-lg">volunteer_activism</span>
+        </span>
+        <span class="text-xs font-medium text-gray-600 dark:text-gray-300">Activities</span>
+      </a>
+      <a href="/admin/hapl/careersection/" class="{{ action_class }}">
+        <span class="hapl-chip flex h-9 w-9 items-center justify-center rounded-lg">
+          <span class="material-symbols-outlined text-lg">work</span>
+        </span>
+        <span class="text-xs font-medium text-gray-600 dark:text-gray-300">Career</span>
+      </a>
+      <a href="/admin/hapl/productspage/" class="{{ action_class }}">
+        <span class="hapl-chip flex h-9 w-9 items-center justify-center rounded-lg">
+          <span class="material-symbols-outlined text-lg">inventory_2</span>
+        </span>
+        <span class="text-xs font-medium text-gray-600 dark:text-gray-300">Products</span>
+      </a>
+      <a href="/admin/hapl/gallerypage/" class="{{ action_class }}">
+        <span class="hapl-chip flex h-9 w-9 items-center justify-center rounded-lg">
+          <span class="material-symbols-outlined text-lg">photo_library</span>
+        </span>
+        <span class="text-xs font-medium text-gray-600 dark:text-gray-300">Gallery</span>
+      </a>
+      <a href="/admin/hapl/sitesettings/" class="{{ action_class }}">
+        <span class="hapl-chip flex h-9 w-9 items-center justify-center rounded-lg">
+          <span class="material-symbols-outlined text-lg">settings</span>
+        </span>
+        <span class="text-xs font-medium text-gray-600 dark:text-gray-300">Settings</span>
+      </a>
+      {% endwith %}
+    </div>
+  </div>
+
+  <!-- Recent Articles + Open Positions -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    {% if recent_activities %}
+    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-semibold text-gray-800 dark:text-gray-200">Recent Activities</h3>
+        <a href="/admin/hapl/activitiessection/" class="hapl-accent text-xs font-medium hover:underline">View all</a>
+      </div>
+      <div class="space-y-3">
+        {% for activity in recent_activities %}
+        <div class="flex items-center gap-3">
+          {% if activity.image %}
+          <div class="h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-700">
+            <img src="{{ activity.image.url }}" alt="{{ activity.title }}" class="hapl-thumb" loading="lazy">
+          </div>
+          {% else %}
+          <div class="hapl-chip flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg">
+            <span class="material-symbols-outlined text-lg">volunteer_activism</span>
+          </div>
+          {% endif %}
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">{{ activity.title }}</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ activity.activity_date }}{% if activity.tag %} · {{ activity.tag }}{% endif %}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if active_positions %}
+    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-semibold text-gray-800 dark:text-gray-200">Open Positions</h3>
+        <a href="/admin/hapl/careersection/" class="hapl-accent text-xs font-medium hover:underline">View all</a>
+      </div>
+      <div class="space-y-3">
+        {% for position in active_positions %}
+        <div class="flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">{{ position.title }}</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ position.department }} · {{ position.location }}</p>
+          </div>
+          <span class="flex-shrink-0 rounded-full bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 text-xs px-2 py-0.5">{{ position.type }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+
+</div>
+{% endblock content %}
