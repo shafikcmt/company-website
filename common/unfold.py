@@ -35,6 +35,7 @@ UNFOLD_CONFIG = {
             {
                 "title": _("Dashboard"),
                 "separator": False,
+                "collapsible": True,
                 "items": [
                     {
                         "title": _("Dashboard"),
@@ -46,6 +47,7 @@ UNFOLD_CONFIG = {
             {
                 "title": _("Global Settings"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     {
                         "title": _("Site Settings"),
@@ -67,6 +69,7 @@ UNFOLD_CONFIG = {
             {
                 "title": _("Home Page"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     {
                         "title": _("Hero Banner"),
@@ -97,6 +100,7 @@ UNFOLD_CONFIG = {
             {
                 "title": _("About Page"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     {
                         "title": _("About Section"),
@@ -118,6 +122,7 @@ UNFOLD_CONFIG = {
             {
                 "title": _("Customers Page"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     {
                         "title": _("Customers"),
@@ -136,6 +141,7 @@ UNFOLD_CONFIG = {
             {
                 "title": _("Contact Page"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     {
                         "title": _("Contact Section"),
@@ -152,6 +158,7 @@ UNFOLD_CONFIG = {
             {
                 "title": _("Activities Page"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     {
                         "title": _("Activities"),
@@ -163,6 +170,7 @@ UNFOLD_CONFIG = {
             {
                 "title": _("Career Page"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     {
                         "title": _("Career"),
@@ -179,6 +187,7 @@ UNFOLD_CONFIG = {
             {
                 "title": _("Products Page"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     {
                         "title": _("Products"),
@@ -190,6 +199,7 @@ UNFOLD_CONFIG = {
             {
                 "title": _("Compliance Page"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     {
                         "title": _("Compliance"),
@@ -201,6 +211,7 @@ UNFOLD_CONFIG = {
             {
                 "title": _("Sustainability Page"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     {
                         "title": _("Sustainability"),
@@ -214,6 +225,7 @@ UNFOLD_CONFIG = {
             {
                 "title": _("Gallery Page"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     {
                         "title": _("Gallery"),
@@ -240,6 +252,7 @@ UNFOLD_CONFIG = {
             {
                 "title": _("System"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     {
                         "title": _("Users"),
