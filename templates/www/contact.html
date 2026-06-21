@@ -14,26 +14,26 @@
     <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12">
       <!-- Office info -->
       <div>
-        <h2 class="text-2xl font-extrabold tracking-tight text-gray-900">{{ contact.office.title|default:"Our Office" }}</h2>
+        <h2 class="text-2xl font-extrabold tracking-tight text-brand-navy">{{ contact.office.title|default:"Our Office" }}</h2>
         {% if contact.office.subtitle %}<p class="mt-2 text-gray-600">{{ contact.office.subtitle }}</p>{% endif %}
         {% if contact.office.image %}
           <img src="{{ contact.office.image.url }}" alt="Office" class="mt-6 w-full aspect-video object-cover rounded-2xl shadow-md">
         {% endif %}
         <ul class="mt-6 space-y-4 text-gray-700">
           {% if contact.map.address %}
-            <li class="flex items-start gap-3"><i class="ph ph-duotone ph-map-pin text-xl text-amber-600 mt-0.5"></i><span>{{ contact.map.address }}</span></li>
+            <li class="flex items-start gap-3"><i class="ph ph-duotone ph-map-pin text-xl text-brand-orange-dark mt-0.5"></i><span>{{ contact.map.address }}</span></li>
           {% endif %}
           {% for phone in contact.office.contacts.phones %}
-            <li class="flex items-center gap-3"><i class="ph ph-duotone ph-phone text-xl text-amber-600"></i><a href="tel:{{ phone }}" class="hover:text-amber-600">{{ phone }}</a></li>
+            <li class="flex items-center gap-3"><i class="ph ph-duotone ph-phone text-xl text-brand-orange-dark"></i><a href="tel:{{ phone }}" class="hover:text-brand-orange-dark">{{ phone }}</a></li>
           {% endfor %}
           {% for wa in contact.office.contacts.whatsapp %}
-            <li class="flex items-center gap-3"><i class="ph ph-duotone ph-whatsapp-logo text-xl text-amber-600"></i><a href="https://wa.me/{{ wa }}" target="_blank" rel="noopener" class="hover:text-amber-600">{{ wa }}</a></li>
+            <li class="flex items-center gap-3"><i class="ph ph-duotone ph-whatsapp-logo text-xl text-brand-orange-dark"></i><a href="https://wa.me/{{ wa }}" target="_blank" rel="noopener" class="hover:text-brand-orange-dark">{{ wa }}</a></li>
           {% endfor %}
           {% for email in contact.office.contacts.emails %}
-            <li class="flex items-center gap-3"><i class="ph ph-duotone ph-envelope-simple text-xl text-amber-600"></i><a href="mailto:{{ email }}" class="hover:text-amber-600">{{ email }}</a></li>
+            <li class="flex items-center gap-3"><i class="ph ph-duotone ph-envelope-simple text-xl text-brand-orange-dark"></i><a href="mailto:{{ email }}" class="hover:text-brand-orange-dark">{{ email }}</a></li>
           {% endfor %}
           {% if contact.office.contacts.fax %}
-            <li class="flex items-center gap-3"><i class="ph ph-duotone ph-printer text-xl text-amber-600"></i><span>Fax: {{ contact.office.contacts.fax }}</span></li>
+            <li class="flex items-center gap-3"><i class="ph ph-duotone ph-printer text-xl text-brand-orange-dark"></i><span>Fax: {{ contact.office.contacts.fax }}</span></li>
           {% endif %}
         </ul>
       </div>
@@ -41,19 +41,19 @@
       <!-- Contact groups -->
       <div>
         {% if contact.groups %}
-          <h2 class="text-2xl font-extrabold tracking-tight text-gray-900">Key Contacts</h2>
+          <h2 class="text-2xl font-extrabold tracking-tight text-brand-navy">Key Contacts</h2>
           <div class="mt-6 space-y-8">
             {% for group in contact.groups %}
               <div>
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-amber-600">{{ group.name }}</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-brand-orange-dark">{{ group.name }}</h3>
                 <div class="mt-4 grid sm:grid-cols-2 gap-4">
                   {% for member in group.members.all %}
                     <div class="flex items-center gap-3 bg-gray-50 rounded-2xl p-4">
                       {% if member.image %}<img src="{{ member.image.url }}" alt="{{ member.name }}" class="size-14 rounded-full object-cover">{% endif %}
                       <div class="min-w-0">
-                        <div class="font-semibold text-gray-900 truncate">{{ member.name }}</div>
+                        <div class="font-semibold text-brand-navy truncate">{{ member.name }}</div>
                         <div class="text-xs text-gray-500">{{ member.position }}</div>
-                        <a href="mailto:{{ member.email }}" class="text-xs text-amber-600 hover:underline truncate block">{{ member.email }}</a>
+                        <a href="mailto:{{ member.email }}" class="text-xs text-brand-orange-dark hover:underline truncate block">{{ member.email }}</a>
                       </div>
                     </div>
                   {% endfor %}
@@ -74,7 +74,7 @@
   {% if contact.map.map_url or contact.map.image %}
     <section class="bg-gray-50">
       <div class="max-w-7xl mx-auto px-4 py-12">
-        <h2 class="text-2xl font-extrabold tracking-tight text-gray-900 text-center">{{ contact.map.title|default:"Find Us" }}</h2>
+        <h2 class="text-2xl font-extrabold tracking-tight text-brand-navy text-center">{{ contact.map.title|default:"Find Us" }}</h2>
         {% if contact.map.subtitle %}<p class="mt-2 text-center text-gray-600">{{ contact.map.subtitle }}</p>{% endif %}
         <div class="mt-8 overflow-hidden rounded-2xl shadow-md">
           {% if contact.map.map_url %}
@@ -91,11 +91,11 @@
   {% if contact.socials %}
     <section class="py-16 px-4 bg-white">
       <div class="max-w-7xl mx-auto text-center">
-        <h2 class="text-xl font-bold tracking-tight text-gray-900">Connect With Us</h2>
+        <h2 class="text-xl font-bold tracking-tight text-brand-navy">Connect With Us</h2>
         <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
           {% for social in contact.socials %}
             <a href="{{ social.url }}" target="_blank" rel="noopener" aria-label="{{ social.name }}"
-               class="inline-flex items-center justify-center size-12 rounded-full bg-gray-100 text-gray-700 hover:bg-amber-500 hover:text-white transition-colors">
+               class="inline-flex items-center justify-center size-12 rounded-full bg-gray-100 text-gray-700 hover:bg-brand-orange hover:text-white transition-colors">
               <i class="ph ph-duotone {{ social.icon }} text-xl"></i>
             </a>
           {% endfor %}

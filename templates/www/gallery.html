@@ -17,13 +17,13 @@
         <div class="flex flex-wrap justify-center gap-2 mb-12" role="tablist">
           {% for section, images in gallery_data.images_by_section.items %}
             <button type="button" data-gallery-tab="img-{{ forloop.counter0 }}"
-                    class="gallery-tab rounded-full px-5 py-2 text-sm font-semibold transition-colors {% if forloop.first %}bg-amber-500 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                    class="gallery-tab rounded-full px-5 py-2 text-sm font-semibold transition-colors {% if forloop.first %}bg-brand-orange text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
               {{ section }}
             </button>
           {% endfor %}
           {% if gallery_data.videos_by_section %}
             <button type="button" data-gallery-tab="videos"
-                    class="gallery-tab rounded-full px-5 py-2 text-sm font-semibold transition-colors {% if not gallery_data.images_by_section %}bg-amber-500 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                    class="gallery-tab rounded-full px-5 py-2 text-sm font-semibold transition-colors {% if not gallery_data.images_by_section %}bg-brand-orange text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
               Videos
             </button>
           {% endif %}
@@ -37,7 +37,7 @@
                 <figure class="group relative mb-4 break-inside-avoid overflow-hidden rounded-2xl cursor-pointer"
                         data-lightbox-src="{{ image.url }}" data-lightbox-caption="{{ image.caption }}">
                   <img src="{{ image.url }}" alt="{{ image.caption }}" class="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105">
-                  <div class="absolute inset-0 bg-gray-900/0 group-hover:bg-gray-900/30 transition-colors flex items-center justify-center">
+                  <div class="absolute inset-0 bg-brand-navy/0 group-hover:bg-brand-navy/30 transition-colors flex items-center justify-center">
                     <i class="ph ph-duotone ph-magnifying-glass-plus text-3xl text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>
                   </div>
                 </figure>
@@ -52,7 +52,7 @@
             {% for section, videos in gallery_data.videos_by_section.items %}
               {% if videos %}
                 <div class="mb-12 last:mb-0">
-                  <h3 class="text-xl font-bold tracking-tight text-gray-900 mb-6">{{ section }}</h3>
+                  <h3 class="text-xl font-bold tracking-tight text-brand-navy mb-6">{{ section }}</h3>
                   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {% for video in videos %}
                       <div class="bg-white rounded-2xl shadow-md overflow-hidden">
@@ -74,7 +74,7 @@
 
     <!-- Lightbox -->
     <div id="lightbox" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 p-4">
-      <button type="button" id="lightbox-close" aria-label="Close" class="absolute top-5 right-5 size-11 inline-flex items-center justify-center rounded-full bg-white/15 text-white hover:bg-amber-500"><i class="ph ph-duotone ph-x text-2xl"></i></button>
+      <button type="button" id="lightbox-close" aria-label="Close" class="absolute top-5 right-5 size-11 inline-flex items-center justify-center rounded-full bg-white/15 text-white hover:bg-brand-orange"><i class="ph ph-duotone ph-x text-2xl"></i></button>
       <figure class="max-w-5xl w-full text-center">
         <img id="lightbox-img" src="" alt="" class="max-h-[80vh] w-auto mx-auto rounded-xl">
         <figcaption id="lightbox-caption" class="mt-4 text-white/90"></figcaption>
@@ -101,7 +101,7 @@
           var id = tab.dataset.galleryTab;
           tabs.forEach(function (t) {
             var on = t === tab;
-            t.classList.toggle('bg-amber-500', on); t.classList.toggle('text-white', on);
+            t.classList.toggle('bg-brand-orange', on); t.classList.toggle('text-white', on);
             t.classList.toggle('bg-gray-100', !on); t.classList.toggle('text-gray-700', !on);
           });
           panels.forEach(function (p) { p.classList.toggle('hidden', p.dataset.galleryPanel !== id); });

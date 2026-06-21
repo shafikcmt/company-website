@@ -35,15 +35,15 @@
     <section class="py-20 px-4 bg-gray-50">
       <div class="max-w-7xl mx-auto">
         <div class="max-w-2xl mx-auto text-center">
-          <span class="text-sm font-semibold uppercase tracking-wide text-amber-600">Kind Words</span>
-          <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">{{ testimonials.title|default:"What Our Clients Say" }}</h2>
+          <span class="text-sm font-semibold uppercase tracking-wide text-brand-orange-dark">Kind Words</span>
+          <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-brand-navy">{{ testimonials.title|default:"What Our Clients Say" }}</h2>
           {% if testimonials.subtitle %}<p class="mt-4 text-gray-600">{{ testimonials.subtitle }}</p>{% endif %}
         </div>
 
         <!-- Featured large card -->
         {% if testimonials.featured %}
-          <div class="mt-12 bg-gray-900 rounded-3xl p-10 text-center">
-            <i class="ph ph-duotone ph-quotes text-5xl text-amber-500"></i>
+          <div class="mt-12 bg-brand-navy rounded-3xl p-10 text-center">
+            <i class="ph ph-duotone ph-quotes text-5xl text-brand-orange"></i>
             <p class="mt-4 text-xl md:text-2xl font-medium text-white leading-relaxed max-w-3xl mx-auto">{{ testimonials.featured.content }}</p>
             <div class="mt-6 flex items-center justify-center gap-3">
               {% if testimonials.featured.company_logo %}<img src="{{ testimonials.featured.company_logo.url }}" alt="" class="size-12 rounded-full object-cover bg-white p-1">{% endif %}
@@ -61,12 +61,12 @@
             {% for t in testimonials.testimonials %}
               {% if not t.is_featured %}
                 <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow p-7">
-                  <i class="ph ph-duotone ph-quotes text-3xl text-amber-500"></i>
+                  <i class="ph ph-duotone ph-quotes text-3xl text-brand-orange"></i>
                   <p class="mt-3 text-gray-600 leading-relaxed line-clamp-5">{{ t.content }}</p>
                   <div class="mt-5 flex items-center gap-3">
                     {% if t.company_logo %}<img src="{{ t.company_logo.url }}" alt="" class="size-10 rounded-full object-cover bg-gray-50 p-1">{% endif %}
                     <div>
-                      <div class="font-semibold text-gray-900">{{ t.author }}</div>
+                      <div class="font-semibold text-brand-navy">{{ t.author }}</div>
                       <div class="text-xs text-gray-500">{{ t.position }}</div>
                     </div>
                   </div>

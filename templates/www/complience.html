@@ -18,14 +18,14 @@
     <div class="absolute inset-0 bg-[linear-gradient(to_right,#f3f4f6_1px,transparent_1px),linear-gradient(to_bottom,#f3f4f6_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:linear-gradient(to_bottom,white,transparent)]"></div>
     <div class="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <nav class="flex items-center gap-2 text-xs font-medium text-gray-500" aria-label="Breadcrumb">
-        <a href="{% url 'home' %}" class="hover:text-amber-600">Home</a>
-        <i class="ph ph-duotone ph-caret-right text-[10px]"></i><span class="text-gray-900">Compliance</span>
+        <a href="{% url 'home' %}" class="hover:text-brand-orange-dark">Home</a>
+        <i class="ph ph-duotone ph-caret-right text-[10px]"></i><span class="text-brand-navy">Compliance</span>
       </nav>
       <div class="mt-6 max-w-3xl">
         <span class="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-700">
           <i class="ph ph-duotone ph-shield-check"></i> Compliance Documentation
         </span>
-        <h1 class="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900">Compliance &amp; Certifications</h1>
+        <h1 class="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight text-brand-navy">Compliance &amp; Certifications</h1>
         <p class="mt-4 text-lg leading-relaxed text-gray-600">
           Humana Apparels Ltd operates to internationally recognised standards for workplace safety, fair labour and ethical manufacturing — independently audited and accredited by global certifying bodies.
         </p>
@@ -34,19 +34,19 @@
   </section>
 
   <!-- ========================= STAT STRIP (derived counts only) ========================= -->
-  <section class="bg-gray-900">
+  <section class="bg-brand-navy">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <dl class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/10">
         <div class="flex flex-col items-center text-center py-8 px-4">
-          <dt class="text-4xl font-extrabold tracking-tight text-amber-400 tabular-nums">{{ complience_data.certificates|length }}</dt>
+          <dt class="text-4xl font-extrabold tracking-tight text-brand-orange tabular-nums">{{ complience_data.certificates|length }}</dt>
           <dd class="mt-1 text-sm font-medium uppercase tracking-wide text-gray-400">Active Certifications</dd>
         </div>
         <div class="flex flex-col items-center text-center py-8 px-4">
-          <dt class="text-4xl font-extrabold tracking-tight text-amber-400 tabular-nums">{{ complience_data.sections|length }}</dt>
+          <dt class="text-4xl font-extrabold tracking-tight text-brand-orange tabular-nums">{{ complience_data.sections|length }}</dt>
           <dd class="mt-1 text-sm font-medium uppercase tracking-wide text-gray-400">Standards Documented</dd>
         </div>
         <div class="flex flex-col items-center text-center py-8 px-4">
-          <dt class="text-4xl font-extrabold tracking-tight text-amber-400"><i class="ph ph-duotone ph-seal-check"></i></dt>
+          <dt class="text-4xl font-extrabold tracking-tight text-brand-orange"><i class="ph ph-duotone ph-seal-check"></i></dt>
           <dd class="mt-1 text-sm font-medium uppercase tracking-wide text-gray-400">Independently Audited</dd>
         </div>
       </dl>
@@ -58,7 +58,7 @@
     <section id="code-of-conduct" class="bg-white py-16 lg:py-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-2xl">
-          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900">Standards &amp; Code of Conduct</h2>
+          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-brand-navy">Standards &amp; Code of Conduct</h2>
           <p class="mt-3 text-gray-600">The frameworks and practices we are held accountable to, documented for review.</p>
         </div>
 
@@ -76,10 +76,10 @@
               </div>
               <div class="lg:col-span-7 {% cycle '' 'lg:order-1' %}">
                 <div class="flex items-center gap-3">
-                  <span class="inline-flex items-center justify-center size-10 rounded-lg border border-gray-200 bg-white text-amber-600 font-extrabold tabular-nums shadow-sm">{{ forloop.counter|stringformat:"02d" }}</span>
-                  <span class="text-xs font-semibold uppercase tracking-widest text-amber-600">Standard</span>
+                  <span class="inline-flex items-center justify-center size-10 rounded-lg border border-gray-200 bg-white text-brand-orange-dark font-extrabold tabular-nums shadow-sm">{{ forloop.counter|stringformat:"02d" }}</span>
+                  <span class="text-xs font-semibold uppercase tracking-widest text-brand-orange-dark">Standard</span>
                 </div>
-                <h3 class="mt-4 text-2xl font-bold tracking-tight text-gray-900">{{ section.title }}</h3>
+                <h3 class="mt-4 text-2xl font-bold tracking-tight text-brand-navy">{{ section.title }}</h3>
                 <div class="mt-3 text-gray-600 leading-relaxed prose-sm max-w-none">{{ section.description|safe }}</div>
               </div>
             </article>
@@ -95,8 +95,8 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
           <div>
-            <span class="text-xs font-semibold uppercase tracking-widest text-amber-600">Accredited &amp; Audited</span>
-            <h2 class="mt-2 text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900">Our Certifications</h2>
+            <span class="text-xs font-semibold uppercase tracking-widest text-brand-orange-dark">Accredited &amp; Audited</span>
+            <h2 class="mt-2 text-2xl md:text-3xl font-extrabold tracking-tight text-brand-navy">Our Certifications</h2>
           </div>
           <span class="inline-flex items-center gap-2 self-start rounded-full border border-gray-300 bg-white px-4 py-1.5 text-sm font-semibold text-gray-700 shadow-sm">
             <span class="size-2 rounded-full bg-emerald-500"></span>{{ complience_data.certificates|length }} Active Certification{{ complience_data.certificates|length|pluralize }}
@@ -110,7 +110,7 @@
                 <img src="{{ certificate.image }}" alt="{{ certificate.name }}" loading="lazy" class="max-h-20 w-auto object-contain transition-transform group-hover:scale-105">
               {% endif %}
               <span class="mt-3 text-center text-xs font-medium text-gray-500 line-clamp-2">{{ certificate.name }}</span>
-              <div class="pointer-events-none absolute inset-x-2 bottom-2 translate-y-1 rounded-lg bg-gray-900/90 px-3 py-2 text-center text-xs font-semibold text-white opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100">
+              <div class="pointer-events-none absolute inset-x-2 bottom-2 translate-y-1 rounded-lg bg-brand-navy/90 px-3 py-2 text-center text-xs font-semibold text-white opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100">
                 {{ certificate.name }}
               </div>
             </div>
@@ -123,9 +123,9 @@
   <!-- ========================= CTA ========================= -->
   <section class="bg-white py-16 px-4">
     <div class="max-w-4xl mx-auto rounded-2xl border border-gray-200 bg-gray-50 px-8 py-12 text-center shadow-sm">
-      <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900">Need our compliance documentation?</h2>
+      <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-brand-navy">Need our compliance documentation?</h2>
       <p class="mt-3 text-gray-600 max-w-xl mx-auto">Request audit reports, certification copies or any compliance-related details from our team.</p>
-      <a href="{% url 'contact' %}" class="mt-7 inline-flex items-center gap-2 rounded-full bg-amber-500 px-7 py-3.5 font-semibold text-white hover:bg-amber-600 transition-colors">Request Documentation<i class="ph ph-duotone ph-arrow-right"></i></a>
+      <a href="{% url 'contact' %}" class="mt-7 inline-flex items-center gap-2 rounded-full bg-brand-orange px-7 py-3.5 font-semibold text-white hover:bg-brand-orange-dark transition-colors">Request Documentation<i class="ph ph-duotone ph-arrow-right"></i></a>
     </div>
   </section>
 
