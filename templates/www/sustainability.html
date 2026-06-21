@@ -2,46 +2,74 @@
 {% load static %}
 {% block title %}Sustainability — Humana Apparels Ltd{% endblock %}
 {% block meta_description %}
-  <meta name="description" content="Sustainability at Humana Apparels Ltd — environmental commitments, responsible processes and green certifications.">
+  <meta name="description" content="Sustainability at Humana Apparels Ltd — our journey toward cleaner production, responsible sourcing and a lighter footprint.">
 {% endblock %}
+
+{# Emerald is introduced as a Sustainability-only accent (confirmed); amber #}
+{# remains the global brand color used everywhere else.                     #}
+{% block extra_css %}
+  <style>
+    /* CSS-only scroll reveal — progressively enhanced via IntersectionObserver. */
+    .sx-reveal { opacity: 0; transform: translateY(48px); transition: opacity .9s cubic-bezier(.22,1,.36,1), transform .9s cubic-bezier(.22,1,.36,1); }
+    .sx-reveal.is-visible { opacity: 1; transform: none; }
+    /* Organic blob radius for decorative CTA background shapes */
+    .sx-blob { border-radius: 62% 38% 44% 56% / 54% 46% 54% 46%; }
+    @media (prefers-reduced-motion: reduce) {
+      .sx-reveal { opacity: 1; transform: none; transition: none; }
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
 
-  <!-- ========================= PAGE HEADER ========================= -->
-  <section class="relative bg-gray-900 py-24 px-4 overflow-hidden">
+  {# ===================================================================== #}
+  {# SUSTAINABILITY = editorial impact story. Image-led, emerald-accented,  #}
+  {# large zigzag layout, generous breathing room, organic rounded shapes,  #}
+  {# per-section scroll-reveal. Certificates are a quiet secondary strip.    #}
+  {# ===================================================================== #}
+
+  <!-- ========================= HERO (full-bleed, image-led) ========================= -->
+  <section class="relative min-h-[300px] sm:min-h-[420px] flex items-end overflow-hidden bg-emerald-950">
     {% if sustainability_data.sections.0.image %}
-      <img src="{{ sustainability_data.sections.0.image }}" alt="Sustainability" class="absolute inset-0 w-full h-full object-cover opacity-30">
+      <img src="{{ sustainability_data.sections.0.image }}" alt="Sustainability at Humana Apparels" class="absolute inset-0 w-full h-full object-cover">
     {% endif %}
-    <div class="relative max-w-7xl mx-auto">
-      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white">Sustainability</h1>
-      <nav class="mt-3 flex items-center gap-2 text-sm text-gray-300" aria-label="Breadcrumb">
-        <a href="{% url 'home' %}" class="hover:text-amber-400">Home</a>
-        <i class="ph ph-duotone ph-caret-right text-xs"></i><span class="text-amber-400">Sustainability</span>
-      </nav>
+    <div class="absolute inset-0 bg-gradient-to-t from-emerald-950 via-emerald-950/70 to-emerald-900/30"></div>
+    <div class="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 lg:pb-14">
+      <span class="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 backdrop-blur px-4 py-1.5 text-sm font-semibold text-emerald-100 ring-1 ring-emerald-400/30">
+        <i class="ph ph-duotone ph-leaf"></i> Our Sustainability Journey
+      </span>
+      <h1 class="mt-6 max-w-4xl text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.05]">
+        Manufacturing with the planet in mind.
+      </h1>
+      <p class="mt-6 max-w-2xl text-lg lg:text-xl leading-relaxed text-emerald-50/90">
+        From cleaner production to responsible sourcing, every step we take is a commitment to lighter footprints and brighter communities.
+      </p>
     </div>
   </section>
 
-  <!-- ========================= INTRO ========================= -->
-  <section class="py-14 px-4 bg-white">
-    <div class="max-w-3xl mx-auto text-center">
-      <span class="inline-flex items-center justify-center size-14 rounded-xl bg-amber-50 text-amber-600"><i class="ph ph-duotone ph-leaf text-2xl"></i></span>
-      <h2 class="mt-5 text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900">Manufacturing with the Planet in Mind</h2>
-      <p class="mt-4 text-gray-600 leading-relaxed">From responsible resource use to cleaner production and ethical sourcing, Humana Apparels Ltd is committed to reducing its footprint while delivering quality apparel.</p>
-    </div>
-  </section>
-
-  <!-- ========================= SECTIONS (alternating) ========================= -->
+  <!-- ========================= ZIGZAG EDITORIAL SECTIONS ========================= -->
   {% if sustainability_data.sections %}
-    <div>
+    <div class="bg-white overflow-hidden">
       {% for section in sustainability_data.sections %}
-        <section class="py-16 px-4 {% cycle 'bg-gray-50' 'bg-white' %}">
-          <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+        <section class="sx-reveal py-20 lg:py-28">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            <!-- Image -->
             <div class="{% cycle '' 'lg:order-2' %}">
-              <span class="text-sm font-semibold uppercase tracking-wide text-amber-600">Our Commitment</span>
-              <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">{{ section.title }}</h2>
-              <div class="mt-4 text-gray-600 leading-relaxed">{{ section.description|safe }}</div>
+              <div class="relative w-full max-w-md mx-auto">
+                <div class="absolute -inset-4 rounded-3xl bg-emerald-100/70 -z-0"></div>
+                {% if section.image %}
+                  <img src="{{ section.image }}" alt="{{ section.title }}" loading="lazy"
+                       class="relative z-10 w-full aspect-square object-cover rounded-3xl ring-1 ring-emerald-200/60 shadow-xl">
+                {% endif %}
+              </div>
             </div>
+            <!-- Text -->
             <div class="{% cycle '' 'lg:order-1' %}">
-              {% if section.image %}<img src="{{ section.image }}" alt="{{ section.title }}" class="w-full aspect-[4/3] object-cover rounded-2xl shadow-md">{% endif %}
+              <span class="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-emerald-600">
+                <span class="h-px w-8 bg-emerald-500"></span>Chapter {{ forloop.counter|stringformat:"02d" }}
+              </span>
+              <h2 class="mt-5 text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-gray-900 leading-tight">{{ section.title }}</h2>
+              <div class="mt-6 text-lg text-gray-600 leading-relaxed max-w-xl">{{ section.description|safe }}</div>
             </div>
           </div>
         </section>
@@ -49,19 +77,20 @@
     </div>
   {% endif %}
 
-  <!-- ========================= CERTIFICATES ========================= -->
+  <!-- ========================= "RECOGNIZED BY" (understated strip) ========================= -->
   {% if sustainability_data.certificates %}
-    <section id="certifications" class="py-20 px-4 bg-gray-50 scroll-mt-24">
-      <div class="max-w-7xl mx-auto">
-        <div class="max-w-2xl mx-auto text-center mb-12">
-          <span class="text-sm font-semibold uppercase tracking-wide text-amber-600">Accredited &amp; Audited</span>
-          <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">Our Certifications</h2>
-        </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+    <section class="bg-emerald-50/60 border-t border-emerald-100 py-14">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <span class="text-sm font-semibold uppercase tracking-widest text-emerald-700">Recognized By</span>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-x-10 gap-y-8">
           {% for certificate in sustainability_data.certificates %}
-            <div class="flex flex-col items-center justify-center gap-3 bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow p-6">
-              {% if certificate.image %}<img src="{{ certificate.image }}" alt="{{ certificate.name }}" class="h-24 object-contain">{% endif %}
-              <span class="text-sm font-medium text-gray-600 text-center">{{ certificate.name }}</span>
+            <div class="group flex items-center" title="{{ certificate.name }}">
+              {% if certificate.image %}
+                <img src="{{ certificate.image }}" alt="{{ certificate.name }}" loading="lazy"
+                     class="h-20 sm:h-24 w-auto object-contain opacity-60 grayscale transition-all duration-300 group-hover:opacity-100 group-hover:grayscale-0">
+              {% else %}
+                <span class="text-sm font-medium text-emerald-800/70">{{ certificate.name }}</span>
+              {% endif %}
             </div>
           {% endfor %}
         </div>
@@ -70,10 +99,36 @@
   {% endif %}
 
   <!-- ========================= CTA ========================= -->
-  <section class="py-16 px-4 bg-gray-900 text-center">
-    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white">Partner with a responsible manufacturer</h2>
-    <p class="mt-3 text-gray-300 max-w-xl mx-auto">Talk to us about our sustainability practices, certifications and green initiatives.</p>
-    <a href="{% url 'contact' %}" class="mt-8 inline-flex items-center gap-2 rounded-full bg-amber-500 px-7 py-3.5 font-semibold text-white hover:bg-amber-600 transition-colors">Contact Us<i class="ph ph-duotone ph-arrow-right"></i></a>
+  <section class="relative bg-emerald-900 py-20 px-4 text-center overflow-hidden">
+    <div class="absolute -top-24 -right-24 size-72 sx-blob bg-emerald-700/40"></div>
+    <div class="absolute -bottom-24 -left-24 size-72 sx-blob bg-emerald-700/30"></div>
+    <div class="relative max-w-2xl mx-auto">
+      <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white">Let's build a greener supply chain.</h2>
+      <p class="mt-4 text-lg text-emerald-50/90">Partner with a manufacturer that treats sustainability as a journey, not a checkbox.</p>
+      <a href="{% url 'contact' %}" class="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 font-semibold text-emerald-800 hover:bg-emerald-50 transition-colors">Start the Conversation<i class="ph ph-duotone ph-arrow-right"></i></a>
+    </div>
   </section>
 
 {% endblock content %}
+
+{% block extra_js %}
+  <script>
+    // Scroll-reveal for zigzag chapters — vanilla IntersectionObserver, no deps.
+    (function () {
+      var els = document.querySelectorAll('.sx-reveal');
+      if (!('IntersectionObserver' in window) || !els.length) {
+        els.forEach(function (el) { el.classList.add('is-visible'); });
+        return;
+      }
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -10% 0px' });
+      els.forEach(function (el) { io.observe(el); });
+    })();
+  </script>
+{% endblock %}
