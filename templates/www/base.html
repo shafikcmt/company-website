@@ -51,41 +51,47 @@
     <!-- ============================ NAVBAR ============================ -->
     {% with current=request.resolver_match.url_name %}
       <header id="site-header"
-              class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur border-b border-gray-100 transition-shadow duration-300">
+              class="sticky top-0 z-50 w-full bg-brand-navy/95 backdrop-blur border-b border-white/10 transition-shadow duration-300">
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex items-center justify-between h-20">
             <!-- Logo (dynamic: admin logo → else site name text) -->
+            {% comment %}
+              TODO(white-logo): the navbar is navy now, so it needs the WHITE
+              version of the logo. When the asset is ready, swap the <img> src
+              below to it — e.g. src="{% static 'images/logo-white.png' %}" —
+              replacing the admin {{ site.site_logo.url }} reference.
+            {% endcomment %}
             <a href="{% url 'home' %}" class="flex items-center gap-2 shrink-0" aria-label="{{ site.site_name|default:'Humana Apparels Ltd' }}">
               {% if site.site_logo %}
                 <img src="{{ site.site_logo.url }}" alt="{{ site.site_name|default:'Humana Apparels Ltd' }}" class="h-10 w-auto">
               {% else %}
-                <span class="text-xl font-extrabold tracking-tight text-brand-navy">{{ site.site_name|default:"Humana Apparels" }}</span>
+                <span class="text-xl font-extrabold tracking-tight text-white">{{ site.site_name|default:"Humana Apparels" }}</span>
               {% endif %}
             </a>
 
             <!-- Desktop nav (each link toggled by NavbarSettings; all shown if no settings row) -->
             <div class="hidden lg:flex items-center gap-1">
-              {% if not navbar or navbar.show_home %}<a href="{% url 'home' %}"           class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'home' %}text-brand-navy underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-brand-navy hover:text-brand-orange-dark{% endif %}">Home</a>{% endif %}
-              {% if not navbar or navbar.show_about %}<a href="{% url 'about' %}"          class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'about' %}text-brand-navy underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-brand-navy hover:text-brand-orange-dark{% endif %}">About</a>{% endif %}
-              {% if not navbar or navbar.show_products %}<a href="{% url 'products' %}"    class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'products' %}text-brand-navy underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-brand-navy hover:text-brand-orange-dark{% endif %}">Products</a>{% endif %}
-              {% if not navbar or navbar.show_customers %}<a href="{% url 'customers' %}"  class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'customers' %}text-brand-navy underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-brand-navy hover:text-brand-orange-dark{% endif %}">Customers</a>{% endif %}
-              {% if not navbar or navbar.show_compliance %}<a href="{% url 'complience' %}" class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'complience' %}text-brand-navy underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-brand-navy hover:text-brand-orange-dark{% endif %}">Compliance</a>{% endif %}
-              {% if not navbar or navbar.show_sustainability %}<a href="{% url 'sustainability' %}" class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'sustainability' %}text-brand-navy underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-brand-navy hover:text-brand-orange-dark{% endif %}">Sustainability</a>{% endif %}
-              {% if not navbar or navbar.show_gallery %}<a href="{% url 'gallery' %}"      class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'gallery' %}text-brand-navy underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-brand-navy hover:text-brand-orange-dark{% endif %}">Gallery</a>{% endif %}
-              {% if not navbar or navbar.show_activities %}<a href="{% url 'activities' %}"  class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'activities' %}text-brand-navy underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-brand-navy hover:text-brand-orange-dark{% endif %}">Activities</a>{% endif %}
-              {% if not navbar or navbar.show_career %}<a href="{% url 'career' %}"        class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'career' %}text-brand-navy underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-brand-navy hover:text-brand-orange-dark{% endif %}">Career</a>{% endif %}
+              {% if not navbar or navbar.show_home %}<a href="{% url 'home' %}"           class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'home' %}text-white underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-slate-100 hover:text-white{% endif %}">Home</a>{% endif %}
+              {% if not navbar or navbar.show_about %}<a href="{% url 'about' %}"          class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'about' %}text-white underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-slate-100 hover:text-white{% endif %}">About</a>{% endif %}
+              {% if not navbar or navbar.show_products %}<a href="{% url 'products' %}"    class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'products' %}text-white underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-slate-100 hover:text-white{% endif %}">Products</a>{% endif %}
+              {% if not navbar or navbar.show_customers %}<a href="{% url 'customers' %}"  class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'customers' %}text-white underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-slate-100 hover:text-white{% endif %}">Customers</a>{% endif %}
+              {% if not navbar or navbar.show_compliance %}<a href="{% url 'complience' %}" class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'complience' %}text-white underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-slate-100 hover:text-white{% endif %}">Compliance</a>{% endif %}
+              {% if not navbar or navbar.show_sustainability %}<a href="{% url 'sustainability' %}" class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'sustainability' %}text-white underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-slate-100 hover:text-white{% endif %}">Sustainability</a>{% endif %}
+              {% if not navbar or navbar.show_gallery %}<a href="{% url 'gallery' %}"      class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'gallery' %}text-white underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-slate-100 hover:text-white{% endif %}">Gallery</a>{% endif %}
+              {% if not navbar or navbar.show_activities %}<a href="{% url 'activities' %}"  class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'activities' %}text-white underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-slate-100 hover:text-white{% endif %}">Activities</a>{% endif %}
+              {% if not navbar or navbar.show_career %}<a href="{% url 'career' %}"        class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if current == 'career' %}text-white underline decoration-2 decoration-brand-orange underline-offset-8{% else %}text-slate-100 hover:text-white{% endif %}">Career</a>{% endif %}
             </div>
 
             <!-- CTA + hamburger -->
             <div class="flex items-center gap-3">
               {% if not navbar or navbar.show_contact %}
                 <a href="{% url 'contact' %}"
-                   class="hidden sm:inline-flex items-center rounded-full bg-brand-orange px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-orange-dark transition-colors">
+                   class="hidden sm:inline-flex items-center whitespace-nowrap rounded-full bg-brand-orange px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-orange-dark transition-colors">
                   Get in Touch
                 </a>
               {% endif %}
               <button type="button" id="mobile-menu-btn" aria-label="Toggle menu"
-                      class="lg:hidden inline-flex items-center justify-center size-10 rounded-lg text-gray-700 hover:bg-gray-100">
+                      class="lg:hidden inline-flex items-center justify-center size-10 rounded-lg text-white hover:bg-white/10">
                 <i class="ph ph-duotone ph-list text-2xl" id="menu-open-icon"></i>
                 <i class="ph ph-duotone ph-x text-2xl hidden" id="menu-close-icon"></i>
               </button>
@@ -94,18 +100,18 @@
         </nav>
 
         <!-- Mobile menu -->
-        <div id="mobile-menu" class="hidden lg:hidden border-t border-gray-100 bg-white">
+        <div id="mobile-menu" class="hidden lg:hidden border-t border-white/10 bg-brand-navy">
           <div class="px-4 py-4 space-y-1">
-            {% if not navbar or navbar.show_home %}<a href="{% url 'home' %}"           class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'home' %}bg-amber-50 text-brand-navy{% else %}text-brand-navy hover:bg-gray-50{% endif %}">Home</a>{% endif %}
-            {% if not navbar or navbar.show_about %}<a href="{% url 'about' %}"          class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'about' %}bg-amber-50 text-brand-navy{% else %}text-brand-navy hover:bg-gray-50{% endif %}">About</a>{% endif %}
-            {% if not navbar or navbar.show_products %}<a href="{% url 'products' %}"    class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'products' %}bg-amber-50 text-brand-navy{% else %}text-brand-navy hover:bg-gray-50{% endif %}">Products</a>{% endif %}
-            {% if not navbar or navbar.show_customers %}<a href="{% url 'customers' %}"  class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'customers' %}bg-amber-50 text-brand-navy{% else %}text-brand-navy hover:bg-gray-50{% endif %}">Customers</a>{% endif %}
-            {% if not navbar or navbar.show_compliance %}<a href="{% url 'complience' %}" class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'complience' %}bg-amber-50 text-brand-navy{% else %}text-brand-navy hover:bg-gray-50{% endif %}">Compliance</a>{% endif %}
-            {% if not navbar or navbar.show_sustainability %}<a href="{% url 'sustainability' %}" class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'sustainability' %}bg-amber-50 text-brand-navy{% else %}text-brand-navy hover:bg-gray-50{% endif %}">Sustainability</a>{% endif %}
-            {% if not navbar or navbar.show_gallery %}<a href="{% url 'gallery' %}"      class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'gallery' %}bg-amber-50 text-brand-navy{% else %}text-brand-navy hover:bg-gray-50{% endif %}">Gallery</a>{% endif %}
-            {% if not navbar or navbar.show_activities %}<a href="{% url 'activities' %}"  class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'activities' %}bg-amber-50 text-brand-navy{% else %}text-brand-navy hover:bg-gray-50{% endif %}">Activities</a>{% endif %}
-            {% if not navbar or navbar.show_career %}<a href="{% url 'career' %}"        class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'career' %}bg-amber-50 text-brand-navy{% else %}text-brand-navy hover:bg-gray-50{% endif %}">Career</a>{% endif %}
-            {% if not navbar or navbar.show_contact %}<a href="{% url 'contact' %}"      class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'contact' %}bg-amber-50 text-brand-navy{% else %}text-brand-navy hover:bg-gray-50{% endif %}">Contact</a>{% endif %}
+            {% if not navbar or navbar.show_home %}<a href="{% url 'home' %}"           class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'home' %}bg-white/10 text-brand-orange{% else %}text-slate-100 hover:bg-white/10{% endif %}">Home</a>{% endif %}
+            {% if not navbar or navbar.show_about %}<a href="{% url 'about' %}"          class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'about' %}bg-white/10 text-brand-orange{% else %}text-slate-100 hover:bg-white/10{% endif %}">About</a>{% endif %}
+            {% if not navbar or navbar.show_products %}<a href="{% url 'products' %}"    class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'products' %}bg-white/10 text-brand-orange{% else %}text-slate-100 hover:bg-white/10{% endif %}">Products</a>{% endif %}
+            {% if not navbar or navbar.show_customers %}<a href="{% url 'customers' %}"  class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'customers' %}bg-white/10 text-brand-orange{% else %}text-slate-100 hover:bg-white/10{% endif %}">Customers</a>{% endif %}
+            {% if not navbar or navbar.show_compliance %}<a href="{% url 'complience' %}" class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'complience' %}bg-white/10 text-brand-orange{% else %}text-slate-100 hover:bg-white/10{% endif %}">Compliance</a>{% endif %}
+            {% if not navbar or navbar.show_sustainability %}<a href="{% url 'sustainability' %}" class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'sustainability' %}bg-white/10 text-brand-orange{% else %}text-slate-100 hover:bg-white/10{% endif %}">Sustainability</a>{% endif %}
+            {% if not navbar or navbar.show_gallery %}<a href="{% url 'gallery' %}"      class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'gallery' %}bg-white/10 text-brand-orange{% else %}text-slate-100 hover:bg-white/10{% endif %}">Gallery</a>{% endif %}
+            {% if not navbar or navbar.show_activities %}<a href="{% url 'activities' %}"  class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'activities' %}bg-white/10 text-brand-orange{% else %}text-slate-100 hover:bg-white/10{% endif %}">Activities</a>{% endif %}
+            {% if not navbar or navbar.show_career %}<a href="{% url 'career' %}"        class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'career' %}bg-white/10 text-brand-orange{% else %}text-slate-100 hover:bg-white/10{% endif %}">Career</a>{% endif %}
+            {% if not navbar or navbar.show_contact %}<a href="{% url 'contact' %}"      class="block px-3 py-2.5 rounded-lg text-base font-medium {% if current == 'contact' %}bg-white/10 text-brand-orange{% else %}text-slate-100 hover:bg-white/10{% endif %}">Contact</a>{% endif %}
           </div>
         </div>
       </header>

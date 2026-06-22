@@ -45,6 +45,7 @@ from hapl.models import (
     CompliancePage,
     ComplianceSection,
     ComplianceCertificate,
+    AuditStatus,
     SustainabilityPage,
     SustainabilitySection,
     SustainabilityCertificate,
@@ -487,7 +488,11 @@ def products(request):
 def complience(request):
     compliance_page = CompliancePage.objects.first()
 
-    complience_data = {"sections": [], "certificates": []}
+    complience_data = {
+        "sections": [],
+        "certificates": [],
+        "audits": AuditStatus.objects.filter(page=compliance_page).order_by("sl_no"),
+    }
 
     # Add sections
     for section in ComplianceSection.objects.filter(page=compliance_page):

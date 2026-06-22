@@ -768,3 +768,49 @@ class GalleryVideo(BaseModel):
 
     def __str__(self):
         return self.caption
+
+
+# --- Compliance Audit Status ---
+class AuditStatus(BaseModel):
+    """Individual audit/certification record for compliance page"""
+
+    page = models.ForeignKey(
+        CompliancePage, related_name="audits", on_delete=models.CASCADE
+    )
+    sl_no = models.PositiveIntegerField(help_text="Display order number")
+    name = models.CharField(max_length=200, help_text="Certificate/Audit name")
+    certificate_number = models.CharField(max_length=200, blank=True, null=True)
+    audit_date = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="e.g. 31/10/2023 or 18 & 19 Jun 2025",
+    )
+    expiry_date = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="e.g. 21/10/2027 or Running or Initial",
+    )
+    status = models.CharField(
+        max_length=50,
+        choices=(
+            ("Done", "Done"),
+            ("Running", "Running"),
+            ("Applied", "Applied"),
+            ("Initial Done", "Initial Done"),
+        ),
+        default="Done",
+    )
+    result = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="e.g. Certified, GOLD, Verified, B",
+    )
+
+    class Meta:
+        ordering = ["sl_no"]
+
+    def __str__(self):
+        return f"{self.sl_no}. {self.name}"

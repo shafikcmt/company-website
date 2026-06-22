@@ -2,6 +2,7 @@ import random
 import logging
 from datetime import date
 from django.db import transaction
+from hapl.models import AuditStatus
 from seeder.content_factories import (
     HomeHeroSectionFactory,
     HomeIntroductionSectionFactory,
@@ -86,6 +87,38 @@ SAMPLE_ACTIVITIES = [
         "activity_date": date(2026, 4, 21),
     },
 ]
+
+
+# Real audit/certification records from the company's official Audit Status sheet.
+AUDIT_RECORDS = [
+    {"sl_no": 1, "name": "BSCI", "certificate_number": "23-0222757", "audit_date": "31/10/2023", "expiry_date": "21/10/2027", "status": "Done", "result": "B"},
+    {"sl_no": 2, "name": "WRAP", "certificate_number": "130277", "audit_date": "18 & 19 Jun 2025", "expiry_date": "18/07/2026", "status": "Done", "result": "GOLD"},
+    {"sl_no": 3, "name": "BETTER WORK", "certificate_number": "3501", "audit_date": "22/06/2025", "expiry_date": "Running", "status": "Running", "result": "2nd Assessment"},
+    {"sl_no": 4, "name": "C-TPAT", "certificate_number": "C-TPAT/25003", "audit_date": "28/01/2025", "expiry_date": "28/01/2026", "status": "Done", "result": "Certified"},
+    {"sl_no": 5, "name": "GSV", "certificate_number": "A5202027", "audit_date": "27/11/2024", "expiry_date": "17/12/2026", "status": "Done", "result": "Certified"},
+    {"sl_no": 6, "name": "RSC (Structural, Electrical & Fire)", "certificate_number": "26255", "audit_date": "25/06/2025", "expiry_date": "Initial", "status": "Running", "result": "Done"},
+    {"sl_no": 7, "name": "GOTS", "certificate_number": "24-706234", "audit_date": "19/11/2024", "expiry_date": "27/11/2026", "status": "Done", "result": "Certified"},
+    {"sl_no": 8, "name": "RDS", "certificate_number": "24-706231", "audit_date": "19/11/2024", "expiry_date": "27/11/2026", "status": "Done", "result": "Certified"},
+    {"sl_no": 9, "name": "OCS", "certificate_number": "24-675249", "audit_date": "30/09/2025", "expiry_date": "29/09/2026", "status": "Done", "result": "Certified"},
+    {"sl_no": 10, "name": "RCS", "certificate_number": "24-675261", "audit_date": "30/09/2025", "expiry_date": "29/09/2026", "status": "Done", "result": "Certified"},
+    {"sl_no": 11, "name": "GRS", "certificate_number": "25-753792", "audit_date": "06/02/2026", "expiry_date": "06/02/2027", "status": "Done", "result": "Certified"},
+    {"sl_no": 12, "name": "Regenagri – Control Union", "certificate_number": "CU1423220REGENAGRI-2025-00066693", "audit_date": "24/06/2025", "expiry_date": "23/06/2026", "status": "Done", "result": "Certified"},
+    {"sl_no": 13, "name": "Oekotex Standard 100", "certificate_number": "24.HBD.11684", "audit_date": "30/12/2024", "expiry_date": "30/12/2025", "status": "Applied", "result": "Certified"},
+    {"sl_no": 14, "name": "Higg FEM 4.0", "certificate_number": "174627", "audit_date": "07/07/2025", "expiry_date": "31/07/2026", "status": "Done", "result": "Verified"},
+    {"sl_no": 15, "name": "ISO 9001:2015 QMS", "certificate_number": "ISO/26010036", "audit_date": "29/04/2026", "expiry_date": "26/04/2029", "status": "Initial Done", "result": "Certified"},
+    {"sl_no": 16, "name": "USCTP", "certificate_number": "W6E3GKHR", "audit_date": "01/11/2025", "expiry_date": "31/10/2026", "status": "Applied", "result": "Membership"},
+    {"sl_no": 17, "name": "Hugo Boss Social Compliance", "certificate_number": "O-F 26/011 O&J", "audit_date": "29 & 30 Apr 2026", "expiry_date": "29 Apr 2027", "status": "Done", "result": "Satisfied"},
+    {"sl_no": 18, "name": "SLCP (Betterwork)", "certificate_number": None, "audit_date": None, "expiry_date": None, "status": "Done", "result": "Not Verified"},
+    {"sl_no": 19, "name": "Hugo Boss Environmental Audit (Eurofins)", "certificate_number": None, "audit_date": None, "expiry_date": None, "status": "Done", "result": "Verified"},
+    {"sl_no": 20, "name": "Macy's COC Audit (LRQA)", "certificate_number": "314245", "audit_date": None, "expiry_date": None, "status": "Done", "result": "Completed"},
+]
+
+
+def seed_audits(compliance_page):
+    """Pre-populate the 20 real audit/certification records for the compliance page."""
+    for record in AUDIT_RECORDS:
+        AuditStatus.objects.create(page=compliance_page, **record)
+    logger.info("   ↳ Seeded %d audit status records.", len(AUDIT_RECORDS))
 
 
 class Seeder:
@@ -366,6 +399,7 @@ class ComplianceSeeder(Seeder):
         # Then clean content models
         ComplianceSectionFactory._meta.model.objects.all().delete()
         ComplianceCertificateFactory._meta.model.objects.all().delete()
+        AuditStatus.objects.all().delete()
 
         logger.info("🧹 Compliance data cleaned.")
 
@@ -383,6 +417,9 @@ class ComplianceSeeder(Seeder):
 
         # Create certificates
         ComplianceCertificateFactory.create_batch(7, page=compliance_page)
+
+        # Pre-populate the real audit status records
+        seed_audits(compliance_page)
 
         logger.info("✅ Compliance data seeded.")
 

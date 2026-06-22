@@ -48,6 +48,7 @@ from hapl.models import (
     CompliancePage,
     ComplianceSection,
     ComplianceCertificate,
+    AuditStatus,
     SustainabilityPage,
     SustainabilitySection,
     SustainabilityCertificate,
@@ -769,9 +770,25 @@ class ComplianceCertificateInline(BaseInline):
     extra = 1
 
 
+class AuditStatusInline(TabularInline):
+    model = AuditStatus
+    extra = 1
+    fields = (
+        "sl_no",
+        "name",
+        "certificate_number",
+        "audit_date",
+        "expiry_date",
+        "status",
+        "result",
+    )
+    exclude = ("created_at", "updated_at", "created_by", "updated_by")
+    ordering = ("sl_no",)
+
+
 @admin.register(CompliancePage)
 class CompliancePageAdmin(BaseSectionAdmin):
-    inlines = [ComplianceSectionInline, ComplianceCertificateInline]
+    inlines = [AuditStatusInline, ComplianceSectionInline, ComplianceCertificateInline]
 
     def has_add_permission(self, request):
         return True if request.user.is_superuser else False
@@ -791,6 +808,23 @@ class ComplianceSectionAdmin(BaseModelAdmin):
 class ComplianceCertificateAdmin(BaseModelAdmin):
     list_display = ("name", "page")
     list_filter = ("page",)
+
+
+@admin.register(AuditStatus)
+class AuditStatusAdmin(BaseModelAdmin):
+    list_display = (
+        "sl_no",
+        "name",
+        "certificate_number",
+        "audit_date",
+        "expiry_date",
+        "status",
+        "result",
+        "page",
+    )
+    list_filter = ("status", "result", "page")
+    search_fields = ("name", "certificate_number", "result")
+    ordering = ("sl_no",)
 
 
 # --- Sustainability Page Sections ---

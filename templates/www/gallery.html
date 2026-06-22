@@ -32,17 +32,24 @@
         <!-- Image panels -->
         {% for section, images in gallery_data.images_by_section.items %}
           <div class="gallery-panel {% if not forloop.first %}hidden{% endif %}" data-gallery-panel="img-{{ forloop.counter0 }}">
-            <div class="columns-2 md:columns-3 lg:columns-4 gap-4">
-              {% for image in images %}
-                <figure class="group relative mb-4 break-inside-avoid overflow-hidden rounded-2xl cursor-pointer"
-                        data-lightbox-src="{{ image.url }}" data-lightbox-caption="{{ image.caption }}">
-                  <img src="{{ image.url }}" alt="{{ image.caption }}" class="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105">
-                  <div class="absolute inset-0 bg-brand-navy/0 group-hover:bg-brand-navy/30 transition-colors flex items-center justify-center">
-                    <i class="ph ph-duotone ph-magnifying-glass-plus text-3xl text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                  </div>
-                </figure>
-              {% endfor %}
-            </div>
+            {% if images %}
+              <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {% for image in images %}
+                  <figure class="group relative h-48 md:h-56 lg:h-60 overflow-hidden rounded-xl shadow-md cursor-pointer"
+                          data-lightbox-src="{{ image.url }}" data-lightbox-caption="{{ image.caption }}">
+                    <img src="{{ image.url }}" alt="{{ image.caption }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-brand-navy/0 group-hover:bg-brand-navy/30 transition-colors flex items-center justify-center">
+                      <i class="ph ph-duotone ph-magnifying-glass-plus text-3xl text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                    </div>
+                  </figure>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="text-center py-16">
+                <i class="ph ph-duotone ph-image-square text-6xl text-gray-300"></i>
+                <p class="mt-4 text-gray-500">No images in this section yet.</p>
+              </div>
+            {% endif %}
           </div>
         {% endfor %}
 
@@ -76,7 +83,7 @@
     <div id="lightbox" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 p-4">
       <button type="button" id="lightbox-close" aria-label="Close" class="absolute top-5 right-5 size-11 inline-flex items-center justify-center rounded-full bg-white/15 text-white hover:bg-brand-orange"><i class="ph ph-duotone ph-x text-2xl"></i></button>
       <figure class="max-w-5xl w-full text-center">
-        <img id="lightbox-img" src="" alt="" class="max-h-[80vh] w-auto mx-auto rounded-xl">
+        <img id="lightbox-img" src="" alt="" class="max-h-[80vh] w-auto max-w-full mx-auto object-contain rounded-xl">
         <figcaption id="lightbox-caption" class="mt-4 text-white/90"></figcaption>
       </figure>
     </div>
