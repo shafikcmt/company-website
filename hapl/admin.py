@@ -48,6 +48,10 @@ from hapl.models import (
     CompliancePage,
     ComplianceSection,
     ComplianceCertificate,
+    ComplianceCompanyInfo,
+    CompanyInfoStat,
+    CompanyBuyer,
+    ProductionStep,
     AuditStatus,
     SustainabilityPage,
     SustainabilitySection,
@@ -768,6 +772,41 @@ class ComplianceSectionInline(BaseInline):
 class ComplianceCertificateInline(BaseInline):
     model = ComplianceCertificate
     extra = 1
+    fields = ("name", "image", "website_url", "is_active", "order")
+    ordering = ("order", "id")
+
+
+class ComplianceCompanyInfoInline(BaseInline):
+    model = ComplianceCompanyInfo
+    extra = 0
+    max_num = 1
+    can_delete = False
+    fields = ("eyebrow", "title", "description")
+    formfield_overrides = {models.TextField: {"widget": WysiwygWidget}}
+
+
+class CompanyInfoStatInline(TabularInline):
+    model = CompanyInfoStat
+    extra = 1
+    fields = ("order", "icon", "label", "value", "subtext")
+    exclude = ("created_at", "updated_at", "created_by", "updated_by")
+    ordering = ("order", "id")
+
+
+class CompanyBuyerInline(TabularInline):
+    model = CompanyBuyer
+    extra = 1
+    fields = ("order", "name", "percentage")
+    exclude = ("created_at", "updated_at", "created_by", "updated_by")
+    ordering = ("order", "id")
+
+
+class ProductionStepInline(TabularInline):
+    model = ProductionStep
+    extra = 1
+    fields = ("order", "name", "note")
+    exclude = ("created_at", "updated_at", "created_by", "updated_by")
+    ordering = ("order", "id")
 
 
 class AuditStatusInline(TabularInline):
@@ -788,7 +827,15 @@ class AuditStatusInline(TabularInline):
 
 @admin.register(CompliancePage)
 class CompliancePageAdmin(BaseSectionAdmin):
-    inlines = [AuditStatusInline, ComplianceSectionInline, ComplianceCertificateInline]
+    inlines = [
+        ComplianceCompanyInfoInline,
+        CompanyInfoStatInline,
+        CompanyBuyerInline,
+        ProductionStepInline,
+        AuditStatusInline,
+        ComplianceSectionInline,
+        ComplianceCertificateInline,
+    ]
 
     def has_add_permission(self, request):
         return True if request.user.is_superuser else False
@@ -806,8 +853,11 @@ class ComplianceSectionAdmin(BaseModelAdmin):
 
 @admin.register(ComplianceCertificate)
 class ComplianceCertificateAdmin(BaseModelAdmin):
-    list_display = ("name", "page")
-    list_filter = ("page",)
+    list_display = ("name", "page", "is_active", "order", "website_url")
+    list_filter = ("page", "is_active")
+    list_editable = ("is_active", "order")
+    search_fields = ("name",)
+    ordering = ("order", "id")
 
 
 @admin.register(AuditStatus)

@@ -2,7 +2,13 @@ import random
 import logging
 from datetime import date
 from django.db import transaction
-from hapl.models import AuditStatus
+from hapl.models import (
+    AuditStatus,
+    ComplianceCompanyInfo,
+    CompanyInfoStat,
+    CompanyBuyer,
+    ProductionStep,
+)
 from seeder.content_factories import (
     HomeHeroSectionFactory,
     HomeIntroductionSectionFactory,
@@ -119,6 +125,44 @@ def seed_audits(compliance_page):
     for record in AUDIT_RECORDS:
         AuditStatus.objects.create(page=compliance_page, **record)
     logger.info("   ↳ Seeded %d audit status records.", len(AUDIT_RECORDS))
+
+
+# Real company-information content shown in the "Company Information" section.
+COMPANY_STATS = [
+    {"icon": "ph-calendar-blank", "label": "Established", "value": "1986"},
+    {"icon": "ph-ruler", "label": "Area", "value": "219,219 sq ft", "subtext": "13,577 sq m"},
+    {"icon": "ph-users-three", "label": "Manpower", "value": "2,400"},
+    {"icon": "ph-package", "label": "Capacity", "value": "150,000", "subtext": "Pcs / Month"},
+    {"icon": "ph-clock-countdown", "label": "Shifts", "value": "3"},
+    {"icon": "ph-rows", "label": "Total Lines", "value": "28"},
+]
+COMPANY_BUYERS = [
+    {"name": "Hugo Boss", "percentage": "60%"},
+    {"name": "Marco Polo", "percentage": "15%"},
+    {"name": "Macy's", "percentage": "15%"},
+    {"name": "Antailor", "percentage": "5%"},
+    {"name": "Others", "percentage": "5%"},
+]
+COMPANY_STEPS = [
+    {"name": "Cutting"},
+    {"name": "Sewing", "note": "(Quilting, Downfilling)"},
+    {"name": "Finishing"},
+    {"name": "Packing"},
+]
+
+
+def seed_company_info(compliance_page):
+    """Pre-populate the admin-managed Company Information section."""
+    ComplianceCompanyInfo.objects.create(
+        page=compliance_page, eyebrow="At a Glance", title="Company Information"
+    )
+    for order, stat in enumerate(COMPANY_STATS):
+        CompanyInfoStat.objects.create(page=compliance_page, order=order, **stat)
+    for order, buyer in enumerate(COMPANY_BUYERS):
+        CompanyBuyer.objects.create(page=compliance_page, order=order, **buyer)
+    for order, step in enumerate(COMPANY_STEPS):
+        ProductionStep.objects.create(page=compliance_page, order=order, **step)
+    logger.info("   ↳ Seeded company information section.")
 
 
 class Seeder:
@@ -400,6 +444,10 @@ class ComplianceSeeder(Seeder):
         ComplianceSectionFactory._meta.model.objects.all().delete()
         ComplianceCertificateFactory._meta.model.objects.all().delete()
         AuditStatus.objects.all().delete()
+        ComplianceCompanyInfo.objects.all().delete()
+        CompanyInfoStat.objects.all().delete()
+        CompanyBuyer.objects.all().delete()
+        ProductionStep.objects.all().delete()
 
         logger.info("🧹 Compliance data cleaned.")
 
@@ -420,6 +468,9 @@ class ComplianceSeeder(Seeder):
 
         # Pre-populate the real audit status records
         seed_audits(compliance_page)
+
+        # Pre-populate the admin-managed company information section
+        seed_company_info(compliance_page)
 
         logger.info("✅ Compliance data seeded.")
 

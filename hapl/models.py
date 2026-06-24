@@ -682,6 +682,107 @@ class ComplianceCertificate(BaseModel):
     )
     name = models.CharField(max_length=200)
     image = OptimizedImageField(upload_to="compliance/certificates/")
+    website_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="Optional external link opened when the certification is clicked.",
+    )
+    is_active = models.BooleanField(
+        default=True, help_text="Only active certifications are shown on the site."
+    )
+    order = models.PositiveIntegerField(default=0, help_text="Display order (ascending)")
+
+    class Meta:
+        ordering = ["order", "id"]
+
+    def __str__(self):
+        return self.name
+
+
+class ComplianceCompanyInfo(BaseModel):
+    """Editable header (title + description) for the 'Company Information' section."""
+
+    page = models.OneToOneField(
+        CompliancePage, related_name="company_info", on_delete=models.CASCADE
+    )
+    eyebrow = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        default="At a Glance",
+        help_text="Small label shown above the section title.",
+    )
+    title = models.CharField(max_length=200, default="Company Information")
+    description = models.TextField(
+        blank=True, null=True, help_text="Optional intro text below the title."
+    )
+
+    class Meta:
+        verbose_name = "Company Information"
+        verbose_name_plural = "Company Information"
+
+    def __str__(self):
+        return self.title
+
+
+class CompanyInfoStat(BaseModel):
+    """Individual stat card (e.g. Established, Area, Manpower) for the company info section."""
+
+    page = models.ForeignKey(
+        CompliancePage, related_name="company_stats", on_delete=models.CASCADE
+    )
+    icon = models.CharField(
+        max_length=50,
+        default="ph-info",
+        help_text="Phosphor icon class, e.g. ph-calendar-blank",
+    )
+    label = models.CharField(max_length=100, help_text="e.g. Established")
+    value = models.CharField(max_length=100, help_text="e.g. 1986")
+    subtext = models.CharField(
+        max_length=100, blank=True, null=True, help_text="Optional smaller line, e.g. 13,577 sq m"
+    )
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+
+    def __str__(self):
+        return f"{self.label}: {self.value}"
+
+
+class CompanyBuyer(BaseModel):
+    """Main buyer badge for the company info section."""
+
+    page = models.ForeignKey(
+        CompliancePage, related_name="buyers", on_delete=models.CASCADE
+    )
+    name = models.CharField(max_length=100)
+    percentage = models.CharField(
+        max_length=20, blank=True, null=True, help_text="e.g. 60%"
+    )
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+
+    def __str__(self):
+        return self.name
+
+
+class ProductionStep(BaseModel):
+    """Production process step for the company info section."""
+
+    page = models.ForeignKey(
+        CompliancePage, related_name="production_steps", on_delete=models.CASCADE
+    )
+    name = models.CharField(max_length=100, help_text="e.g. Cutting")
+    note = models.CharField(
+        max_length=200, blank=True, null=True, help_text="Optional note, e.g. (Quilting, Downfilling)"
+    )
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
 
     def __str__(self):
         return self.name

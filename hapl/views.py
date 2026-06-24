@@ -45,6 +45,7 @@ from hapl.models import (
     CompliancePage,
     ComplianceSection,
     ComplianceCertificate,
+    ComplianceCompanyInfo,
     AuditStatus,
     SustainabilityPage,
     SustainabilitySection,
@@ -492,6 +493,10 @@ def complience(request):
         "sections": [],
         "certificates": [],
         "audits": AuditStatus.objects.filter(page=compliance_page).order_by("sl_no"),
+        "company_info": None,
+        "company_stats": [],
+        "buyers": [],
+        "production_steps": [],
     }
 
     # Add sections
@@ -504,11 +509,27 @@ def complience(request):
             }
         )
 
-    # Add certificates
-    for certificate in ComplianceCertificate.objects.filter(page=compliance_page):
+    # Add certificates (active only, in display order)
+    for certificate in ComplianceCertificate.objects.filter(
+        page=compliance_page, is_active=True
+    ).order_by("order", "id"):
         complience_data["certificates"].append(
-            {"name": certificate.name, "image": certificate.image.url}
+            {
+                "name": certificate.name,
+                "image": certificate.image.url,
+                "website_url": certificate.website_url,
+            }
         )
+
+    # Company information (admin-managed)
+    if compliance_page is not None:
+        try:
+            complience_data["company_info"] = compliance_page.company_info
+        except ComplianceCompanyInfo.DoesNotExist:
+            complience_data["company_info"] = None
+        complience_data["company_stats"] = compliance_page.company_stats.all()
+        complience_data["buyers"] = compliance_page.buyers.all()
+        complience_data["production_steps"] = compliance_page.production_steps.all()
 
     return render(request, "www/complience.html", {"complience_data": complience_data})
 
