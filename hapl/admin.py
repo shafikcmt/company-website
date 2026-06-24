@@ -796,7 +796,8 @@ class CompanyInfoStatInline(TabularInline):
 class CompanyBuyerInline(TabularInline):
     model = CompanyBuyer
     extra = 1
-    fields = ("order", "name", "percentage")
+    # Percentage is intentionally omitted: it is no longer entered or shown.
+    fields = ("order", "name")
     exclude = ("created_at", "updated_at", "created_by", "updated_by")
     ordering = ("order", "id")
 
