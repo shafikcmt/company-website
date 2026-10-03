@@ -1,6 +1,9 @@
-import defaultTheme from "tailwindcss/defaultTheme";
+import typography from "@tailwindcss/typography";
+import forms from "@tailwindcss/forms";
+import preline from "preline/plugin";
+import taos from "taos/plugin";
 
-module.exports = {
+export default {
     darkMode: "class",
     content: {
         relative: true,
@@ -10,12 +13,15 @@ module.exports = {
             "./templates/**/*.{html,js,py}",
             "!./templates/admin/**/*.{html,js,py}",
             "./common/**/*.{html,js}",
-            "./users/**/*.{html,js}",
+            "./users/**/*.{html,js,py}",
+            "./hapl/**/*.{html,js,py}",
         ],
     },
     theme: {
         extend: {
             colors: {
+                "brand-navy": { light: "#0E4A75", DEFAULT: "#093E61", dark: "#06293F" },
+                "brand-orange": { DEFAULT: "#F59E0B", dark: "#D97706" },
                 foreground: "hsl(var(--foreground))",
                 background: "hsl(var(--background))",
                 card: "hsl(var(--card))",
@@ -24,16 +30,15 @@ module.exports = {
                 accent: "hsl(var(--accent))",
             },
             fontFamily: {
-                sans: ["Chivo", ...defaultTheme.fontFamily.sans],
+                sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
             },
         },
     },
-    darkMode: "class",
     plugins: [
-        require("@tailwindcss/typography"),
-        require("@tailwindcss/forms"),
-        require("preline/plugin"),
-        require("taos/plugin"),
+        typography,
+        forms({ strategy: "class" }),
+        preline,
+        taos,
     ],
     safelist: [
         "!duration-[0ms]",

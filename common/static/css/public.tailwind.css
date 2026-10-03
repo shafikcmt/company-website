@@ -26,23 +26,23 @@
 }
 
 @layer base {
-    * {
+    body:not(.public-site), body:not(.public-site) * {
         @apply border-border;
     }
 
-    body {
+    body:not(.public-site) {
         @apply font-sans bg-background text-foreground antialiased;
     }
 
-    ::-webkit-scrollbar {
+    html:not(:has(body.public-site))::-webkit-scrollbar {
         @apply w-1;
     }
 
-    ::-webkit-scrollbar-thumb {
+    html:not(:has(body.public-site))::-webkit-scrollbar-thumb {
         @apply rounded-full bg-foreground/20 transition duration-150 hover:bg-foreground/40;
     }
 
-    ::-webkit-scrollbar-track {
+    html:not(:has(body.public-site))::-webkit-scrollbar-track {
         @apply bg-card;
     }
 }

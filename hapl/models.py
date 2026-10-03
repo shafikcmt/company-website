@@ -254,7 +254,7 @@ class AboutSection(BaseSection):
 
     content = models.TextField(null=True, blank=True)
     image = OptimizedImageField(
-        upload_to="about/", max_dimensions=(800, 800), blank=True, null=True
+        upload_to="about/", max_dimensions=(1920, 1440), blank=True, null=True
     )
 
 

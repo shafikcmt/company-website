@@ -150,7 +150,7 @@ def about(request):
         "www/about.html",
         {
             "about": about_section,
-            "key_facts": CompanyStats.objects.all()[:4],
+            "key_facts": CompanyStats.objects.order_by("pk")[:4],
             # Evergreen content; promote to a model later if it needs CMS editing
             "core_values": [
                 {
@@ -187,8 +187,8 @@ def about(request):
             "team": {
                 "title": team_section.title if team_section else "Our Team",
                 "subtitle": team_section.subtitle if team_section else None,
-                "management": TeamMember.objects.filter(is_management=True),
-                "staff": TeamMember.objects.filter(is_management=False),
+                "management": TeamMember.objects.filter(is_management=True).order_by("order", "pk"),
+                "staff": TeamMember.objects.filter(is_management=False).order_by("order", "pk"),
             },
             "faq": {
                 "title": (
@@ -199,7 +199,7 @@ def about(request):
                     if faq_section
                     else "Get answers to common questions about our services"
                 ),
-                "faqs": FAQ.objects.all(),
+                "faqs": FAQ.objects.order_by("order", "pk"),
             },
         },
     )

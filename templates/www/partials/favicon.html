@@ -1,0 +1,13 @@
+{% load static %}
+{% comment %}
+  Replace the original top-aligned 16px favicon with centered, transparent
+  assets. Keep any different favicon uploaded through Site Settings dynamic.
+  New filenames also avoid reusing the browser's cached legacy favicon.
+{% endcomment %}
+{% if not site.site_favicon or site.site_favicon.name == "settings/favicon.webp" %}
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon/humana-centered-16.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon/humana-centered-32.png' %}">
+  <link rel="icon" type="image/png" sizes="48x48" href="{% static 'images/favicon/humana-centered-48.png' %}">
+{% else %}
+  <link rel="icon" href="{{ site.site_favicon.url }}">
+{% endif %}

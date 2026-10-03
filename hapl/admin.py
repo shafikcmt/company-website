@@ -1,3 +1,4 @@
+from hapl.admin_content import ContentGuidanceMixin
 from django.contrib import admin
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -93,7 +94,7 @@ class BaseSectionAdmin(BaseModelAdmin):
 
 
 @admin.register(SiteSettings)
-class SiteSettingsAdmin(BaseModelAdmin):
+class SiteSettingsAdmin(ContentGuidanceMixin, BaseModelAdmin):
     """Singleton admin: only one SiteSettings instance is allowed."""
 
     fieldsets = (
@@ -312,7 +313,8 @@ class ServiceAdmin(BaseModelAdmin):
     formfield_overrides = {models.TextField: {"widget": WysiwygWidget}}
 
 
-class CompanyStatsInline(BaseInline):
+class CompanyStatsInline(ContentGuidanceMixin, BaseInline):
+    ordering = ("pk",)
     model = CompanyStats
     extra = 0
 
@@ -329,13 +331,18 @@ class HomeStatsSectionAdmin(BaseSectionAdmin):
 
 
 @admin.register(CompanyStats)
-class CompanyStatsAdmin(BaseModelAdmin):
-    list_display = ("title", "value", "icon")
+class CompanyStatsAdmin(ContentGuidanceMixin, BaseModelAdmin):
+    list_display = ("id", "title", "value", "icon")
+    list_display_links = ("id", "title")
+    ordering = ("pk",)
+    search_fields = ("title", "value")
 
 
 # --- About Page Sections ---
 @admin.register(AboutSection)
-class AboutSectionAdmin(BaseSectionAdmin):
+class AboutSectionAdmin(ContentGuidanceMixin, BaseSectionAdmin):
+    list_display = ("id", "title")
+    ordering = ("pk",)
     formfield_overrides = {models.TextField: {"widget": WysiwygWidget}}
 
     fieldsets = (
@@ -383,13 +390,16 @@ class WhyUsFeatureAdmin(BaseModelAdmin):
     formfield_overrides = {models.TextField: {"widget": WysiwygWidget}}
 
 
-class TeamMemberInline(BaseInline):
+class TeamMemberInline(ContentGuidanceMixin, BaseInline):
+    ordering = ("order", "pk")
     model = TeamMember
     extra = 0
 
 
 @admin.register(TeamSection)
-class TeamSectionAdmin(BaseSectionAdmin):
+class TeamSectionAdmin(ContentGuidanceMixin, BaseSectionAdmin):
+    list_display = ("id", "title")
+    ordering = ("pk",)
     inlines = [TeamMemberInline]
 
     def has_add_permission(self, request):
@@ -400,20 +410,25 @@ class TeamSectionAdmin(BaseSectionAdmin):
 
 
 @admin.register(TeamMember)
-class TeamMemberAdmin(BaseModelAdmin):
+class TeamMemberAdmin(ContentGuidanceMixin, BaseModelAdmin):
+    ordering = ("order", "pk")
     list_display = ("name", "position", "is_management", "order")
     list_editable = ("order",)
     list_filter = ("is_management",)
     search_fields = ("name", "position")
 
 
-class FAQInline(BaseInline):
+class FAQInline(ContentGuidanceMixin, BaseInline):
+    formfield_overrides = {models.TextField: {"widget": WysiwygWidget}}
+    ordering = ("order", "pk")
     model = FAQ
     extra = 0
 
 
 @admin.register(FAQSection)
-class FAQSectionAdmin(BaseSectionAdmin):
+class FAQSectionAdmin(ContentGuidanceMixin, BaseSectionAdmin):
+    list_display = ("id", "title")
+    ordering = ("pk",)
     inlines = [FAQInline]
 
     def has_add_permission(self, request):
@@ -424,7 +439,8 @@ class FAQSectionAdmin(BaseSectionAdmin):
 
 
 @admin.register(FAQ)
-class FAQAdmin(BaseModelAdmin):
+class FAQAdmin(ContentGuidanceMixin, BaseModelAdmin):
+    ordering = ("order", "pk")
     list_display = ("question", "order")
     list_editable = ("order",)
     search_fields = ("question", "answer")
