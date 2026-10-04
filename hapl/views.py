@@ -1,16 +1,17 @@
 import logging
 from email.utils import formataddr
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
 from django.conf import settings
 from django.core.mail import send_mail
+from django.db.models import Prefetch
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
+
 from hapl.forms import JobApplicationForm
 from hapl.models import (
     HomeHeroSection,
     HomeCarouselSlide,
     HomeIntroductionSection,
-    HomeIntroductionFeature,
     HomeServicesSection,
     Service,
     HomeStatsSection,
@@ -28,330 +29,234 @@ from hapl.models import (
     Testimonial,
     ContactSection,
     ContactData,
-    ContactPhone,
-    ContactEmail,
     ContactGroup,
+    Social,
     CareerSection,
     CareerPosition,
     MailSettings,
     ActivitiesSection,
     Activity,
-    Social,
     ProductsPage,
-    ProductCarouselSlide,
-    ProductSection,
     ProductCategory,
     Product,
     CompliancePage,
-    ComplianceSection,
-    ComplianceCertificate,
     ComplianceCompanyInfo,
-    AuditStatus,
+    ComplianceCertificate,
     SustainabilityPage,
-    SustainabilitySection,
-    SustainabilityCertificate,
     GalleryPage,
     GallerySection,
     GalleryImage,
-    GalleryVideo,
 )
 
 
-def home(request):
-    intro_section = HomeIntroductionSection.objects.first()
-    stats_section = HomeStatsSection.objects.first()
-    services_section = HomeServicesSection.objects.first()
-    why_section = WhyUsSection.objects.first()
-    products_page = ProductsPage.objects.first()
+logger = logging.getLogger(__name__)
 
-    # Build product category previews (name + a representative image)
+
+def _page(obj, model):
+    """Templates get an unsaved blank instance instead of None so lookups such
+    as `page.banner_title|default:page.title` never fail on an empty database."""
+    return obj if obj is not None else model()
+
+
+def _stats():
+    """Home stats in display order, scoped to the first stats section when one
+    exists (legacy rows without a section are still shown when none does)."""
+    section = HomeStatsSection.objects.order_by("id").first()
+    stats = CompanyStats.objects.order_by("order", "id")
+    if section is not None:
+        stats = stats.filter(section=section)
+    return section, list(stats)
+
+
+def home(request):
+    hero = (
+        HomeHeroSection.objects.filter(is_active=True)
+        .prefetch_related(
+            Prefetch(
+                "slides",
+                queryset=HomeCarouselSlide.objects.filter(is_active=True).order_by(
+                    "order", "id"
+                ),
+                to_attr="active_slides",
+            )
+        )
+        .order_by("id")
+        .first()
+    )
+    intro = (
+        HomeIntroductionSection.objects.prefetch_related("features")
+        .order_by("id")
+        .first()
+    )
+    services_section = HomeServicesSection.objects.order_by("id").first()
+    services = Service.objects.order_by("order", "id")
+    if services_section is not None:
+        services = services.filter(section=services_section)
+    stats_section, stats = _stats()
+
+    activities_section = ActivitiesSection.objects.order_by("id").first()
+    activities = list(
+        Activity.objects.filter(is_featured=True).order_by("-activity_date")[:3]
+    )
+    customers_section = CustomersSection.objects.order_by("id").first()
+    clients = list(Customer.objects.filter(is_featured=True).order_by("order", "id"))
+    # Each half of the infinite marquee must be wider than the viewport, so
+    # short client lists are repeated (screen readers only get the first copy).
+    repeat = -(-12 // len(clients)) if clients else 0
+
+    # Product categories with one representative image each (2 queries).
+    products_page = ProductsPage.objects.order_by("id").first()
+    categories = []
+    if products_page is not None:
+        categories = list(
+            ProductCategory.objects.filter(page=products_page)
+            .order_by("order", "id")
+            .prefetch_related(
+                Prefetch("products", queryset=Product.objects.order_by("order", "id"))
+            )[:6]
+        )
     products_preview = []
-    for category in ProductCategory.objects.filter(page=products_page)[:6]:
-        first_product = Product.objects.filter(category=category).first()
+    for category in categories:
+        items = list(category.products.all())
         products_preview.append(
-            {
-                "name": category.name,
-                "image": first_product.image.url if first_product else None,
-            }
+            {"name": category.name, "count": len(items), "image": items[0].image if items else None}
         )
 
-    # Flat product rows for the home "Mens / Ladies Wear" scrollers
-    category_ids = ProductCategory.objects.filter(page=products_page).values_list(
-        "id", flat=True
+    gallery_page = GalleryPage.objects.order_by("id").first()
+    gallery_images = list(
+        GalleryImage.objects.select_related("section").order_by("section__order", "order", "id")[:6]
     )
-    mens_products = Product.objects.filter(
-        category_id__in=category_ids, gender="Male"
-    )[:8]
-    ladies_products = Product.objects.filter(
-        category_id__in=category_ids, gender="Female"
-    )[:8]
-
-    # First 6 gallery images for the home factory gallery
-    gallery_images = GalleryImage.objects.all()[:6]
 
     return render(
         request,
         "www/home.html",
         {
-            "hero": {
-                "title": "Welcome to Humana Apparels",
-                "section": HomeHeroSection.objects.first(),
-                "slides": HomeCarouselSlide.objects.filter(is_active=True),
-            },
-            "activities": {
-                "title": "Our Activities",
-                "subtitle": None,
-                "items": Activity.objects.filter(is_featured=True)[:3],
-            },
-            "clients": Customer.objects.filter(is_featured=True),
-            "intro": intro_section,
-            "intro_features": (
-                HomeIntroductionFeature.objects.filter(introduction=intro_section)
-                if intro_section
-                else []
-            ),
-            "stats": {
-                "title": (
-                    stats_section.title if stats_section else "Our Impact in Numbers"
-                ),
-                "subtitle": stats_section.subtitle if stats_section else None,
-                "items": CompanyStats.objects.all(),
-            },
-            "why": {
-                "title": why_section.title if why_section else "Why Humana",
-                "subtitle": (
-                    why_section.subtitle
-                    if why_section
-                    else "What makes us a trusted manufacturing partner"
-                ),
-                # Falls back to services so the section is never empty
-                "features": WhyUsFeature.objects.all() or Service.objects.all(),
-            },
-            "services": {
-                "title": services_section.title if services_section else "Our Services",
-                "subtitle": services_section.subtitle if services_section else None,
-                "items": Service.objects.all(),
-            },
+            "hero": hero,
+            "slides": hero.active_slides if hero else [],
+            "intro": intro,
+            "intro_features": list(intro.features.all()) if intro else [],
+            "services_section": services_section,
+            "services": list(services),
+            "stats_section": stats_section,
+            "stats": stats,
+            "activities_section": activities_section,
+            "activities": activities,
+            "customers_section": customers_section,
+            "clients": clients,
+            "marquee_clients": clients * repeat,
+            "products_page": products_page,
             "products_preview": products_preview,
-            "mens_products": mens_products,
-            "ladies_products": ladies_products,
+            "gallery_page": gallery_page,
             "gallery_images": gallery_images,
         },
     )
 
 
 def about(request):
-    about_section = AboutSection.objects.first()
-    team_section = TeamSection.objects.first()
-    faq_section = FAQSection.objects.first()
+    why_section = (
+        WhyUsSection.objects.prefetch_related(
+            Prefetch("features", queryset=WhyUsFeature.objects.order_by("order", "id"))
+        )
+        .order_by("id")
+        .first()
+    )
+    members = list(TeamMember.objects.order_by("order", "id"))
+    _, stats = _stats()
 
     return render(
         request,
         "www/about.html",
         {
-            "about": about_section,
-            "key_facts": CompanyStats.objects.order_by("pk")[:4],
-            # Evergreen content; promote to a model later if it needs CMS editing
-            "core_values": [
-                {
-                    "icon": "ph-shield-check",
-                    "title": "Integrity",
-                    "description": "We operate transparently and ethically in every relationship and transaction.",
-                },
-                {
-                    "icon": "ph-medal",
-                    "title": "Quality",
-                    "description": "Uncompromising standards from raw material to the finished garment.",
-                },
-                {
-                    "icon": "ph-leaf",
-                    "title": "Sustainability",
-                    "description": "Responsible processes that protect the environment and future generations.",
-                },
-                {
-                    "icon": "ph-users-three",
-                    "title": "People First",
-                    "description": "A safe, fair and empowering workplace for every member of our team.",
-                },
-                {
-                    "icon": "ph-handshake",
-                    "title": "Reliability",
-                    "description": "On-time delivery and dependable partnerships our buyers can trust.",
-                },
-                {
-                    "icon": "ph-lightbulb",
-                    "title": "Innovation",
-                    "description": "Continuously improving through technology and smarter ways of working.",
-                },
-            ],
-            "team": {
-                "title": team_section.title if team_section else "Our Team",
-                "subtitle": team_section.subtitle if team_section else None,
-                "management": TeamMember.objects.filter(is_management=True).order_by("order", "pk"),
-                "staff": TeamMember.objects.filter(is_management=False).order_by("order", "pk"),
-            },
-            "faq": {
-                "title": (
-                    faq_section.title if faq_section else "Frequently Asked Questions"
-                ),
-                "subtitle": (
-                    faq_section.subtitle
-                    if faq_section
-                    else "Get answers to common questions about our services"
-                ),
-                "faqs": FAQ.objects.order_by("order", "pk"),
-            },
+            "page": _page(AboutSection.objects.order_by("id").first(), AboutSection),
+            "key_facts": stats[:4],
+            "why_section": why_section,
+            "core_values": list(why_section.features.all()) if why_section else [],
+            "team_section": TeamSection.objects.order_by("id").first(),
+            "management": [m for m in members if m.is_management],
+            "staff": [m for m in members if not m.is_management],
+            "faq_section": FAQSection.objects.order_by("id").first(),
+            "faqs": list(FAQ.objects.order_by("order", "id")),
         },
     )
 
 
 def customers(request):
-    customers_section = CustomersSection.objects.first()
-    testimonials_section = TestimonialsSection.objects.first()
-
-    featured_testimonial = (
-        Testimonial.objects.filter(is_featured=True).first()
-        or Testimonial.objects.first()
+    testimonials = list(Testimonial.objects.order_by("order", "id"))
+    featured = next((t for t in testimonials if t.is_featured), None) or (
+        testimonials[0] if testimonials else None
     )
 
     return render(
         request,
         "www/customers.html",
         {
-            "clients_data": {
-                "title": (
-                    customers_section.title
-                    if customers_section
-                    else "Trusted by Global Fashion Brands"
-                ),
-                "subtitle": (
-                    customers_section.subtitle
-                    if customers_section
-                    else "Partnering with industry leaders in sustainable fashion manufacturing"
-                ),
-                "clients": Customer.objects.all(),
-            },
-            "testimonials": {
-                "title": (
-                    testimonials_section.title
-                    if testimonials_section
-                    else "What Our Clients Say"
-                ),
-                "subtitle": (
-                    testimonials_section.subtitle
-                    if testimonials_section
-                    else "Read what our clients have to say about us"
-                ),
-                "featured": featured_testimonial,
-                "testimonials": Testimonial.objects.all(),
-            },
+            "page": _page(CustomersSection.objects.order_by("id").first(), CustomersSection),
+            "clients": list(Customer.objects.order_by("order", "id")),
+            "testimonials_section": TestimonialsSection.objects.order_by("id").first(),
+            "featured_testimonial": featured,
+            "testimonials": [t for t in testimonials if t != featured],
         },
     )
 
 
 def contact(request):
-    contact_section = ContactSection.objects.first()
-    contact_data = ContactData.objects.first()
-    contact_groups = ContactGroup.objects.all()
-    socials = Social.objects.all()
+    page = ContactSection.objects.order_by("id").first()
+    contact_data = (
+        ContactData.objects.prefetch_related("contactphones", "contactemails")
+        .order_by("id")
+        .first()
+    )
 
-    phones = {"phone": [], "whatsapp": []}
-
+    phones, whatsapp, emails = [], [], []
     if contact_data:
-        for phone in ContactPhone.objects.filter(contact=contact_data):
-            phones[phone.type].append(phone.number)
-
-    emails = []
-    if contact_data:
-        emails = [
-            email.email for email in ContactEmail.objects.filter(contact=contact_data)
-        ]
+        for phone in contact_data.contactphones.all():
+            (whatsapp if phone.type == "whatsapp" else phones).append(phone.number)
+        emails = [email.email for email in contact_data.contactemails.all()]
 
     return render(
         request,
         "www/contact.html",
         {
-            "contact": {
-                "title": contact_section.title if contact_section else "Contact Us",
-                "subtitle": (
-                    contact_section.subtitle
-                    if contact_section
-                    else "Get in touch with our team"
-                ),
-                "office": {
-                    "title": (
-                        contact_data.office_title if contact_data else "Our Office"
-                    ),
-                    "subtitle": contact_data.office_subtitle if contact_data else None,
-                    "image": contact_data.office_image if contact_data else None,
-                    "contacts": {
-                        "phones": phones["phone"],
-                        "whatsapp": phones["whatsapp"],
-                        "emails": emails,
-                        "fax": contact_data.fax if contact_data else None,
-                    },
-                },
-                "groups": contact_groups,
-                "socials": socials,
-                "map": {
-                    "title": contact_data.map_title if contact_data else "Find Us",
-                    "subtitle": contact_data.map_subtitle if contact_data else None,
-                    "image": contact_data.map_image if contact_data else None,
-                    "map_url": contact_data.map_url if contact_data else None,
-                    "address": contact_data.address if contact_data else None,
-                },
-            }
+            "page": _page(page, ContactSection),
+            "contact_data": contact_data,
+            "phones": phones,
+            "whatsapp": whatsapp,
+            "emails": emails,
+            "groups": list(
+                ContactGroup.objects.prefetch_related("members").order_by("id")
+            ),
+            "socials": list(Social.objects.order_by("order", "id")),
         },
     )
 
 
 def activities(request):
-    activities_section = ActivitiesSection.objects.first()
+    items = list(Activity.objects.order_by("-activity_date", "-id"))
+    featured = next((a for a in items if a.is_featured), None) or (
+        items[0] if items else None
+    )
 
     return render(
         request,
         "www/activities.html",
         {
-            "activities": {
-                "title": (
-                    activities_section.title
-                    if activities_section
-                    else "Our Activities"
-                ),
-                "subtitle": (
-                    activities_section.subtitle
-                    if activities_section
-                    else "CSR, compliance and community initiatives from across Humana Apparels"
-                ),
-                "items": Activity.objects.all().order_by("-activity_date"),
-            }
+            "page": _page(ActivitiesSection.objects.order_by("id").first(), ActivitiesSection),
+            "featured": featured,
+            "items": [a for a in items if a != featured],
         },
     )
 
 
-logger = logging.getLogger(__name__)
-
-
 def career(request):
-    career_section = CareerSection.objects.first()
-    # Each position retains its pk so the template can link to the apply page.
-    active_positions = CareerPosition.objects.filter(status="active")
-
     return render(
         request,
         "www/career.html",
         {
-            "career": {
-                "title": (
-                    career_section.title if career_section else "Career Opportunities"
-                ),
-                "subtitle": (
-                    career_section.subtitle
-                    if career_section
-                    else "Join our team and grow with us"
-                ),
-                "positions": active_positions,
-            }
+            "page": _page(CareerSection.objects.order_by("id").first(), CareerSection),
+            # Each position retains its pk so the template can link to the apply page.
+            "positions": list(
+                CareerPosition.objects.filter(status="active").order_by("order", "-posted_at")
+            ),
         },
     )
 
@@ -435,6 +340,7 @@ def career_apply(request, position_id):
         request,
         "www/career_apply.html",
         {
+            "page": _page(CareerSection.objects.order_by("id").first(), CareerSection),
             "position": position,
             "form": form,
             "submitted": request.GET.get("submitted") == "1",
@@ -443,167 +349,149 @@ def career_apply(request, position_id):
 
 
 def products(request):
-    products_page = ProductsPage.objects.first()
+    page = (
+        ProductsPage.objects.prefetch_related(
+            "carousel_slides",
+            "sections",
+            Prefetch(
+                "categories",
+                queryset=ProductCategory.objects.order_by("order", "id").prefetch_related(
+                    Prefetch("products", queryset=Product.objects.order_by("order", "id"))
+                ),
+            ),
+        )
+        .order_by("id")
+        .first()
+    )
 
-    context = {
-        "carousel": ProductCarouselSlide.objects.filter(page=products_page),
-        "sections": ProductSection.objects.filter(page=products_page),
-        "product_portfolio": [],
-    }
+    carousel, sections, portfolio = [], [], []
+    if page is not None:
+        carousel = list(page.carousel_slides.all())
+        sections = list(page.sections.all())
+        # One entry per category with products pre-split by gender for the tabs.
+        for category in page.categories.all():
+            products_ = list(category.products.all())
+            groups = [
+                ("male", [p for p in products_ if p.gender == "Male"]),
+                ("female", [p for p in products_ if p.gender == "Female"]),
+                ("other", [p for p in products_ if p.gender not in ("Male", "Female")]),
+            ]
+            portfolio.append(
+                {
+                    "id": category.id,
+                    "name": category.name,
+                    "products": products_,
+                    "genders": [key for key, items in groups if items],
+                }
+            )
 
-    # Build the product portfolio structure with pre-processed gender data
-    for category in ProductCategory.objects.filter(page=products_page):
-        portfolio_item = {
-            "section": category.name,
-            "has_male": False,
-            "has_female": False,
-            "has_other": False,
-            "male_products": [],
-            "female_products": [],
-            "other_products": [],
-        }
-
-        # Categorize products by gender
-        for product in Product.objects.filter(category=category):
-            product_data = {
-                "name": product.name,
-                "image": product.image.url,
-                "buyer": product.buyer,
-            }
-
-            if product.gender == "Male":
-                portfolio_item["has_male"] = True
-                portfolio_item["male_products"].append(product_data)
-            elif product.gender == "Female":
-                portfolio_item["has_female"] = True
-                portfolio_item["female_products"].append(product_data)
-            else:
-                portfolio_item["has_other"] = True
-                portfolio_item["other_products"].append(product_data)
-
-        context["product_portfolio"].append(portfolio_item)
-
-    return render(request, "www/products.html", context)
+    return render(
+        request,
+        "www/products.html",
+        {
+            "page": _page(page, ProductsPage),
+            "carousel": carousel,
+            "sections_before": [s for s in sections if not s.after_products],
+            "sections_after": [s for s in sections if s.after_products],
+            "portfolio": portfolio,
+        },
+    )
 
 
 def complience(request):
-    compliance_page = CompliancePage.objects.first()
+    page = (
+        CompliancePage.objects.select_related("company_info")
+        .prefetch_related(
+            "audits",
+            "sections",
+            "company_stats",
+            "buyers",
+            "production_steps",
+            Prefetch(
+                "certificates",
+                queryset=ComplianceCertificate.objects.filter(is_active=True).order_by(
+                    "order", "id"
+                ),
+            ),
+        )
+        .order_by("id")
+        .first()
+    )
 
-    complience_data = {
+    context = {
+        "page": page,
+        "audits": [],
         "sections": [],
         "certificates": [],
-        "audits": AuditStatus.objects.filter(page=compliance_page).order_by("sl_no"),
         "company_info": None,
         "company_stats": [],
         "buyers": [],
         "production_steps": [],
     }
-
-    # Add sections
-    for section in ComplianceSection.objects.filter(page=compliance_page):
-        complience_data["sections"].append(
-            {
-                "title": section.title,
-                "description": section.description,
-                "image": section.image.url,
-            }
-        )
-
-    # Add certificates (active only, in display order)
-    for certificate in ComplianceCertificate.objects.filter(
-        page=compliance_page, is_active=True
-    ).order_by("order", "id"):
-        complience_data["certificates"].append(
-            {
-                "name": certificate.name,
-                "image": certificate.image.url,
-                "website_url": certificate.website_url,
-            }
-        )
-
-    # Company information (admin-managed)
-    if compliance_page is not None:
+    if page is not None:
         try:
-            complience_data["company_info"] = compliance_page.company_info
+            context["company_info"] = page.company_info
         except ComplianceCompanyInfo.DoesNotExist:
-            complience_data["company_info"] = None
-        complience_data["company_stats"] = compliance_page.company_stats.all()
-        complience_data["buyers"] = compliance_page.buyers.all()
-        complience_data["production_steps"] = compliance_page.production_steps.all()
+            context["company_info"] = None
+        context.update(
+            audits=list(page.audits.all()),
+            sections=list(page.sections.all()),
+            certificates=list(page.certificates.all()),
+            company_stats=list(page.company_stats.all()),
+            buyers=list(page.buyers.all()),
+            production_steps=list(page.production_steps.all()),
+        )
 
-    return render(request, "www/complience.html", {"complience_data": complience_data})
+    context["page"] = _page(page, CompliancePage)
+    return render(request, "www/complience.html", context)
 
 
 def sustainability(request):
-    sustainability_page = SustainabilityPage.objects.first()
-
-    sustainability_data = {"sections": [], "certificates": []}
-
-    # Add sections
-    for section in SustainabilitySection.objects.filter(page=sustainability_page):
-        sustainability_data["sections"].append(
-            {
-                "title": section.title,
-                "description": section.description,
-                "image": section.image.url,
-            }
-        )
-
-    # Add certificates
-    for certificate in SustainabilityCertificate.objects.filter(
-        page=sustainability_page
-    ):
-        sustainability_data["certificates"].append(
-            {"name": certificate.name, "image": certificate.image.url}
-        )
+    page = (
+        SustainabilityPage.objects.prefetch_related("sections", "certificates")
+        .order_by("id")
+        .first()
+    )
+    sections = list(page.sections.all()) if page else []
+    certificates = list(page.certificates.all()) if page else []
 
     return render(
-        request, "www/sustainability.html", {"sustainability_data": sustainability_data}
+        request,
+        "www/sustainability.html",
+        {
+            "page": _page(page, SustainabilityPage),
+            "sections": sections,
+            "certificates": certificates,
+            # Banner image falls back to the first chapter's photo.
+            "banner_image": (page.banner_image if page and page.banner_image else None)
+            or (sections[0].image if sections and sections[0].image else None),
+        },
     )
 
 
 def gallery(request):
-    gallery_page = GalleryPage.objects.first()
+    page = GalleryPage.objects.order_by("id").first()
+    sections = list(
+        GallerySection.objects.filter(page=page)
+        .order_by("order", "id")
+        .prefetch_related("images", "videos")
+    ) if page else []
 
-    # Initialize dictionaries to store images and videos by section
-    images_by_section = {}
-    videos_by_section = {}
+    images, videos = [], []
+    for section in sections:
+        for image in section.images.all():
+            images.append({"section": section, "image": image})
+        for video in section.videos.all():
+            videos.append({"section": section, "video": video})
 
-    # Organize images by section
-    for section in GallerySection.objects.filter(page=gallery_page):
-        section_name = section.name
-
-        # Get images for this section
-        if section_name not in images_by_section:
-            images_by_section[section_name] = []
-
-        for image in GalleryImage.objects.filter(section=section):
-            images_by_section[section_name].append(
-                {
-                    "caption": image.caption,
-                    "url": image.image.url,
-                    "section": section_name,
-                }
-            )
-
-        # Get videos for this section
-        if section_name not in videos_by_section:
-            videos_by_section[section_name] = []
-
-        for video in GalleryVideo.objects.filter(section=section):
-            videos_by_section[section_name].append(
-                {
-                    "caption": video.caption,
-                    "youtube_url": video.youtube_url,
-                    "section": section_name,
-                }
-            )
-
-    context = {
-        "gallery_data": {
-            "images_by_section": images_by_section,
-            "videos_by_section": videos_by_section,
-        }
-    }
-
-    return render(request, "www/gallery.html", context)
+    return render(
+        request,
+        "www/gallery.html",
+        {
+            "page": _page(page, GalleryPage),
+            # Only sections that actually have images get a filter tab.
+            "image_sections": [s for s in sections if any(i["section"] == s for i in images)],
+            "images": images,
+            "videos": videos,
+        },
+    )

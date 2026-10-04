@@ -1,0 +1,24 @@
+{% comment %}
+  Closing call-to-action band, fed by PageMixin fields.
+
+    {% include "partials/cta_band.html" with title=page.cta_title|default:"…" text=page.cta_text button_text=page.cta_button_text|default:"Contact Us" button_url=page.cta_button_url|default:"/contact/" %}
+
+  Renders nothing when `title` is empty. `tone="emerald"` for sustainability.
+{% endcomment %}
+{% if title %}
+  <section class="section-sm bg-white">
+    <div class="container-site">
+      <div class="on-dark relative overflow-hidden rounded-2xl {% if tone == 'emerald' %}bg-emerald-900{% else %}bg-navy{% endif %} px-6 py-14 text-center shadow-lift sm:px-12 lg:py-20" data-reveal="up">
+        <div class="pointer-events-none absolute inset-0 bg-grid-faint" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute -right-20 -top-20 size-72 rounded-full {% if tone == 'emerald' %}bg-emerald-500/20{% else %}bg-amber/15{% endif %} blur-3xl" aria-hidden="true"></div>
+        <div class="relative mx-auto max-w-2xl">
+          <h2 class="text-3xl font-extrabold tracking-tight text-white md:text-4xl">{{ title }}</h2>
+          {% if text %}<p class="mt-4 text-base leading-relaxed text-white/75 md:text-lg">{{ text }}</p>{% endif %}
+          {% if button_text and button_url %}
+            <a href="{{ button_url }}" class="btn-primary mt-8">{{ button_text }}<i class="ph-duotone ph-arrow-right btn-arrow" aria-hidden="true"></i></a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+{% endif %}

@@ -1,114 +1,99 @@
-{% load static %}
-<footer class="mt-16 w-full bg-primary text-white/80">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-8">
-    <!-- Newsletter -->
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 pb-10 mb-10 border-b border-white/10">
-      <div>
-        <h3 class="font-display text-2xl text-white">Stay in the loop</h3>
-        <p class="text-sm text-white/60 mt-1">Subscribe for company news, sustainability updates and career openings.</p>
-      </div>
-      <form class="flex w-full max-w-md gap-2" onsubmit="return false;">
-        <label for="footer-email" class="sr-only">Email address</label>
-        <input id="footer-email"
-               type="email"
-               required
-               placeholder="Enter your email"
-               class="flex-1 rounded-lg border border-white/20 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent">
-        <button type="submit"
-                class="inline-flex items-center gap-x-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-accent/90 focus:outline-none transition-colors">
-          Subscribe
-          <i class="ph ph-duotone ph-paper-plane-tilt"></i>
-        </button>
-      </form>
+{% load public_content %}
+{% comment %}
+  Site footer — 4 columns (about, quick links, contact, socials), all driven
+  by SiteSettings, the nav menu and the shared Social model.
+{% endcomment %}
+{% now "Y" as current_year %}
+{% with site_name=site.site_name|default:"Humana Apparels Ltd" %}
+<footer class="on-dark relative overflow-hidden bg-navy-800 text-white/70">
+  <div class="pointer-events-none absolute inset-0 bg-grid-faint opacity-60" aria-hidden="true"></div>
+  <div class="container-site relative grid gap-12 py-16 sm:grid-cols-2 lg:grid-cols-12 lg:gap-10 lg:py-20">
+    {# About #}
+    <div class="lg:col-span-4">
+      <a href="{% url 'home' %}" class="inline-flex" aria-label="{{ site_name }} — home">
+        {% if site.header_logo %}
+          <img src="{{ site.header_logo.url }}" alt="{{ site_name }}" class="h-12 w-auto" width="160" height="48" loading="lazy">
+        {% else %}
+          <span class="text-xl font-extrabold tracking-tight text-white">{{ site_name }}</span>
+        {% endif %}
+      </a>
+      {% if site.site_tagline %}<p class="mt-3 text-sm font-semibold text-amber">{{ site.site_tagline }}</p>{% endif %}
+      <p class="mt-4 max-w-sm text-sm leading-relaxed">
+        {{ site.footer_description|default:"A compliant, sustainability-driven garment manufacturer delivering quality apparel to global brands from Bangladesh." }}
+      </p>
     </div>
-    <!-- Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-      <!-- Col 1: Company info -->
-      <div>
-        <a class="inline-flex items-center gap-x-2" href="{% url 'home' %}" aria-label="Humana Apparels Ltd">
-          <img class="h-12 brightness-0 invert" src="{% static 'images/humana_logo.png' %}" alt="Humana Apparels Ltd">
+
+    {# Quick links #}
+    <nav class="lg:col-span-2" aria-label="Footer">
+      <h2 class="text-sm font-semibold uppercase tracking-[0.16em] text-white">{{ site.footer_links_title|default:"Quick Links" }}</h2>
+      <ul class="mt-5 space-y-3 text-sm">
+        {% for item in nav_items %}
+          <li><a href="{{ item.url }}" class="transition-colors hover:text-amber"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a></li>
+        {% endfor %}
+      </ul>
+    </nav>
+
+    {# Contact #}
+    <div class="lg:col-span-3">
+      <h2 class="text-sm font-semibold uppercase tracking-[0.16em] text-white">{{ site.footer_contact_title|default:"Get in Touch" }}</h2>
+      {# Only verified contact details entered in Site Settings are published. #}
+      {% if site.footer_address or site.footer_phone or site.footer_email %}
+        <ul class="mt-5 space-y-4 text-sm">
+          {% if site.footer_address %}
+            <li class="flex items-start gap-3">
+              <i class="ph-duotone ph-map-pin mt-0.5 text-lg text-amber" aria-hidden="true"></i>
+              <span>{{ site.footer_address }}</span>
+            </li>
+          {% endif %}
+          {% if site.footer_phone %}
+            <li class="flex items-center gap-3">
+              <i class="ph-duotone ph-phone text-lg text-amber" aria-hidden="true"></i>
+              <a href="tel:{{ site.footer_phone|cut:' ' }}" class="transition-colors hover:text-amber">{{ site.footer_phone }}</a>
+            </li>
+          {% endif %}
+          {% if site.footer_email %}
+            <li class="flex items-center gap-3">
+              <i class="ph-duotone ph-envelope-simple text-lg text-amber" aria-hidden="true"></i>
+              <a href="mailto:{{ site.footer_email }}" class="break-all transition-colors hover:text-amber">{{ site.footer_email }}</a>
+            </li>
+          {% endif %}
+        </ul>
+      {% endif %}
+      <a href="{% url 'contact' %}" class="link-arrow mt-6 !text-sm !text-white hover:!text-amber">Contact page<i class="ph-duotone ph-arrow-right btn-arrow" aria-hidden="true"></i></a>
+    </div>
+
+    {# Socials + back to top #}
+    <div class="lg:col-span-3">
+      <h2 class="text-sm font-semibold uppercase tracking-[0.16em] text-white">{{ site.footer_social_title|default:"Follow Us" }}</h2>
+      {% if footer_socials %}
+        <ul class="mt-5 flex flex-wrap gap-3">
+          {% for social in footer_socials %}{% with social_url=social.url|public_social_url %}{% if social_url %}
+            <li>
+              <a href="{{ social_url }}" target="_blank" rel="noopener" aria-label="{{ social.name }}" title="{{ social.name }}"
+                 class="inline-flex size-11 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-white/10 transition hover:-translate-y-0.5 hover:bg-amber hover:text-navy-800">
+                <i class="ph-duotone {{ social.icon }} text-xl" aria-hidden="true"></i>
+              </a>
+            </li>
+          {% endif %}{% endwith %}{% endfor %}
+        </ul>
+      {% endif %}
+      {% if site.header_cta_url or contact_visible %}
+        <a href="{{ site.header_cta_url|default:'/contact/' }}" class="link-arrow mt-8 !text-white hover:!text-amber">
+          {{ site.header_cta_text|default:"Get in Touch" }}<i class="ph-duotone ph-arrow-right btn-arrow" aria-hidden="true"></i>
         </a>
-        <p class="mt-4 text-sm text-white/60 leading-relaxed">
-          Humana Apparels Ltd is a compliant, sustainability-driven garments manufacturer
-          delivering quality apparel to global brands with integrity and care.
-        </p>
-        <div class="mt-5 flex items-center gap-2 text-lg">
-          <a href="#" aria-label="Facebook"
-             class="inline-flex justify-center items-center size-9 rounded-full bg-white/10 text-white hover:bg-accent hover:text-primary transition-colors">
-            <i class="ph ph-duotone ph-facebook-logo"></i>
-          </a>
-          <a href="#" aria-label="LinkedIn"
-             class="inline-flex justify-center items-center size-9 rounded-full bg-white/10 text-white hover:bg-accent hover:text-primary transition-colors">
-            <i class="ph ph-duotone ph-linkedin-logo"></i>
-          </a>
-          <a href="#" aria-label="YouTube"
-             class="inline-flex justify-center items-center size-9 rounded-full bg-white/10 text-white hover:bg-accent hover:text-primary transition-colors">
-            <i class="ph ph-duotone ph-youtube-logo"></i>
-          </a>
-          <a href="#" aria-label="Instagram"
-             class="inline-flex justify-center items-center size-9 rounded-full bg-white/10 text-white hover:bg-accent hover:text-primary transition-colors">
-            <i class="ph ph-duotone ph-instagram-logo"></i>
-          </a>
-        </div>
-      </div>
-      <!-- Col 2: Quick Links -->
-      <div>
-        <h4 class="font-display text-lg text-white mb-4">Quick Links</h4>
-        <ul class="space-y-2.5 text-sm">
-          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'home' %}">Home</a></li>
-          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'about' %}">About Us</a></li>
-          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'sustainability' %}">Sustainability</a></li>
-          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'complience' %}">Compliance</a></li>
-          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'gallery' %}">Gallery</a></li>
-          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'activities' %}">Activities</a></li>
-          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'career' %}">Career</a></li>
-        </ul>
-      </div>
-      <!-- Col 3: Products -->
-      <div>
-        <h4 class="font-display text-lg text-white mb-4">Products</h4>
-        <ul class="space-y-2.5 text-sm">
-          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'products' %}">Knitwear</a></li>
-          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'products' %}">Woven</a></li>
-          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'products' %}">Sweaters</a></li>
-          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'products' %}">Outerwear</a></li>
-          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'products' %}">Activewear</a></li>
-          <li><a class="text-white/60 hover:text-accent transition-colors" href="{% url 'customers' %}">Our Customers</a></li>
-        </ul>
-      </div>
-      <!-- Col 4: Contact info -->
-      <div>
-        <h4 class="font-display text-lg text-white mb-4">Get in Touch</h4>
-        <ul class="space-y-3 text-sm text-white/60">
-          <li class="flex items-start gap-x-3">
-            <i class="ph ph-duotone ph-map-pin text-accent text-lg mt-0.5"></i>
-            <span>Humana Apparels Ltd,<br>Dhaka, Bangladesh</span>
-          </li>
-          <li class="flex items-center gap-x-3">
-            <i class="ph ph-duotone ph-phone text-accent text-lg"></i>
-            <a href="tel:+880000000000" class="hover:text-accent transition-colors">+880 0000 000000</a>
-          </li>
-          <li class="flex items-center gap-x-3">
-            <i class="ph ph-duotone ph-envelope-simple text-accent text-lg"></i>
-            <a href="mailto:info@humanaapparels.com" class="hover:text-accent transition-colors">info@humanaapparels.com</a>
-          </li>
-          <li class="flex items-center gap-x-3">
-            <i class="ph ph-duotone ph-clock text-accent text-lg"></i>
-            <span>Sat – Thu, 9:00 – 18:00</span>
-          </li>
-        </ul>
-      </div>
+      {% endif %}
     </div>
   </div>
-  <!-- Copyright bar -->
-  <div class="border-t border-white/10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/50">
-      <p>&copy; <span id="footer-year">2026</span> Humana Apparels Ltd. All rights reserved.</p>
-      <div class="flex items-center gap-x-5">
-        <a href="#" class="hover:text-accent transition-colors">Privacy Policy</a>
-        <a href="#" class="hover:text-accent transition-colors">Terms of Use</a>
-      </div>
+
+  <div class="relative border-t border-white/10">
+    <div class="container-site flex flex-col items-center justify-between gap-3 py-6 text-xs text-white/50 sm:flex-row">
+      <p>{% if site.footer_copyright %}{{ site.footer_copyright }}{% else %}&copy; {{ current_year }} {{ site_name }}. All rights reserved.{% endif %}</p>
+      {% if site.site_tagline %}<p>{{ site.site_tagline }}</p>{% endif %}
     </div>
   </div>
 </footer>
-<script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
+
+<button type="button" class="back-to-top" data-back-to-top aria-label="Back to top">
+  <i class="ph-duotone ph-arrow-up" aria-hidden="true"></i>
+</button>
+{% endwith %}

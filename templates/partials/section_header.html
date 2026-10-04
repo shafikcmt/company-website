@@ -1,0 +1,25 @@
+{% comment %}
+  Shared section header: eyebrow + title + subtitle.
+
+    {% include "partials/section_header.html" with eyebrow=s.eyebrow title=s.title subtitle=s.subtitle align="center" %}
+
+  Variables (all optional):
+    eyebrow, title, subtitle   copy (usually straight from a BaseSection)
+    align                      "center" (default) or "left"
+    heading_level              "h1" or "h2" (default)
+    id                         id for the title, e.g. for aria-labelledby
+  Wrap in `.on-dark` for navy backgrounds.
+{% endcomment %}
+{% if eyebrow or title or subtitle %}
+  <div class="{% if align == 'left' %}max-w-2xl{% else %}mx-auto max-w-3xl text-center{% endif %}" data-reveal="up">
+    {% if eyebrow %}<p class="eyebrow{% if align != 'left' %} eyebrow-center justify-center{% endif %}">{{ eyebrow }}</p>{% endif %}
+    {% if title %}
+      {% if heading_level == "h1" %}
+        <h1{% if id %} id="{{ id }}"{% endif %} class="section-title{% if eyebrow %} mt-4{% endif %}">{{ title }}</h1>
+      {% else %}
+        <h2{% if id %} id="{{ id }}"{% endif %} class="section-title{% if eyebrow %} mt-4{% endif %}">{{ title }}</h2>
+      {% endif %}
+    {% endif %}
+    {% if subtitle %}<p class="section-subtitle mt-4">{{ subtitle }}</p>{% endif %}
+  </div>
+{% endif %}

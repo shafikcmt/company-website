@@ -1,107 +1,108 @@
 {% extends "www/base.html" %}
-{% load static %}
-{% block title %}Contact — Humana Apparels Ltd{% endblock %}
-{% block meta_description %}
-  <meta name="description" content="Get in touch with Humana Apparels Ltd — office address, phone, email and our key contacts.">
-{% endblock %}
+{% load public_content %}
+{% block title %}{% if page.meta_title %}{{ page.meta_title }}{% else %}Contact — {{ site.site_name|default:"Humana Apparels Ltd" }}{% endif %}{% endblock %}
 {% block content %}
 
-  <!-- ========================= PAGE HEADER ========================= -->
-  {% include "partials/page_header.html" with heading=contact.title|default:"Contact Us" subtitle=contact.subtitle breadcrumb="Contact" %}
+  {% firstof page.banner_title page.title "Contact Us" as heading %}{% firstof page.banner_subtitle page.subtitle as subheading %}
+  {% include "partials/page_header.html" with heading=heading subtitle=subheading eyebrow=page.eyebrow bg_image=page.banner_image breadcrumb="Contact" %}
 
-  <!-- ========================= OFFICE + GROUPS ========================= -->
-  <section class="py-20 px-4 bg-white">
-    <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12">
-      <!-- Office info -->
-      <div>
-        <h2 class="text-2xl font-extrabold tracking-tight text-brand-navy">{{ contact.office.title|default:"Our Office" }}</h2>
-        {% if contact.office.subtitle %}<p class="mt-2 text-gray-600">{{ contact.office.subtitle }}</p>{% endif %}
-        {% if contact.office.image %}
-          <img src="{{ contact.office.image.url }}" alt="Office" class="mt-6 w-full aspect-video object-cover rounded-2xl shadow-md">
+  {# ========================= OFFICE + KEY CONTACTS ========================= #}
+  <section class="section bg-white">
+    <div class="container-site grid gap-14 lg:grid-cols-12">
+      <div class="lg:col-span-5" data-reveal="left">
+        <h2 class="section-title !text-3xl">{{ contact_data.office_title|default:"Our Office" }}</h2>
+        {% if contact_data.office_subtitle %}<p class="section-subtitle mt-3">{{ contact_data.office_subtitle }}</p>{% endif %}
+        {% if contact_data.office_image %}
+          <div class="card-media mt-8 aspect-video rounded-xl shadow-soft">
+            <img src="{{ contact_data.office_image.url }}" alt="{{ contact_data.office_title }}" class="h-full w-full object-cover" loading="lazy" decoding="async">
+          </div>
         {% endif %}
-        <ul class="mt-6 space-y-4 text-gray-700">
-          {% if contact.map.address %}
-            <li class="flex items-start gap-3"><i class="ph ph-duotone ph-map-pin text-xl text-brand-orange-dark mt-0.5"></i><span>{{ contact.map.address }}</span></li>
+        <ul class="mt-8 space-y-4">
+          {% if contact_data.address %}
+            <li class="flex items-start gap-4"><span class="icon-tile !size-11 !text-xl"><i class="ph-duotone ph-map-pin" aria-hidden="true"></i></span><span class="pt-2.5 text-ink">{{ contact_data.address }}</span></li>
           {% endif %}
-          {% for phone in contact.office.contacts.phones %}
-            <li class="flex items-center gap-3"><i class="ph ph-duotone ph-phone text-xl text-brand-orange-dark"></i><a href="tel:{{ phone }}" class="hover:text-brand-orange-dark">{{ phone }}</a></li>
+          {% for phone in phones %}
+            <li class="flex items-center gap-4"><span class="icon-tile !size-11 !text-xl"><i class="ph-duotone ph-phone" aria-hidden="true"></i></span><a href="tel:{{ phone|cut:' ' }}" class="text-ink transition-colors hover:text-amber-dark">{{ phone }}</a></li>
           {% endfor %}
-          {% for wa in contact.office.contacts.whatsapp %}
-            <li class="flex items-center gap-3"><i class="ph ph-duotone ph-whatsapp-logo text-xl text-brand-orange-dark"></i><a href="https://wa.me/{{ wa }}" target="_blank" rel="noopener" class="hover:text-brand-orange-dark">{{ wa }}</a></li>
+          {% for wa in whatsapp %}
+            <li class="flex items-center gap-4"><span class="icon-tile !size-11 !text-xl"><i class="ph-duotone ph-whatsapp-logo" aria-hidden="true"></i></span><a href="https://wa.me/{{ wa|cut:'+'|cut:' ' }}" target="_blank" rel="noopener" class="text-ink transition-colors hover:text-amber-dark">{{ wa }} <span class="sr-only">(WhatsApp)</span></a></li>
           {% endfor %}
-          {% for email in contact.office.contacts.emails %}
-            <li class="flex items-center gap-3"><i class="ph ph-duotone ph-envelope-simple text-xl text-brand-orange-dark"></i><a href="mailto:{{ email }}" class="hover:text-brand-orange-dark">{{ email }}</a></li>
+          {% for email in emails %}
+            <li class="flex items-center gap-4"><span class="icon-tile !size-11 !text-xl"><i class="ph-duotone ph-envelope-simple" aria-hidden="true"></i></span><a href="mailto:{{ email }}" class="break-all text-ink transition-colors hover:text-amber-dark">{{ email }}</a></li>
           {% endfor %}
-          {% if contact.office.contacts.fax %}
-            <li class="flex items-center gap-3"><i class="ph ph-duotone ph-printer text-xl text-brand-orange-dark"></i><span>Fax: {{ contact.office.contacts.fax }}</span></li>
+          {% if contact_data.fax %}
+            <li class="flex items-center gap-4"><span class="icon-tile !size-11 !text-xl"><i class="ph-duotone ph-printer" aria-hidden="true"></i></span><span class="text-ink">Fax: {{ contact_data.fax }}</span></li>
           {% endif %}
         </ul>
       </div>
 
-      <!-- Contact groups -->
-      <div>
-        {% if contact.groups %}
-          <h2 class="text-2xl font-extrabold tracking-tight text-brand-navy">Key Contacts</h2>
-          <div class="mt-6 space-y-8">
-            {% for group in contact.groups %}
-              <div>
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-brand-orange-dark">{{ group.name }}</h3>
-                <div class="mt-4 grid sm:grid-cols-2 gap-4">
+      <div class="lg:col-span-7">
+        {% if groups %}
+          <h2 class="section-title !text-3xl" data-reveal="up">{{ page.groups_title|default:"Key Contacts" }}</h2>
+          <div class="mt-8 space-y-10">
+            {% for group in groups %}
+              <div data-reveal="up">
+                <h3 class="eyebrow">{{ group.name }}</h3>
+                <ul class="mt-5 grid gap-4 sm:grid-cols-2">
                   {% for member in group.members.all %}
-                    <div class="flex items-center gap-3 bg-gray-50 rounded-2xl p-4">
-                      {% if member.image %}<img src="{{ member.image.url }}" alt="{{ member.name }}" class="size-14 rounded-full object-cover">{% endif %}
+                    <li class="card card-hover flex items-center gap-4 p-4">
+                      {% if member.image %}<img src="{{ member.image.url }}" alt="" class="size-16 shrink-0 rounded-full object-cover" loading="lazy" decoding="async">{% endif %}
                       <div class="min-w-0">
-                        <div class="font-semibold text-brand-navy truncate">{{ member.name }}</div>
-                        <div class="text-xs text-gray-500">{{ member.position }}</div>
-                        <a href="mailto:{{ member.email }}" class="text-xs text-brand-orange-dark hover:underline truncate block">{{ member.email }}</a>
+                        <p class="truncate font-semibold text-navy">{{ member.name }}</p>
+                        <p class="text-xs text-muted">{{ member.position }}</p>
+                        <a href="mailto:{{ member.email }}" class="mt-1 block truncate text-xs font-medium text-amber-dark hover:underline">{{ member.email }}</a>
+                        {% if member.phone %}<a href="tel:{{ member.phone|cut:' ' }}" class="block truncate text-xs text-muted hover:text-navy">{{ member.phone }}</a>{% endif %}
                       </div>
-                    </div>
+                    </li>
                   {% endfor %}
-                </div>
+                </ul>
               </div>
             {% endfor %}
           </div>
         {% else %}
-          <div class="h-full flex items-center justify-center bg-gray-50 rounded-2xl p-10 text-center text-gray-500">
-            We'd love to hear from you — reach us using the details on the left.
+          <div class="flex h-full items-center justify-center rounded-2xl bg-surface p-10 text-center text-muted">
+            {{ page.groups_empty_text|default:"We'd love to hear from you — reach us using the details on the left." }}
           </div>
         {% endif %}
       </div>
     </div>
   </section>
 
-  <!-- ========================= MAP ========================= -->
-  {% if contact.map.map_url or contact.map.image %}
-    <section class="bg-gray-50">
-      <div class="max-w-7xl mx-auto px-4 py-12">
-        <h2 class="text-2xl font-extrabold tracking-tight text-brand-navy text-center">{{ contact.map.title|default:"Find Us" }}</h2>
-        {% if contact.map.subtitle %}<p class="mt-2 text-center text-gray-600">{{ contact.map.subtitle }}</p>{% endif %}
-        <div class="mt-8 overflow-hidden rounded-2xl shadow-md">
-          {% if contact.map.map_url %}
-            <iframe src="{{ contact.map.map_url }}" class="w-full h-[420px]" style="border:0;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Map"></iframe>
-          {% elif contact.map.image %}
-            <img src="{{ contact.map.image.url }}" alt="Map" class="w-full h-[420px] object-cover">
+  {# ========================= MAP ========================= #}
+  {% if contact_data.map_url or contact_data.map_image %}
+    <section class="section-sm bg-surface">
+      <div class="container-site">
+        {% include "partials/section_header.html" with title=contact_data.map_title|default:"Find Us" subtitle=contact_data.map_subtitle %}
+        <div class="mt-10 overflow-hidden rounded-2xl shadow-soft ring-1 ring-navy/5" data-reveal="up">
+          {% if contact_data.map_url %}
+            <iframe src="{{ contact_data.map_url }}" class="block h-[420px] w-full border-0" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="{{ contact_data.map_title|default:'Map' }}"></iframe>
+          {% else %}
+            <img src="{{ contact_data.map_image.url }}" alt="{{ contact_data.map_title|default:'Map' }}" class="h-[420px] w-full object-cover" loading="lazy">
           {% endif %}
         </div>
       </div>
     </section>
   {% endif %}
 
-  <!-- ========================= SOCIAL LINKS ========================= -->
-  {% if contact.socials %}
-    <section class="py-16 px-4 bg-white">
-      <div class="max-w-7xl mx-auto text-center">
-        <h2 class="text-xl font-bold tracking-tight text-brand-navy">Connect With Us</h2>
-        <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-          {% for social in contact.socials %}
-            <a href="{{ social.url }}" target="_blank" rel="noopener" aria-label="{{ social.name }}"
-               class="inline-flex items-center justify-center size-12 rounded-full bg-gray-100 text-gray-700 hover:bg-brand-orange hover:text-white transition-colors">
-              <i class="ph ph-duotone {{ social.icon }} text-xl"></i>
-            </a>
-          {% endfor %}
-        </div>
+  {# ========================= SOCIAL LINKS ========================= #}
+  {% if socials %}
+    <section class="section-sm bg-white">
+      <div class="container-site text-center" data-reveal="up">
+        <h2 class="text-2xl font-bold tracking-tight">{{ page.socials_title|default:"Connect With Us" }}</h2>
+        <ul class="mt-6 flex flex-wrap items-center justify-center gap-3">
+          {% for social in socials %}{% with social_url=social.url|public_social_url %}{% if social_url %}
+            <li>
+              <a href="{{ social_url }}" target="_blank" rel="noopener" aria-label="{{ social.name }}" title="{{ social.name }}"
+                 class="inline-flex size-12 items-center justify-center rounded-full bg-surface text-xl text-navy ring-1 ring-navy/10 transition hover:-translate-y-0.5 hover:bg-amber hover:ring-amber">
+                <i class="ph-duotone {{ social.icon }}" aria-hidden="true"></i>
+              </a>
+            </li>
+          {% endif %}{% endwith %}{% endfor %}
+        </ul>
       </div>
     </section>
   {% endif %}
+
+  {% include "partials/cta_band.html" with title=page.cta_title text=page.cta_text button_text=page.cta_button_text button_url=page.cta_button_url %}
 
 {% endblock content %}

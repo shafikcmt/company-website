@@ -1,20 +1,27 @@
-import random
 import logging
-from datetime import date
+
 from django.db import transaction
+
 from hapl.models import (
+    SiteSettings,
+    NavbarSettings,
     AuditStatus,
     ComplianceCompanyInfo,
     CompanyInfoStat,
     CompanyBuyer,
     ProductionStep,
 )
+from seeder import data
 from seeder.content_factories import (
+    SiteSettingsFactory,
+    NavbarSettingsFactory,
     HomeHeroSectionFactory,
     HomeIntroductionSectionFactory,
     HomeServicesSectionFactory,
     HomeStatsSectionFactory,
     AboutSectionFactory,
+    WhyUsSectionFactory,
+    WhyUsFeatureFactory,
     TeamSectionFactory,
     FAQSectionFactory,
     CustomersSectionFactory,
@@ -53,46 +60,10 @@ from seeder.content_factories import (
     GalleryPageFactory,
     GallerySectionFactory,
     GalleryImageFactory,
-    GalleryVideoFactory,
 )
 
 
 logger = logging.getLogger(__name__)
-
-
-# Real demo content for the Activities feature (CSR / compliance / community).
-SAMPLE_ACTIVITIES = [
-    {
-        "tag": "Compliance",
-        "title": "BSCI Social Audit Completed Successfully",
-        "excerpt": (
-            "Our facility in Gorai, Mirzapur successfully completed its latest "
-            "BSCI social compliance audit, reaffirming our commitment to ethical "
-            "labor practices."
-        ),
-        "activity_date": date(2026, 6, 2),
-    },
-    {
-        "tag": "Sustainability",
-        "title": "GOTS-Certified Organic Cotton Line Launched",
-        "excerpt": (
-            "We've expanded our production capability with a new GOTS-certified "
-            "organic cotton line, supporting our partner brands' sustainability "
-            "goals."
-        ),
-        "activity_date": date(2026, 5, 15),
-    },
-    {
-        "tag": "Community",
-        "title": "Worker Welfare Training Program",
-        "excerpt": (
-            "Ongoing skills and welfare training sessions for our workforce, "
-            "reflecting our commitment to worker development under the Better "
-            "Work program."
-        ),
-        "activity_date": date(2026, 4, 21),
-    },
-]
 
 
 # Real audit/certification records from the company's official Audit Status sheet.
@@ -119,14 +90,6 @@ AUDIT_RECORDS = [
     {"sl_no": 20, "name": "Macy's COC Audit (LRQA)", "certificate_number": "314245", "audit_date": None, "expiry_date": None, "status": "Done", "result": "Completed"},
 ]
 
-
-def seed_audits(compliance_page):
-    """Pre-populate the 20 real audit/certification records for the compliance page."""
-    for record in AUDIT_RECORDS:
-        AuditStatus.objects.create(page=compliance_page, **record)
-    logger.info("   ↳ Seeded %d audit status records.", len(AUDIT_RECORDS))
-
-
 # Real company-information content shown in the "Company Information" section.
 COMPANY_STATS = [
     {"icon": "ph-calendar-blank", "label": "Established", "value": "1986"},
@@ -151,6 +114,13 @@ COMPANY_STEPS = [
 ]
 
 
+def seed_audits(compliance_page):
+    """Pre-populate the 20 real audit/certification records for the compliance page."""
+    for record in AUDIT_RECORDS:
+        AuditStatus.objects.create(page=compliance_page, **record)
+    logger.info("   ↳ Seeded %d audit status records.", len(AUDIT_RECORDS))
+
+
 def seed_company_info(compliance_page):
     """Pre-populate the admin-managed Company Information section."""
     ComplianceCompanyInfo.objects.create(
@@ -163,6 +133,11 @@ def seed_company_info(compliance_page):
     for order, step in enumerate(COMPANY_STEPS):
         ProductionStep.objects.create(page=compliance_page, order=order, **step)
     logger.info("   ↳ Seeded company information section.")
+
+
+def _delete_all(*factories):
+    for f in factories:
+        f._meta.model.objects.all().delete()
 
 
 class Seeder:
@@ -179,20 +154,34 @@ class Seeder:
         raise NotImplementedError
 
 
+class SiteSeeder(Seeder):
+    def clean_data(self):
+        # Singletons are updated in place, never deleted.
+        logger.info("🧹 Site settings are updated in place.")
+
+    @transaction.atomic
+    def run(self):
+        logger.info("🌱 Seeding site settings...")
+        site = SiteSettings.objects.filter(pk=1).first() or SiteSettingsFactory.create()
+        for field, value in data.SITE.items():
+            setattr(site, field, value)
+        site.save()
+        NavbarSettings.objects.get_or_create(pk=1)
+        logger.info("✅ Site settings seeded.")
+
+
 class HomeSeeder(Seeder):
     def clean_data(self):
-        # Clean section models first
-        HomeHeroSectionFactory._meta.model.objects.all().delete()
-        HomeIntroductionSectionFactory._meta.model.objects.all().delete()
-        HomeServicesSectionFactory._meta.model.objects.all().delete()
-        HomeStatsSectionFactory._meta.model.objects.all().delete()
-
-        # Then clean content models
-        HomeCarouselSlideFactory._meta.model.objects.all().delete()
-        HomeIntroductionFeatureFactory._meta.model.objects.all().delete()
-        CompanyStatsFactory._meta.model.objects.all().delete()
-        ServiceFactory._meta.model.objects.all().delete()
-
+        _delete_all(
+            HomeCarouselSlideFactory,
+            HomeIntroductionFeatureFactory,
+            CompanyStatsFactory,
+            ServiceFactory,
+            HomeHeroSectionFactory,
+            HomeIntroductionSectionFactory,
+            HomeServicesSectionFactory,
+            HomeStatsSectionFactory,
+        )
         logger.info("🧹 Home data cleaned.")
 
     @transaction.atomic
@@ -201,39 +190,37 @@ class HomeSeeder(Seeder):
             self.clean_data()
         logger.info("🌱 Seeding Home data...")
 
-        # Create sections first
-        hero_section = HomeHeroSectionFactory.create()
-        intro_section = HomeIntroductionSectionFactory.create()
-        services_section = HomeServicesSectionFactory.create()
-        stats_section = HomeStatsSectionFactory.create()
+        hero = HomeHeroSectionFactory.create(**data.HERO)
+        for order, slide in enumerate(data.HERO_SLIDES):
+            values = {k: v for k, v in slide.items() if k != "label"}
+            HomeCarouselSlideFactory.create(section=hero, order=order, **values)
 
-        # Then create content items that reference the sections
-        HomeCarouselSlideFactory.create_batch(3, section=hero_section)
-        HomeIntroductionFeatureFactory.create_batch(3, introduction=intro_section)
-        ServiceFactory.create_batch(3, section=services_section)
-        CompanyStatsFactory.create_batch(4, section=stats_section)
+        intro = HomeIntroductionSectionFactory.create()
+        for feature in data.INTRO_FEATURES:
+            HomeIntroductionFeatureFactory.create(introduction=intro, **feature)
 
-        # Create the sample activities with featured flag for the home page
-        for sample in SAMPLE_ACTIVITIES:
-            ActivityFactory.create(is_featured=True, **sample)
+        services = HomeServicesSectionFactory.create()
+        for order, service in enumerate(data.SERVICES):
+            ServiceFactory.create(section=services, order=order, **service)
 
-        # Create customers with featured flag for home page
-        CustomerFactory.create_batch(4, is_featured=True)
+        stats = HomeStatsSectionFactory.create()
+        for order, stat in enumerate(data.STATS):
+            CompanyStatsFactory.create(section=stats, order=order, **stat)
 
         logger.info("✅ Home data seeded.")
 
 
 class AboutSeeder(Seeder):
     def clean_data(self):
-        # Clean section models first
-        AboutSectionFactory._meta.model.objects.all().delete()
-        TeamSectionFactory._meta.model.objects.all().delete()
-        FAQSectionFactory._meta.model.objects.all().delete()
-
-        # Then clean content models
-        TeamMemberFactory._meta.model.objects.all().delete()
-        FAQFactory._meta.model.objects.all().delete()
-
+        _delete_all(
+            TeamMemberFactory,
+            FAQFactory,
+            WhyUsFeatureFactory,
+            AboutSectionFactory,
+            WhyUsSectionFactory,
+            TeamSectionFactory,
+            FAQSectionFactory,
+        )
         logger.info("🧹 About data cleaned.")
 
     @transaction.atomic
@@ -242,29 +229,28 @@ class AboutSeeder(Seeder):
             self.clean_data()
         logger.info("🌱 Seeding About data...")
 
-        # Create sections first
         AboutSectionFactory.create()
-        team_section = TeamSectionFactory.create()
-        faq_section = FAQSectionFactory.create()
 
-        # Then create content items
-        TeamMemberFactory.create_batch(5, section=team_section, is_management=True)
-        TeamMemberFactory.create_batch(10, section=team_section, is_management=False)
-        FAQFactory.create_batch(5, section=faq_section)
+        why = WhyUsSectionFactory.create()
+        for order, value in enumerate(data.CORE_VALUES):
+            WhyUsFeatureFactory.create(section=why, order=order, **value)
+
+        team = TeamSectionFactory.create()
+        for order, member in enumerate(data.MANAGEMENT):
+            TeamMemberFactory.create(section=team, order=order, is_management=True, **member)
+        for order, member in enumerate(data.STAFF):
+            TeamMemberFactory.create(section=team, order=order, is_management=False, **member)
+
+        faq = FAQSectionFactory.create()
+        for order, item in enumerate(data.FAQS):
+            FAQFactory.create(section=faq, order=order, **item)
 
         logger.info("✅ About data seeded.")
 
 
 class CustomerSeeder(Seeder):
     def clean_data(self):
-        # Clean section models first
-        CustomersSectionFactory._meta.model.objects.all().delete()
-        TestimonialsSectionFactory._meta.model.objects.all().delete()
-
-        # Then clean content models
-        CustomerFactory._meta.model.objects.all().delete()
-        TestimonialFactory._meta.model.objects.all().delete()
-
+        _delete_all(CustomerFactory, TestimonialFactory, CustomersSectionFactory, TestimonialsSectionFactory)
         logger.info("🧹 Customer data cleaned.")
 
     @transaction.atomic
@@ -273,32 +259,28 @@ class CustomerSeeder(Seeder):
             self.clean_data()
         logger.info("🌱 Seeding Customer data...")
 
-        # Create sections first
-        customers_section = CustomersSectionFactory.create()
-        testimonials_section = TestimonialsSectionFactory.create()
+        customers = CustomersSectionFactory.create()
+        for order, customer in enumerate(data.CUSTOMERS):
+            CustomerFactory.create(section=customers, order=order, **customer)
 
-        # Then create content items
-        CustomerFactory.create_batch(10, section=customers_section)
-        TestimonialFactory.create_batch(4, section=testimonials_section)
-        # Set one testimonial as featured
-        TestimonialFactory.create(section=testimonials_section, is_featured=True)
+        testimonials = TestimonialsSectionFactory.create()
+        for order, testimonial in enumerate(data.TESTIMONIALS):
+            TestimonialFactory.create(section=testimonials, order=order, **testimonial)
 
         logger.info("✅ Customer data seeded.")
 
 
 class ContactSeeder(Seeder):
     def clean_data(self):
-        # Clean section model first
-        ContactSectionFactory._meta.model.objects.all().delete()
-
-        # Then clean content models
-        ContactDataFactory._meta.model.objects.all().delete()
-        ContactGroupFactory._meta.model.objects.all().delete()
-        ContactMemberFactory._meta.model.objects.all().delete()
-        SocialFactory._meta.model.objects.all().delete()
-        ContactPhoneFactory._meta.model.objects.all().delete()
-        ContactEmailFactory._meta.model.objects.all().delete()
-
+        _delete_all(
+            ContactPhoneFactory,
+            ContactEmailFactory,
+            ContactMemberFactory,
+            ContactGroupFactory,
+            SocialFactory,
+            ContactDataFactory,
+            ContactSectionFactory,
+        )
         logger.info("🧹 Contact data cleaned.")
 
     @transaction.atomic
@@ -307,42 +289,27 @@ class ContactSeeder(Seeder):
             self.clean_data()
         logger.info("🌱 Seeding Contact data...")
 
-        # Create section first
-        contact_section = ContactSectionFactory.create()
+        section = ContactSectionFactory.create()
+        contact_data = ContactDataFactory.create(section=section)
+        for phone in data.CONTACT_PHONES:
+            ContactPhoneFactory.create(contact=contact_data, **phone)
+        for email in data.CONTACT_EMAILS:
+            ContactEmailFactory.create(contact=contact_data, **email)
 
-        # Create contact data
-        contact_data = ContactDataFactory.create(section=contact_section)
+        for name, members in data.CONTACT_GROUPS.items():
+            group = ContactGroupFactory.create(section=section, name=name)
+            for member in members:
+                ContactMemberFactory.create(group=group, **member)
 
-        # Add phone numbers and emails
-        ContactPhoneFactory.create(contact=contact_data, type="phone", is_primary=True)
-        ContactPhoneFactory.create(contact=contact_data, type="whatsapp")
-
-        ContactEmailFactory.create(
-            contact=contact_data, department="Sales", is_primary=True
-        )
-        ContactEmailFactory.create(contact=contact_data, department="Support")
-
-        # Create groups and members
-        for dept in ["Sales", "Production"]:
-            group = ContactGroupFactory.create(section=contact_section, name=dept)
-            ContactMemberFactory.create_batch(3, group=group)
-
-        # Create social media links
-        SocialFactory.create_batch(3, section=contact_section)
+        for order, social in enumerate(data.SOCIALS):
+            SocialFactory.create(section=section, order=order, **social)
 
         logger.info("✅ Contact data seeded.")
 
 
 class CareerSeeder(Seeder):
     def clean_data(self):
-        # Clean section model first
-        CareerSectionFactory._meta.model.objects.all().delete()
-
-        # Then clean content models (applications cascade with their position,
-        # but clear explicitly so re-seeds start from a clean slate)
-        JobApplicationFactory._meta.model.objects.all().delete()
-        CareerPositionFactory._meta.model.objects.all().delete()
-
+        _delete_all(JobApplicationFactory, CareerPositionFactory, CareerSectionFactory)
         logger.info("🧹 Career data cleaned.")
 
     @transaction.atomic
@@ -351,29 +318,18 @@ class CareerSeeder(Seeder):
             self.clean_data()
         logger.info("🌱 Seeding Career data...")
 
-        # Create section first
-        career_section = CareerSectionFactory.create()
-
-        # Then create positions
-        positions = CareerPositionFactory.create_batch(
-            3, section=career_section, status="active"
-        )
-
-        # A few sample applications per position for testing the apply flow/admin
-        for position in positions:
-            JobApplicationFactory.create_batch(2, position=position)
+        section = CareerSectionFactory.create()
+        for order, position in enumerate(data.POSITIONS):
+            created = CareerPositionFactory.create(section=section, order=order, **position)
+            # A couple of sample applications per position for the admin.
+            JobApplicationFactory.create_batch(2, position=created)
 
         logger.info("✅ Career data seeded.")
 
 
 class ActivitiesSeeder(Seeder):
     def clean_data(self):
-        # Clean section model first
-        ActivitiesSectionFactory._meta.model.objects.all().delete()
-
-        # Then clean content models
-        ActivityFactory._meta.model.objects.all().delete()
-
+        _delete_all(ActivityFactory, ActivitiesSectionFactory)
         logger.info("🧹 Activities data cleaned.")
 
     @transaction.atomic
@@ -382,29 +338,22 @@ class ActivitiesSeeder(Seeder):
             self.clean_data()
         logger.info("🌱 Seeding Activities data...")
 
-        # Create section first
-        activities_section = ActivitiesSectionFactory.create()
-
-        # Then create the sample activities, featured so they show on the home page
-        for sample in SAMPLE_ACTIVITIES:
-            ActivityFactory.create(
-                section=activities_section, is_featured=True, **sample
-            )
+        section = ActivitiesSectionFactory.create()
+        for activity in data.ACTIVITIES:
+            ActivityFactory.create(section=section, **activity)
 
         logger.info("✅ Activities data seeded.")
 
 
 class ProductsSeeder(Seeder):
     def clean_data(self):
-        # Clean section models first
-        ProductsPageFactory._meta.model.objects.all().delete()
-
-        # Then clean content models
-        ProductCarouselSlideFactory._meta.model.objects.all().delete()
-        ProductSectionFactory._meta.model.objects.all().delete()
-        ProductCategoryFactory._meta.model.objects.all().delete()
-        ProductFactory._meta.model.objects.all().delete()
-
+        _delete_all(
+            ProductFactory,
+            ProductCategoryFactory,
+            ProductSectionFactory,
+            ProductCarouselSlideFactory,
+            ProductsPageFactory,
+        )
         logger.info("🧹 Products data cleaned.")
 
     @transaction.atomic
@@ -413,42 +362,29 @@ class ProductsSeeder(Seeder):
             self.clean_data()
         logger.info("🌱 Seeding Products data...")
 
-        # Create main page
-        products_page = ProductsPageFactory.create()
+        page = ProductsPageFactory.create()
+        for order, alt in enumerate(data.PRODUCT_CAROUSEL):
+            ProductCarouselSlideFactory.create(page=page, order=order, alt=alt)
+        for order, section in enumerate(data.PRODUCT_SECTIONS):
+            ProductSectionFactory.create(page=page, order=order, **section)
 
-        # Create carousel slides
-        ProductCarouselSlideFactory.create_batch(3, page=products_page)
-
-        # Create sections (some before, some after products)
-        ProductSectionFactory.create_batch(3, page=products_page, after_products=False)
-        ProductSectionFactory.create_batch(2, page=products_page, after_products=True)
-
-        # Create product categories and products
-        for category_name in ["Jackets", "Pants", "Shirts", "Denim"]:
-            category = ProductCategoryFactory.create(
-                page=products_page, name=category_name
-            )
-            # Create 5-10 products for each category
-            product_count = random.randint(5, 10)
-            ProductFactory.create_batch(product_count, category=category)
+        for cat_order, (category_name, products) in enumerate(data.PRODUCT_CATEGORIES.items()):
+            category = ProductCategoryFactory.create(page=page, name=category_name, order=cat_order)
+            for order, (name, gender, buyer) in enumerate(products):
+                ProductFactory.create(category=category, name=name, gender=gender, buyer=buyer, order=order)
 
         logger.info("✅ Products data seeded.")
 
 
 class ComplianceSeeder(Seeder):
     def clean_data(self):
-        # Clean section models first
-        CompliancePageFactory._meta.model.objects.all().delete()
-
-        # Then clean content models
-        ComplianceSectionFactory._meta.model.objects.all().delete()
-        ComplianceCertificateFactory._meta.model.objects.all().delete()
+        _delete_all(ComplianceSectionFactory, ComplianceCertificateFactory)
         AuditStatus.objects.all().delete()
         ComplianceCompanyInfo.objects.all().delete()
         CompanyInfoStat.objects.all().delete()
         CompanyBuyer.objects.all().delete()
         ProductionStep.objects.all().delete()
-
+        _delete_all(CompliancePageFactory)
         logger.info("🧹 Compliance data cleaned.")
 
     @transaction.atomic
@@ -457,33 +393,21 @@ class ComplianceSeeder(Seeder):
             self.clean_data()
         logger.info("🌱 Seeding Compliance data...")
 
-        # Create main page
-        compliance_page = CompliancePageFactory.create()
+        page = CompliancePageFactory.create()
+        for order, section in enumerate(data.COMPLIANCE_SECTIONS):
+            ComplianceSectionFactory.create(page=page, order=order, **section)
+        for order, (name, url) in enumerate(data.COMPLIANCE_CERTIFICATES):
+            ComplianceCertificateFactory.create(page=page, order=order, name=name, website_url=url)
 
-        # Create content sections
-        ComplianceSectionFactory.create_batch(5, page=compliance_page)
-
-        # Create certificates
-        ComplianceCertificateFactory.create_batch(7, page=compliance_page)
-
-        # Pre-populate the real audit status records
-        seed_audits(compliance_page)
-
-        # Pre-populate the admin-managed company information section
-        seed_company_info(compliance_page)
+        seed_audits(page)
+        seed_company_info(page)
 
         logger.info("✅ Compliance data seeded.")
 
 
 class SustainabilitySeeder(Seeder):
     def clean_data(self):
-        # Clean section models first
-        SustainabilityPageFactory._meta.model.objects.all().delete()
-
-        # Then clean content models
-        SustainabilitySectionFactory._meta.model.objects.all().delete()
-        SustainabilityCertificateFactory._meta.model.objects.all().delete()
-
+        _delete_all(SustainabilitySectionFactory, SustainabilityCertificateFactory, SustainabilityPageFactory)
         logger.info("🧹 Sustainability data cleaned.")
 
     @transaction.atomic
@@ -492,28 +416,18 @@ class SustainabilitySeeder(Seeder):
             self.clean_data()
         logger.info("🌱 Seeding Sustainability data...")
 
-        # Create main page
-        sustainability_page = SustainabilityPageFactory.create()
-
-        # Create content sections
-        SustainabilitySectionFactory.create_batch(5, page=sustainability_page)
-
-        # Create certificates
-        SustainabilityCertificateFactory.create_batch(5, page=sustainability_page)
+        page = SustainabilityPageFactory.create()
+        for order, section in enumerate(data.SUSTAINABILITY_SECTIONS):
+            SustainabilitySectionFactory.create(page=page, order=order, **section)
+        for order, name in enumerate(data.SUSTAINABILITY_CERTIFICATES):
+            SustainabilityCertificateFactory.create(page=page, order=order, name=name)
 
         logger.info("✅ Sustainability data seeded.")
 
 
 class GallerySeeder(Seeder):
     def clean_data(self):
-        # Clean section models first
-        GalleryPageFactory._meta.model.objects.all().delete()
-
-        # Then clean content models
-        GallerySectionFactory._meta.model.objects.all().delete()
-        GalleryImageFactory._meta.model.objects.all().delete()
-        GalleryVideoFactory._meta.model.objects.all().delete()
-
+        _delete_all(GalleryImageFactory, GallerySectionFactory, GalleryPageFactory)
         logger.info("🧹 Gallery data cleaned.")
 
     @transaction.atomic
@@ -522,18 +436,11 @@ class GallerySeeder(Seeder):
             self.clean_data()
         logger.info("🌱 Seeding Gallery data...")
 
-        # Create main page
-        gallery_page = GalleryPageFactory.create()
-
-        # Create gallery sections
-        sections = ["Products", "Factory", "Team", "Events"]
-        for section_name in sections:
-            section = GallerySectionFactory.create(page=gallery_page, name=section_name)
-
-            # Create images for each section
-            GalleryImageFactory.create_batch(8, section=section)
-
-            # Create videos for each section (fewer videos than images)
-            GalleryVideoFactory.create_batch(2, section=section)
+        page = GalleryPageFactory.create()
+        for sec_order, (section_name, captions) in enumerate(data.GALLERY_SECTIONS.items()):
+            section = GallerySectionFactory.create(page=page, name=section_name, order=sec_order)
+            for order, caption in enumerate(captions):
+                GalleryImageFactory.create(section=section, caption=caption, order=order)
+        # Videos are left for editors: there are no verified company videos to embed.
 
         logger.info("✅ Gallery data seeded.")

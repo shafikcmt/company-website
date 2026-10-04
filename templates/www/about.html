@@ -1,119 +1,139 @@
 {% extends "www/base.html" %}
-{% load static %}
-{% block title %}About Us — {{ site.site_name|default:"Humana Apparels Ltd" }}{% endblock %}
-{% block meta_description %}<meta name="description" content="About {{ site.site_name|default:'Humana Apparels Ltd' }} — company overview, core values, leadership team and FAQs.">{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/about.css' %}">{% endblock %}
-{% block body_class %}humana-about{% endblock %}
+{% block title %}{% if page.meta_title %}{{ page.meta_title }}{% else %}About Us — {{ site.site_name|default:"Humana Apparels Ltd" }}{% endif %}{% endblock %}
 {% block content %}
-<div class="about-page">
-  <section class="about-hero" aria-labelledby="about-title">
-    {% if about.image %}<img class="about-hero-image" src="{{ about.image.url }}" alt="" fetchpriority="high" width="1600" height="600">{% endif %}
-    <div class="about-shell about-hero-inner">
-      <span class="about-eyebrow">{{ site.site_name|default:"Humana Apparels Ltd" }}</span>
-      <h1 id="about-title">About Us</h1>
-      <nav aria-label="Breadcrumb" class="about-breadcrumb"><a href="{% url 'home' %}">Home</a><span aria-hidden="true">/</span><span aria-current="page">About</span></nav>
-    </div>
-  </section>
 
-  {% if about %}
-  <section class="about-section" aria-labelledby="about-story-title">
-    <div class="about-shell about-story {% if not about.image %}about-story-text-only{% endif %}">
-      {% if about.image %}
-      <figure class="about-story-figure" data-about-reveal>
-        <div class="about-story-image"><img src="{{ about.image.url }}" alt="{{ site.site_name|default:'Humana Apparels' }} manufacturing facility" width="800" height="600" loading="lazy" decoding="async"></div>
-        <figcaption><span aria-hidden="true" class="about-image-mark"></span>{{ site.site_name|default:"Humana Apparels Ltd" }}</figcaption>
-      </figure>
-      {% endif %}
-      <div class="about-story-copy" data-about-reveal>
-        <p class="about-eyebrow">Company overview</p>
-        <h2 id="about-story-title" class="about-heading">{{ about.title|default:"Our Story" }}</h2>
-        {% if about.subtitle %}<p class="about-lead">{{ about.subtitle }}</p>{% endif %}
-        {% if about.content %}<div class="about-richtext">{{ about.content|safe }}</div>{% endif %}
-        <a class="about-text-link" href="{% url 'products' %}">Explore our products <i class="ph ph-duotone ph-arrow-up-right" aria-hidden="true"></i></a>
-      </div>
-    </div>
-  </section>
+  {% if page.banner_image %}
+    {% include "partials/page_header.html" with heading=page.banner_title|default:"About Us" subtitle=page.banner_subtitle eyebrow=page.eyebrow bg_image=page.banner_image breadcrumb=page.banner_title|default:"About" %}
+  {% else %}
+    {% include "partials/page_header.html" with heading=page.banner_title|default:"About Us" subtitle=page.banner_subtitle eyebrow=page.eyebrow bg_image=page.image breadcrumb=page.banner_title|default:"About" %}
   {% endif %}
 
-  {% if key_facts %}
-  <section class="about-facts-section" aria-label="Company at a glance">
-    <div class="about-shell">
-      <p class="about-eyebrow">At a glance</p>
-      <dl class="about-facts">
-        {% for fact in key_facts %}
-        <div class="about-fact" data-about-reveal>
-          <dt>{% if fact.icon %}<i class="ph ph-duotone {{ fact.icon }}" aria-hidden="true"></i>{% endif %}{{ fact.title }}</dt>
-          <dd>{{ fact.value }}</dd>
+  {# ========================= COMPANY OVERVIEW ========================= #}
+  {% if page.pk %}
+    <section class="section overflow-hidden bg-white">
+      <div class="container-site grid items-center gap-14 lg:grid-cols-2 lg:gap-24">
+        <div class="relative" data-reveal="left">
+          <div class="absolute -bottom-6 -left-6 hidden size-48 rounded-3xl bg-amber/15 sm:block" aria-hidden="true"></div>
+          <div class="card-media relative aspect-[4/3] rounded-2xl bg-surface shadow-lift">
+            {% if page.image %}
+              <img src="{{ page.image.url }}" alt="{{ page.title|default:'' }}" class="h-full w-full object-cover" loading="lazy" decoding="async">
+            {% else %}
+              <div class="flex h-full items-center justify-center text-navy/20"><i class="ph-duotone ph-buildings text-7xl" aria-hidden="true"></i></div>
+            {% endif %}
+          </div>
         </div>
-        {% endfor %}
-      </dl>
-    </div>
-  </section>
+        <div>
+          {% include "partials/section_header.html" with eyebrow=page.eyebrow|default:"Company Overview" title=page.title|default:"Crafting Quality Apparel" subtitle=page.subtitle align="left" %}
+          {% if page.content %}<div class="rich-text mt-6" data-reveal="up">{{ page.content|safe }}</div>{% endif %}
+
+          {% if key_facts %}
+            <dl class="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-navy/10 ring-1 ring-navy/5" data-reveal="up">
+              {% for fact in key_facts %}
+                <div class="flex flex-col bg-white p-5">
+                  <dd class="order-1 flex items-center gap-2 text-2xl font-extrabold tabular-nums tracking-tight text-navy">
+                    {% if fact.icon %}<i class="ph-duotone {{ fact.icon }} text-2xl text-amber-dark" aria-hidden="true"></i>{% endif %}
+                    {% if fact.number is not None %}<span data-count-to="{{ fact.number }}" data-prefix="{{ fact.prefix|default:'' }}" data-suffix="{{ fact.suffix|default:'' }}">{{ fact.display_value }}</span>{% else %}{{ fact.display_value }}{% endif %}
+                  </dd>
+                  <dt class="order-2 mt-1 text-sm font-medium text-muted">{{ fact.display_label }}</dt>
+                </div>
+              {% endfor %}
+            </dl>
+          {% endif %}
+        </div>
+      </div>
+    </section>
   {% endif %}
 
+  {# ========================= CORE VALUES ========================= #}
   {% if core_values %}
-  <section class="about-section about-values-section" aria-labelledby="about-values-title">
-    <div class="about-shell">
-      <div class="about-values-layout">
-      <div class="about-section-heading"><p class="about-eyebrow">What drives us</p><h2 class="about-heading" id="about-values-title">Our Core Values</h2></div>
-      <div class="about-values grid md:grid-cols-2 lg:grid-cols-3">
-        {% for value in core_values %}
-        <article class="about-value" data-about-reveal>
-          <i class="ph ph-duotone {{ value.icon }}" aria-hidden="true"></i>
-          <h3>{{ value.title }}</h3><p>{{ value.description }}</p>
-        </article>
-        {% endfor %}
+    <section class="section bg-surface">
+      <div class="container-site">
+        {% include "partials/section_header.html" with eyebrow=why_section.eyebrow|default:"What Drives Us" title=why_section.title|default:"Our Core Values" subtitle=why_section.subtitle %}
+        <div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {% for value in core_values %}
+            <article class="group card card-hover p-8" data-reveal="up" data-reveal-delay="{% cycle '0' '100' '200' %}">
+              <div class="flex items-start justify-between gap-4">
+                <span class="icon-tile"><i class="ph-duotone {{ value.icon }}" aria-hidden="true"></i></span>
+                {% if value.stat_number %}<span class="text-3xl font-extrabold tracking-tight text-navy/15">{{ value.stat_number }}</span>{% endif %}
+              </div>
+              <h3 class="mt-6 text-xl font-bold tracking-tight">{{ value.title }}</h3>
+              <div class="rich-text mt-2 text-[0.95rem]">{{ value.description|safe }}</div>
+            </article>
+          {% endfor %}
+        </div>
       </div>
-      </div>
-      <div class="about-responsibility-links"><span>Explore our commitments</span><a class="about-text-link" href="{% url 'sustainability' %}">Sustainability <i class="ph ph-duotone ph-arrow-up-right" aria-hidden="true"></i></a><a class="about-text-link" href="{% url 'complience' %}">Compliance <i class="ph ph-duotone ph-arrow-up-right" aria-hidden="true"></i></a></div>
-    </div>
-  </section>
+    </section>
   {% endif %}
 
-  {% if team.management or team.staff %}
-  <section class="about-section about-team-section" aria-labelledby="about-team-title">
-    <div class="about-shell">
-      <div class="about-section-heading"><p class="about-eyebrow">Our people</p><h2 class="about-heading" id="about-team-title">{{ team.title|default:"Meet Our Team" }}</h2>{% if team.subtitle %}<p class="about-lead">{{ team.subtitle }}</p>{% endif %}</div>
-      {% if team.management %}
-      <div class="about-management grid">
-        {% for member in team.management %}
-        <article class="about-person" data-about-reveal>
-          <div class="about-person-image">{% if member.image %}<img src="{{ member.image.url }}" alt="{{ member.name }}" width="400" height="400" loading="lazy" decoding="async">{% else %}<i class="ph ph-duotone ph-user" aria-hidden="true"></i>{% endif %}</div>
-          <div class="about-person-caption"><div><h3>{{ member.name }}</h3><p>{{ member.position }}</p></div>{% if member.linkedin_url %}<a href="{{ member.linkedin_url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ member.name }} on LinkedIn (opens in a new tab)"><i class="ph ph-duotone ph-linkedin-logo" aria-hidden="true"></i></a>{% endif %}</div>
-        </article>
-        {% endfor %}
+  {# ========================= TEAM ========================= #}
+  {% if management or staff %}
+    <section class="section bg-white">
+      <div class="container-site">
+        {% include "partials/section_header.html" with eyebrow=team_section.eyebrow|default:"Leadership" title=team_section.title|default:"Meet Our Team" subtitle=team_section.subtitle %}
+
+        {% if management %}
+          <div class="mt-14 grid grid-cols-2 gap-6 lg:grid-cols-4">
+            {% for member in management %}
+              <article class="group card card-hover overflow-hidden" data-reveal="up" data-reveal-delay="{% cycle '0' '100' '200' '300' %}">
+                <div class="card-media aspect-[3/4] bg-surface">
+                  {% if member.image %}<img src="{{ member.image.url }}" alt="{{ member.name }}" class="h-full w-full object-cover" loading="lazy" decoding="async">{% endif %}
+                  {% if member.linkedin_url %}
+                    <a href="{{ member.linkedin_url }}" target="_blank" rel="noopener" aria-label="{{ member.name }} on LinkedIn"
+                       class="absolute bottom-3 right-3 inline-flex size-10 items-center justify-center rounded-full bg-white/95 text-lg text-navy shadow-soft transition hover:bg-amber">
+                      <i class="ph-duotone ph-linkedin-logo" aria-hidden="true"></i>
+                    </a>
+                  {% endif %}
+                </div>
+                <div class="p-5 text-center">
+                  <h3 class="font-bold">{{ member.name }}</h3>
+                  <p class="mt-1 text-sm font-medium text-amber-dark">{{ member.position }}</p>
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if staff %}
+          <div class="mt-14 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-6">
+            {% for member in staff %}
+              <div class="group text-center" data-reveal="fade">
+                <div class="mx-auto size-28 overflow-hidden rounded-full bg-surface ring-4 ring-surface transition group-hover:ring-amber/40">
+                  {% if member.image %}<img src="{{ member.image.url }}" alt="{{ member.name }}" class="h-full w-full object-cover" loading="lazy" decoding="async">{% endif %}
+                </div>
+                <h3 class="mt-4 text-sm font-semibold">{{ member.name }}</h3>
+                <p class="text-xs text-muted">{{ member.position }}</p>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
       </div>
-      {% endif %}
-      {% if team.staff %}
-      <div class="about-staff {% if not team.management %}about-staff-only{% endif %} grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
-        {% for member in team.staff %}
-        <article><div class="about-staff-image">{% if member.image %}<img src="{{ member.image.url }}" alt="{{ member.name }}" width="120" height="120" loading="lazy" decoding="async">{% else %}<i class="ph ph-duotone ph-user" aria-hidden="true"></i>{% endif %}</div><h3>{{ member.name }}</h3><p>{{ member.position }}</p></article>
-        {% endfor %}
-      </div>
-      {% endif %}
-    </div>
-  </section>
+    </section>
   {% endif %}
 
-  {% if faq.faqs %}
-  <section class="about-section about-faq-section" aria-labelledby="about-faq-title">
-    <div class="about-shell about-faq-layout">
-      <div class="about-faq-intro"><p class="about-eyebrow">Good to know</p><h2 id="about-faq-title" class="about-heading">{{ faq.title|default:"Frequently Asked Questions" }}</h2>{% if faq.subtitle %}<p class="about-lead">{{ faq.subtitle }}</p>{% endif %}<a class="about-text-link" href="{% url 'contact' %}">Get in touch <i class="ph ph-duotone ph-arrow-up-right" aria-hidden="true"></i></a></div>
-      <div class="about-questions">
-        {% for item in faq.faqs %}
-        <details class="about-question"><summary>{{ item.question }}<span class="about-question-icon" aria-hidden="true"></span></summary><div class="about-richtext">{{ item.answer|safe }}</div></details>
-        {% endfor %}
+  {# ========================= FAQ ========================= #}
+  {% if faqs %}
+    <section class="section bg-surface">
+      <div class="container-site grid gap-12 lg:grid-cols-12">
+        <div class="lg:col-span-4">
+          {% include "partials/section_header.html" with eyebrow=faq_section.eyebrow|default:"Got Questions?" title=faq_section.title|default:"Frequently Asked Questions" subtitle=faq_section.subtitle align="left" %}
+        </div>
+        <div class="space-y-3 lg:col-span-8">
+          {% for item in faqs %}
+            <details class="group card overflow-hidden open:shadow-lift" data-reveal="up"{% if forloop.first %} open{% endif %}>
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-5 text-left font-semibold text-navy sm:p-6 [&::-webkit-details-marker]:hidden">
+                {{ item.question }}
+                <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-amber/15 text-amber-dark transition-transform duration-300 group-open:rotate-45">
+                  <i class="ph-duotone ph-plus" aria-hidden="true"></i>
+                </span>
+              </summary>
+              <div class="rich-text px-5 pb-6 sm:px-6">{{ item.answer|safe }}</div>
+            </details>
+          {% endfor %}
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
   {% endif %}
 
-  <section class="about-cta" aria-labelledby="about-cta-title">
-    <div class="about-shell about-cta-inner">
-      <div><p class="about-eyebrow">Let's work together</p><h2 id="about-cta-title">Partner with {{ site.site_name|default:"Humana Apparels" }}</h2></div>
-      <div class="about-cta-actions"><a class="about-button" href="{% url 'contact' %}">Get in touch <i class="ph ph-duotone ph-arrow-up-right" aria-hidden="true"></i></a><a class="about-button about-button-outline" href="{% url 'products' %}">Our products</a></div>
-    </div>
-  </section>
-</div>
-{% endblock %}
-{% block extra_js %}<script src="{% static 'js/about.js' %}" defer></script>{% endblock %}
+  {% include "partials/cta_band.html" with title=page.cta_title text=page.cta_text button_text=page.cta_button_text button_url=page.cta_button_url %}
+
+{% endblock content %}

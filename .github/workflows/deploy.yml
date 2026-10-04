@@ -1,0 +1,20 @@
+name: Deploy to office server
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: hapl-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # Office server runner (192.168.245.25 is private; GitHub-hosted runners can't reach it)
+    runs-on: [self-hosted, hapl-deploy]
+    timeout-minutes: 20
+    steps:
+      - name: Deploy on server
+        run: bash /home/hapl/company-website/scripts/deploy-docker.sh

@@ -1,82 +1,75 @@
 {% extends "www/base.html" %}
-{% load static %}
-{% block title %}Customers — Humana Apparels Ltd{% endblock %}
-{% block meta_description %}
-  <meta name="description" content="The global fashion brands that trust Humana Apparels Ltd, and what they say about working with us.">
-{% endblock %}
+{% block title %}{% if page.meta_title %}{{ page.meta_title }}{% else %}Customers — {{ site.site_name|default:"Humana Apparels Ltd" }}{% endif %}{% endblock %}
 {% block content %}
 
-  <!-- ========================= PAGE HEADER ========================= -->
-  {% include "partials/page_header.html" with heading=clients_data.title|default:"Our Customers" subtitle=clients_data.subtitle breadcrumb="Customers" %}
+  {% firstof page.banner_title page.title "Our Customers" as heading %}{% firstof page.banner_subtitle page.subtitle as subheading %}
+  {% include "partials/page_header.html" with heading=heading subtitle=subheading eyebrow=page.eyebrow bg_image=page.banner_image breadcrumb="Customers" %}
 
-  <!-- ========================= CLIENT LOGOS ========================= -->
-  <section class="py-20 px-4 bg-white">
-    <div class="max-w-7xl mx-auto">
-      {% if clients_data.clients %}
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-          {% for client in clients_data.clients %}
-            <a href="{{ client.url }}" target="_blank" rel="noopener"
-               class="group flex flex-col items-center justify-center gap-3 bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow p-8">
-              {% if client.logo %}
-                <img src="{{ client.logo.url }}" alt="{{ client.name }}" class="h-14 w-auto object-contain grayscale group-hover:grayscale-0 transition">
-              {% endif %}
-              <span class="text-sm font-semibold text-gray-700">{{ client.name }}</span>
-            </a>
+  {# ========================= CLIENT LOGOS ========================= #}
+  <section class="section bg-white">
+    <div class="container-site">
+      {% if clients %}
+        <ul class="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {% for client in clients %}
+            <li data-reveal="up" data-reveal-delay="{% cycle '0' '60' '120' '180' '240' %}">
+              <a href="{{ client.url }}" target="_blank" rel="noopener"
+                 class="group card card-hover flex h-full flex-col items-center justify-center gap-4 p-8">
+                {% if client.logo %}
+                  <img src="{{ client.logo.url }}" alt="" class="h-14 w-auto object-contain opacity-70 grayscale transition duration-300 group-hover:opacity-100 group-hover:grayscale-0" loading="lazy" decoding="async">
+                {% endif %}
+                <span class="text-center text-sm font-semibold text-navy">{{ client.name }}</span>
+              </a>
+            </li>
           {% endfor %}
-        </div>
+        </ul>
       {% else %}
-        <p class="text-center text-gray-500">No customers available yet.</p>
+        <p class="text-center text-muted">No customers available yet.</p>
       {% endif %}
     </div>
   </section>
 
-  <!-- ========================= TESTIMONIALS ========================= -->
-  {% if testimonials.featured or testimonials.testimonials %}
-    <section class="py-20 px-4 bg-gray-50">
-      <div class="max-w-7xl mx-auto">
-        <div class="max-w-2xl mx-auto text-center">
-          <span class="text-sm font-semibold uppercase tracking-wide text-brand-orange-dark">Kind Words</span>
-          <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-brand-navy">{{ testimonials.title|default:"What Our Clients Say" }}</h2>
-          {% if testimonials.subtitle %}<p class="mt-4 text-gray-600">{{ testimonials.subtitle }}</p>{% endif %}
-        </div>
+  {# ========================= TESTIMONIALS ========================= #}
+  {% if featured_testimonial or testimonials %}
+    <section class="section bg-surface">
+      <div class="container-site">
+        {% include "partials/section_header.html" with eyebrow=testimonials_section.eyebrow|default:"Kind Words" title=testimonials_section.title|default:"What Our Clients Say" subtitle=testimonials_section.subtitle %}
 
-        <!-- Featured large card -->
-        {% if testimonials.featured %}
-          <div class="mt-12 bg-brand-navy rounded-3xl p-10 text-center">
-            <i class="ph ph-duotone ph-quotes text-5xl text-brand-orange"></i>
-            <p class="mt-4 text-xl md:text-2xl font-medium text-white leading-relaxed max-w-3xl mx-auto">{{ testimonials.featured.content }}</p>
-            <div class="mt-6 flex items-center justify-center gap-3">
-              {% if testimonials.featured.company_logo %}<img src="{{ testimonials.featured.company_logo.url }}" alt="" class="size-12 rounded-full object-cover bg-white p-1">{% endif %}
-              <div class="text-left">
-                <div class="font-bold text-white">{{ testimonials.featured.author }}</div>
-                <div class="text-sm text-gray-400">{{ testimonials.featured.position }}</div>
-              </div>
-            </div>
-          </div>
+        {% if featured_testimonial %}
+          <figure class="on-dark relative mt-14 overflow-hidden rounded-2xl bg-navy px-6 py-12 text-center shadow-lift sm:px-12 lg:py-16" data-reveal="up">
+            <div class="pointer-events-none absolute inset-0 bg-grid-faint" aria-hidden="true"></div>
+            <i class="ph-duotone ph-quotes relative text-6xl text-amber" aria-hidden="true"></i>
+            <blockquote class="relative mx-auto mt-4 max-w-3xl text-xl font-medium leading-relaxed text-white md:text-2xl">{{ featured_testimonial.content }}</blockquote>
+            <figcaption class="relative mt-8 flex items-center justify-center gap-4">
+              {% if featured_testimonial.company_logo %}<img src="{{ featured_testimonial.company_logo.url }}" alt="" class="size-14 rounded-full bg-white object-contain p-1.5" loading="lazy">{% endif %}
+              <span class="text-left">
+                <span class="block font-bold text-white">{{ featured_testimonial.author }}</span>
+                <span class="block text-sm text-white/60">{{ featured_testimonial.position }}</span>
+              </span>
+            </figcaption>
+          </figure>
         {% endif %}
 
-        <!-- Other testimonials grid -->
-        {% if testimonials.testimonials %}
-          <div class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for t in testimonials.testimonials %}
-              {% if not t.is_featured %}
-                <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow p-7">
-                  <i class="ph ph-duotone ph-quotes text-3xl text-brand-orange"></i>
-                  <p class="mt-3 text-gray-600 leading-relaxed line-clamp-5">{{ t.content }}</p>
-                  <div class="mt-5 flex items-center gap-3">
-                    {% if t.company_logo %}<img src="{{ t.company_logo.url }}" alt="" class="size-10 rounded-full object-cover bg-gray-50 p-1">{% endif %}
-                    <div>
-                      <div class="font-semibold text-brand-navy">{{ t.author }}</div>
-                      <div class="text-xs text-gray-500">{{ t.position }}</div>
-                    </div>
-                  </div>
-                </div>
-              {% endif %}
+        {% if testimonials %}
+          <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {% for t in testimonials %}
+              <figure class="card card-hover flex flex-col p-7" data-reveal="up" data-reveal-delay="{% cycle '0' '100' '200' %}">
+                <i class="ph-duotone ph-quotes text-4xl text-amber" aria-hidden="true"></i>
+                <blockquote class="mt-3 line-clamp-6 flex-1 leading-relaxed">{{ t.content }}</blockquote>
+                <figcaption class="mt-6 flex items-center gap-3 border-t border-navy/5 pt-5">
+                  {% if t.company_logo %}<img src="{{ t.company_logo.url }}" alt="" class="size-11 rounded-full bg-surface object-contain p-1" loading="lazy">{% endif %}
+                  <span>
+                    <span class="block font-semibold text-navy">{{ t.author }}</span>
+                    <span class="block text-xs text-muted">{{ t.position }}</span>
+                  </span>
+                </figcaption>
+              </figure>
             {% endfor %}
           </div>
         {% endif %}
       </div>
     </section>
   {% endif %}
+
+  {% include "partials/cta_band.html" with title=page.cta_title text=page.cta_text button_text=page.cta_button_text button_url=page.cta_button_url %}
 
 {% endblock content %}

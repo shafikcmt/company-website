@@ -5,13 +5,13 @@ from unittest.mock import patch
 from django.contrib import admin
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.template.loader import render_to_string
-from django.test import RequestFactory, SimpleTestCase
+from django.test import RequestFactory, SimpleTestCase, TestCase
 from PIL import Image
 
 from common.services.image import ImageOptimizer
 from common.templatetags.public_content import public_social_url
 from hapl.admin import FAQInline, TeamMemberInline
-from hapl.models import AboutSection, CompanyStats, FAQ, FAQSection, TeamMember, TeamSection
+from hapl.models import AboutSection, CompanyStats, FAQ, FAQSection, Social, TeamMember, TeamSection
 from hapl.views import about
 
 
@@ -21,7 +21,10 @@ class AboutCMSHardeningTests(SimpleTestCase):
             self.assertEqual(public_social_url(value), '')
         url = 'https://www.youtube.com/@approved?view=1&sort=2'
         self.assertEqual(public_social_url(url), url)
-        html = render_to_string('www/about.html', {'site': SimpleNamespace(site_name='Approved Name', youtube_url=url, facebook_url='#')})
+        # Footer socials come from the shared Social model (legacy SiteSettings URLs
+        # are copied into it by migration 0017); invalid URLs are omitted.
+        socials = [Social(name='YouTube', url=url, icon='ph-youtube-logo'), Social(name='Facebook', url='#', icon='ph-facebook-logo')]
+        html = render_to_string('www/about.html', {'site': SimpleNamespace(site_name='Approved Name'), 'footer_socials': socials})
         self.assertIn('https://www.youtube.com/@approved?view=1&amp;sort=2', html)
         self.assertNotIn('aria-label="Facebook"', html)
         self.assertIn('About Us — Approved Name', html)
@@ -32,14 +35,6 @@ class AboutCMSHardeningTests(SimpleTestCase):
             self.assertNotIn(f'aria-label="{label}"', html)
         self.assertNotIn('src="/media/', html)
         self.assertIn('About Us', html)
-
-    def test_about_queries_have_deterministic_order_without_evaluation(self):
-        with patch('hapl.views.AboutSection.objects.first', return_value=None), patch('hapl.views.TeamSection.objects.first', return_value=None), patch('hapl.views.FAQSection.objects.first', return_value=None), patch('hapl.views.render', side_effect=lambda request, template, context: context):
-            context = about(RequestFactory().get('/about/'))
-        self.assertEqual(context['key_facts'].query.order_by, ('pk',))
-        self.assertEqual(context['key_facts'].query.high_mark, 4)
-        for queryset in [context['team']['management'], context['team']['staff'], context['faq']['faqs']]:
-            self.assertEqual(queryset.query.order_by, ('order', 'pk'))
 
     def test_guidance_is_shared_by_standalone_and_inline_forms(self):
         request = RequestFactory().get('/admin/')
@@ -52,7 +47,7 @@ class AboutCMSHardeningTests(SimpleTestCase):
         for editor in [admin.site._registry[FAQ], FAQInline(FAQSection, admin.site)]:
             field = editor.formfield_for_dbfield(FAQ._meta.get_field('order'), request)
             self.assertIn('equal values use record ID', field.help_text)
-        self.assertEqual(admin.site._registry[CompanyStats].ordering, ('pk',))
+        self.assertEqual(admin.site._registry[CompanyStats].ordering, ('order', 'pk'))
         self.assertEqual(TeamMember._meta.get_field('is_management').verbose_name, 'is management')
 
     def test_about_upload_bounds_compression_and_no_upscaling(self):
@@ -67,3 +62,15 @@ class AboutCMSHardeningTests(SimpleTestCase):
             with Image.open(optimized) as image:
                 self.assertEqual(image.size, expected)
                 self.assertEqual(image.format, 'WEBP')
+
+
+class AboutOrderingTests(TestCase):
+    def test_about_lists_are_in_display_order(self):
+        TeamMember.objects.create(name='Second', position='P', image='team/b.webp', is_management=True, order=2)
+        TeamMember.objects.create(name='First', position='P', image='team/a.webp', is_management=True, order=1)
+        FAQ.objects.create(question='Later', order=5)
+        FAQ.objects.create(question='Sooner', order=1)
+        with patch('hapl.views.render', side_effect=lambda request, template, context: context):
+            context = about(RequestFactory().get('/about/'))
+        self.assertEqual([m.name for m in context['management']], ['First', 'Second'])
+        self.assertEqual([f.question for f in context['faqs']], ['Sooner', 'Later'])

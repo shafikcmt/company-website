@@ -36,7 +36,7 @@ class PublicProductionTests(SimpleTestCase):
 
     def test_build_contains_shared_responsive_and_brand_utilities(self):
         css = (settings.BASE_DIR / 'common/static/css/public.styles.css').read_text()
-        for selector in ('.bg-brand-navy', '.text-brand-orange', '.font-sans', '.hidden',
+        for selector in ('.bg-navy', '.text-amber', '.container-site', '.font-sans', '.hidden',
                          '.lg\\:grid-cols-4', '.md\\:flex', '.size-9', '.prose'):
             with self.subTest(selector=selector):
                 self.assertIn(selector, css)

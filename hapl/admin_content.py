@@ -12,13 +12,18 @@ FIELD_GUIDANCE = {
         "title": ("Story heading", SECTION_HELP),
         "subtitle": ("Story introduction", "One short, company-approved introduction. Do not include unverified history or leadership claims."),
         "content": ("Company story", "Use approved company copy and simple paragraphs/lists. This rich text is published on About."),
-        "image": ("Hero and story image", "Used for both the wide hero and story image. Upload a crop-safe landscape image, ideally 1920 x 1440. New uploads fit within 1920 x 1440 without upscaling and are compressed to WebP. Keep source originals separately. Previous processed images are retained for rollback safety and cleaned up through a separate maintenance process."),
+        "image": ("Story image", "Shown beside the company story, and as the page banner when no banner image is set. Upload a crop-safe landscape image, ideally 1920 x 1440. New uploads fit within 1920 x 1440 without upscaling and are compressed to WebP. Keep source originals separately. Previous processed images are retained for rollback safety and cleaned up through a separate maintenance process."),
     },
     "CompanyStats": {
-        "title": ("Metric label", "Use a clear business metric. About shows the four lowest record IDs; these records are also used on Home."),
-        "value": ("Verified display value", "Enter an approved value with the appropriate unit/time period. Do not infer a metric from demo numbers."),
+        "number": ("Number", "Animated count-up value, e.g. 2400. Use an approved, verifiable figure."),
+        "prefix": ("Prefix", "Optional text before the number, e.g. $."),
+        "suffix": ("Suffix", "Optional unit after the number, e.g. +, K or %."),
+        "label": ("Label", "Readable description shown under the number, including the unit or period where needed."),
+        "title": ("Legacy label", "Kept for backwards compatibility; Label is used when set."),
+        "value": ("Legacy display value", "Shown only when Number is empty (e.g. values such as 1.5M). Kept in sync when Number is set."),
         "icon": ("Metric icon", "Optional existing Phosphor class, for example ph-users. Match the verified metric."),
-        "section": ("Stats section", "Section association does not select which four metrics appear on About."),
+        "order": ("Display order", "Home shows the stats of the first stats section in this order; About shows the first four."),
+        "section": ("Stats section", "Home and About use the stats attached to the first (lowest ID) stats section."),
     },
     "TeamMember": {
         "name": ("Full name", "Use the approved public name of a real team member."),
@@ -42,8 +47,11 @@ FIELD_GUIDANCE = {
     "SiteSettings": {
         "site_name": ("Public company name", "Used by public branding and the About title/metadata. Confirm the legal/trading name; this does not rewrite prose or other page-specific titles."),
         "footer_description": ("Public footer description", "Use approved company information and a consistent company name. This is the public footer copy, not the legacy Footer text field."),
-        "footer_text": ("Footer text (legacy)", "Not used by the current public About footer. Edit Public footer description instead."),
-        "footer_copyright": ("Footer copyright", "Use the approved company name. A nonempty value is shown verbatim; maintain its year manually."),
+        "footer_text": ("Footer text (legacy)", "Not used by the public site. Edit Public footer description instead."),
+        "footer_copyright": ("Footer copyright", "Use the approved company name. A nonempty value is shown verbatim; when empty the current year is used automatically."),
+        "footer_address": ("Footer address", "Published only when filled. Enter a verified public address."),
+        "footer_phone": ("Footer phone", "Published only when filled. Enter a verified public number."),
+        "footer_email": ("Footer email", "Published only when filled. Enter a verified public address."),
     },
 }
 

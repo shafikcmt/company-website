@@ -1,87 +1,295 @@
 {% extends "www/base.html" %}
-{% load static %}
-{% block title %}{{ site.site_name|default:"Humana Apparels Ltd" }} | Apparel Manufacturing{% endblock %}
-{% block meta_description %}<meta name="description" content="{{ site.footer_description|default:'Explore Humana Apparels, our manufacturing capabilities, products and facilities.'|striptags }}">{% endblock %}
-{% block body_class %}humana-home{% endblock %}
-{% block fonts %}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-{% endblock %}
-{% block extra_css %}
-<link href="{% static 'css/home.css' %}" rel="stylesheet">
-{% endblock %}
-{% block header %}{% include "www/partials/home_header.html" %}{% endblock %}
 {% block content %}
-{% include "www/partials/home_hero.html" %}
-{% if company_facts or stats.items %}
-<section class="home-facts" aria-label="Company at a glance"><div class="home-shell home-facts-grid">
-{% if company_facts %}
-{% for fact in company_facts %}<div class="home-fact"><span>{{ fact.label }}</span><strong>{{ fact.value }}</strong>{% if fact.subtext %}<small>{{ fact.subtext }}</small>{% endif %}</div>{% endfor %}
-{% else %}
-{% for stat in stats.items %}<div class="home-fact"><span>{{ stat.title }}</span><strong>{{ stat.value }}</strong></div>{% endfor %}
-{% endif %}
-</div></section>
-{% endif %}
-{% if intro %}
-<section id="company" class="home-section">
-<div class="home-shell grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
-{% if intro.image %}<figure class="home-intro-image" data-home-reveal><img src="{{ intro.image.url }}" alt="People and production at Humana Apparels" width="1440" height="1080" loading="lazy"><figcaption>{{ site.site_name|default:"Humana Apparels Ltd" }}</figcaption></figure>{% endif %}
-<div {% if not intro.image %}class="lg:col-span-2"{% endif %}><p class="home-label">Who we are</p><h2 class="home-heading">{{ intro.title|default:"The people behind the apparel" }}</h2>
-{% if intro.subtitle %}<p class="home-lead mt-6">{{ intro.subtitle }}</p>{% endif %}
-{% if intro.content %}<div class="home-copy mt-5">{{ intro.content|safe }}</div>{% endif %}
-<a class="home-text-link mt-7" href="{% url 'about' %}">Discover our company {% include "www/partials/home_arrow.html" %}</a></div>
-</div>
-{% if intro_features %}<div class="home-shell home-strengths">{% for feature in intro_features %}<article class="home-strength"><i class="ph ph-duotone {{ feature.icon|default:'ph-check-circle' }}" aria-hidden="true"></i><h3>{{ feature.title }}</h3><p>{{ feature.description }}</p></article>{% endfor %}</div>{% endif %}
-</section>
-{% endif %}
-{% if services.items %}
-<section class="home-section home-soft" id="capabilities"><div class="home-shell home-capabilities">
-<div><p class="home-label">Manufacturing capabilities</p><h2 class="home-heading">{{ services.title|default:"From concept to finished garment" }}</h2>
-{% if services.subtitle %}<p class="home-copy mt-6">{{ services.subtitle }}</p>{% endif %}
-<a class="home-text-link mt-7" href="{% url 'products' %}">Explore our products {% include "www/partials/home_arrow.html" %}</a>
-{% if production_steps %}<ol class="home-process" aria-label="Production process">{% for step in production_steps %}<li><span class="home-process-number" aria-hidden="true">{{ forloop.counter|stringformat:"02d" }}</span><div>{{ step.name }}{% if step.note %}<small>{{ step.note }}</small>{% endif %}</div></li>{% endfor %}</ol>{% endif %}
-</div>
-<div class="home-service-list">{% for service in services.items %}<article class="home-service"><i class="ph ph-duotone {{ service.icon|default:'ph-needle' }}" aria-hidden="true"></i><div><h3>{{ service.title }}</h3><div class="home-copy mt-3">{{ service.description|safe }}</div></div></article>{% endfor %}</div>
-</div></section>
-{% endif %}
-{% if products_preview %}
-<section class="home-section home-products" aria-labelledby="products-heading"><div class="home-shell">
-<div class="home-section-head"><div><p class="home-label">Product portfolio</p><h2 id="products-heading" class="home-heading">Explore what we make.</h2></div><a class="home-text-link" href="{% url 'products' %}">View portfolio {% include "www/partials/home_arrow.html" %}</a></div>
-<div class="home-category-grid">{% for category in products_preview %}<a class="home-category" href="{% url 'products' %}"><h3>{{ category.name }}</h3>{% include "www/partials/home_arrow.html" %}</a>{% endfor %}</div>
-</div></section>
-{% endif %}
-{% if clients %}
-<section class="home-section home-buyers" aria-labelledby="buyers-heading"><div class="home-shell">
-<div class="home-section-head"><div><p class="home-label">Brand relationships</p><h2 class="home-heading" id="buyers-heading">Our valued buyers.</h2></div><a class="home-text-link" href="{% url 'customers' %}">Meet our customers {% include "www/partials/home_arrow.html" %}</a></div>
-<div class="home-logo-grid">{% for client in clients %}
-{% if client.url %}<a href="{{ client.url }}" class="home-logo" target="_blank" rel="noopener noreferrer" aria-label="{{ client.name }} (opens in a new tab)">{% else %}<div class="home-logo">{% endif %}
-{% if client.logo %}<img src="{{ client.logo.url }}" alt="{{ client.name }}" loading="lazy" width="200" height="100">{% else %}<span>{{ client.name }}</span>{% endif %}
-{% if client.url %}</a>{% else %}</div>{% endif %}
-{% endfor %}</div>
-</div></section>
-{% endif %}
-{% if gallery_images %}
-<section class="home-section home-factory" aria-labelledby="factory-heading"><div class="home-shell">
-<div class="home-section-head"><div><p class="home-label">Inside Humana</p><h2 class="home-heading" id="factory-heading">A closer look at our facilities.</h2></div><a class="home-text-link" href="{% url 'gallery' %}">Explore the gallery {% include "www/partials/home_arrow.html" %}</a></div>
-<div class="home-gallery" data-home-reveal>{% for photo in gallery_images %}<a href="{% url 'gallery' %}" class="home-gallery-item">{% if photo.image %}<img src="{{ photo.image.url }}" alt="{{ photo.caption }}" loading="lazy" width="900" height="675">{% endif %}<span>{{ photo.caption }}{% include "www/partials/home_arrow.html" %}</span></a>{% endfor %}</div>
-</div></section>
-{% endif %}
-{% include "www/partials/home_virtual_tour.html" %}
-{% if certificates %}
-<section class="home-section home-soft" aria-labelledby="certificates-heading"><div class="home-shell">
-<div class="home-section-head"><div><p class="home-label">Standards &amp; responsibility</p><h2 class="home-heading" id="certificates-heading">Our certifications.</h2></div><a class="home-text-link" href="{% url 'complience' %}">View compliance details {% include "www/partials/home_arrow.html" %}</a></div>
-<div class="home-certificate-grid">{% for certificate in certificates %}<a class="home-certificate" href="{% if certificate.website_url %}{{ certificate.website_url }}{% else %}{% url 'complience' %}{% endif %}" {% if certificate.website_url %}target="_blank" rel="noopener noreferrer" aria-label="{{ certificate.name }} (opens in a new tab)"{% endif %}>{% if certificate.image %}<img src="{{ certificate.image.url }}" alt="" loading="lazy" width="160" height="100">{% endif %}<span>{{ certificate.name }}</span></a>{% endfor %}</div>
-<div class="home-responsibility"><h3>Explore our approach to sustainability.</h3><a class="home-text-link" href="{% url 'sustainability' %}">Sustainability at Humana {% include "www/partials/home_arrow.html" %}</a></div>
-</div></section>
-{% endif %}
-{% if activities.items %}
-<section class="home-section" aria-labelledby="activities-heading"><div class="home-shell">
-<div class="home-section-head"><div><p class="home-label">Company updates</p><h2 class="home-heading" id="activities-heading">{{ activities.title|default:"Our activities" }}</h2></div><a class="home-text-link" href="{% url 'activities' %}">All activities {% include "www/partials/home_arrow.html" %}</a></div>
-<div class="home-activities">{% for activity in activities.items %}<article class="home-activity">{% if activity.image %}<img src="{{ activity.image.url }}" alt="{{ activity.title }}" loading="lazy" width="800" height="500">{% endif %}<div>{% if activity.tag %}<span class="home-label">{{ activity.tag }}</span>{% endif %}<h3>{{ activity.title }}</h3><p class="home-copy mt-3">{{ activity.excerpt }}</p><time datetime="{{ activity.activity_date|date:'Y-m-d' }}">{{ activity.activity_date|date:"F j, Y" }}</time></div></article>{% endfor %}</div>
-</div></section>
-{% endif %}
-<section class="home-contact"><div class="home-shell home-section-head"><div><p class="home-label">Let’s work together</p><h2 class="home-heading">Your next collection.<br>Our next conversation.</h2></div><a class="home-button" href="{% url 'contact' %}">Talk to our team {% include "www/partials/home_arrow.html" %}</a></div></section>
-{% endblock %}
-{% block footer %}{% include "www/partials/home_footer.html" %}{% endblock %}
-{% block extra_js %}<script src="{% static 'js/home.js' %}" defer></script>{% endblock %}
+
+  {# ========================= HERO ========================= #}
+  {% include "partials/hero.html" with has_stats=stats %}
+
+  {# ========================= STATS STRIP ========================= #}
+  {% if stats %}
+    <section class="relative z-20 bg-surface pb-4 pt-8 lg:bg-transparent lg:pb-0 lg:pt-0" aria-labelledby="stats-title">
+      <h2 id="stats-title" class="sr-only">{{ stats_section.title|default:"Our Impact in Numbers" }}</h2>
+      <div class="container-site lg:-mt-16">
+        <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-navy/10 shadow-lift ring-1 ring-navy/5 {% if stats|length >= 4 %}lg:grid-cols-4{% elif stats|length == 3 %}lg:grid-cols-3{% endif %}" data-reveal="up">
+          {% for stat in stats %}
+            <div class="flex flex-col items-center bg-white px-4 py-8 text-center sm:px-6 lg:py-10">
+              {% if stat.icon %}
+                <i class="ph-duotone {{ stat.icon }} mb-3 text-3xl text-amber-dark" aria-hidden="true"></i>
+              {% endif %}
+              <dd class="order-1 text-3xl font-extrabold tabular-nums tracking-tight text-navy sm:text-4xl xl:text-5xl">
+                {% if stat.number is not None %}
+                  <span data-count-to="{{ stat.number }}" data-prefix="{{ stat.prefix|default:'' }}" data-suffix="{{ stat.suffix|default:'' }}">{{ stat.display_value }}</span>
+                {% else %}
+                  {{ stat.display_value }}
+                {% endif %}
+              </dd>
+              <dt class="order-2 mt-2 text-sm font-medium leading-snug text-muted sm:text-base">{{ stat.display_label }}</dt>
+            </div>
+          {% endfor %}
+        </dl>
+      </div>
+    </section>
+  {% endif %}
+
+  {# ========================= INTRODUCTION ========================= #}
+  {% if intro %}
+    <section class="section overflow-hidden bg-white">
+      <div class="container-site grid items-center gap-16 lg:grid-cols-2 lg:gap-24">
+        <div class="relative" data-reveal="left">
+          <div class="absolute -left-5 -top-5 hidden size-40 rounded-3xl bg-amber/15 sm:block" aria-hidden="true"></div>
+          <div class="absolute -right-4 -top-4 hidden size-28 rounded-2xl bg-dots-faint sm:block" aria-hidden="true"></div>
+          <div class="card-media relative z-10 aspect-[4/3] rounded-2xl bg-surface shadow-lift">
+            {% if intro.image %}
+              <img src="{{ intro.image.url }}" alt="{{ intro.title|default:'' }}" class="h-full w-full object-cover" loading="lazy" decoding="async">
+            {% else %}
+              <div class="flex h-full items-center justify-center text-navy/20"><i class="ph-duotone ph-buildings text-7xl" aria-hidden="true"></i></div>
+            {% endif %}
+          </div>
+          {% with stat=stats.0 %}
+            {% if stat %}
+              <div class="absolute bottom-4 right-4 z-20 flex items-center gap-4 rounded-xl bg-white/95 p-4 pr-6 shadow-lift ring-1 ring-navy/5 backdrop-blur sm:-bottom-8 sm:-right-8">
+                <span class="icon-tile !bg-amber !text-navy-800"><i class="ph-duotone {{ stat.icon|default:'ph-trophy' }}" aria-hidden="true"></i></span>
+                <span>
+                  <span class="block text-2xl font-extrabold leading-none tracking-tight text-navy">{{ stat.display_value }}</span>
+                  <span class="mt-1 block text-sm font-medium text-muted">{{ stat.display_label }}</span>
+                </span>
+              </div>
+            {% endif %}
+          {% endwith %}
+        </div>
+
+        <div>
+          {% include "partials/section_header.html" with eyebrow=intro.eyebrow title=intro.title subtitle=intro.subtitle align="left" %}
+          {% if intro.content %}<div class="rich-text mt-6" data-reveal="up">{{ intro.content|safe }}</div>{% endif %}
+
+          {% if intro_features %}
+            <ul class="mt-8 space-y-3">
+              {% for feature in intro_features %}
+                <li class="group card card-hover flex items-start gap-4 p-4" data-reveal="up" data-reveal-delay="{% widthratio forloop.counter0 1 100 %}">
+                  <span class="icon-tile !size-12 !text-xl"><i class="ph-duotone {{ feature.icon }}" aria-hidden="true"></i></span>
+                  <span class="min-w-0">
+                    <span class="block font-semibold text-navy">{{ feature.title }}</span>
+                    <span class="mt-1 block text-sm leading-relaxed text-muted">{{ feature.description }}</span>
+                  </span>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
+          {% with cta_text=intro.cta_text|default:"Learn More" %}
+            <a href="{{ intro.cta_url|default:'/about/' }}" class="btn-navy mt-10" data-reveal="up">
+              {{ cta_text }}<i class="ph-duotone ph-arrow-right btn-arrow" aria-hidden="true"></i>
+            </a>
+          {% endwith %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  {# ========================= SERVICES ========================= #}
+  {% if services %}
+    <section class="section bg-surface">
+      <div class="container-site">
+        {% include "partials/section_header.html" with eyebrow=services_section.eyebrow|default:"What We Offer" title=services_section.title|default:"Our Services" subtitle=services_section.subtitle %}
+        <div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {% for service in services %}
+            <article class="group card card-hover flex flex-col overflow-hidden" data-reveal="up" data-reveal-delay="{% cycle '0' '100' '200' %}">
+              {% if service.image %}
+                <div class="card-media aspect-[16/10]">
+                  <img src="{{ service.image.url }}" alt="" class="h-full w-full object-cover" loading="lazy" decoding="async">
+                </div>
+              {% endif %}
+              <div class="relative flex flex-1 flex-col p-7">
+                <span class="icon-tile {% if service.image %}-mt-14 ring-4 ring-white !bg-white shadow-soft{% endif %}"><i class="ph-duotone {{ service.icon }}" aria-hidden="true"></i></span>
+                <h3 class="mt-5 text-xl font-bold tracking-tight">{{ service.title }}</h3>
+                <div class="rich-text mt-2 text-[0.95rem]">{{ service.description|safe }}</div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  {# ========================= PRODUCT PREVIEW ========================= #}
+  {% if products_preview %}
+    <section class="section bg-white" aria-labelledby="products-heading">
+      <div class="container-site">
+        <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          {% include "partials/section_header.html" with eyebrow=products_page.portfolio_eyebrow|default:"What We Make" title=products_page.portfolio_title|default:"Explore what we make" subtitle=products_page.portfolio_subtitle align="left" id="products-heading" %}
+          <a href="{% url 'products' %}" class="link-arrow shrink-0" data-reveal="fade">View portfolio<i class="ph-duotone ph-arrow-right btn-arrow" aria-hidden="true"></i></a>
+        </div>
+        <ul class="mt-12 grid grid-cols-2 gap-5 lg:grid-cols-3">
+          {% for category in products_preview %}
+            <li data-reveal="up" data-reveal-delay="{% cycle '0' '100' '200' %}">
+              <a href="{% url 'products' %}" class="group card card-hover relative block overflow-hidden">
+                <div class="card-media aspect-[4/3] bg-surface">
+                  {% if category.image %}<img src="{{ category.image.url }}" alt="" class="h-full w-full object-cover" loading="lazy" decoding="async">{% endif %}
+                  <span class="absolute inset-0 bg-gradient-to-t from-navy-900/85 via-navy-900/10 to-transparent" aria-hidden="true"></span>
+                </div>
+                <span class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5">
+                  <span>
+                    <span class="block text-lg font-bold text-white sm:text-xl">{{ category.name }}</span>
+                    {% if category.count %}<span class="text-sm text-white/70">{{ category.count }} style{{ category.count|pluralize }}</span>{% endif %}
+                  </span>
+                  <span class="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-amber text-navy-800 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true"><i class="ph-duotone ph-arrow-right"></i></span>
+                </span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+  {% endif %}
+
+  {# ========================= FACTORY GALLERY ========================= #}
+  {% if gallery_images %}
+    <section class="section bg-surface" aria-labelledby="factory-heading">
+      <div class="container-site">
+        <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          {% include "partials/section_header.html" with eyebrow=gallery_page.home_eyebrow|default:"Inside Humana" title=gallery_page.home_title|default:"A closer look at our facilities" align="left" id="factory-heading" %}
+          <a href="{% url 'gallery' %}" class="link-arrow shrink-0" data-reveal="fade">Explore the gallery<i class="ph-duotone ph-arrow-right btn-arrow" aria-hidden="true"></i></a>
+        </div>
+        <ul class="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3">
+          {% for photo in gallery_images %}
+            <li class="min-w-0 {% if forloop.first %}col-span-2 md:row-span-2{% endif %}" data-reveal="fade">
+              <a href="{% url 'gallery' %}" class="group card-media relative block rounded-xl bg-navy/10 shadow-soft {% if forloop.first %}aspect-[4/3] md:aspect-auto md:h-full{% else %}aspect-[4/3]{% endif %}">
+                <img src="{{ photo.image.url }}" alt="{{ photo.caption }}" class="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async">
+                <span class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy-900/80 to-transparent p-4 pt-10 text-sm font-medium text-white">{{ photo.caption }}</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+  {% endif %}
+
+  {# ========================= 360° VIRTUAL TOUR ========================= #}
+  {% with tour_url=gallery_page.tour_url|default_if_none:"" %}
+  {% if tour_url or not gallery_page %}
+    {% firstof gallery_page.tour_url "https://360vr.hameemgroup.com/humana/" as tour_href %}
+    <section id="virtual-tour" class="section bg-white" aria-labelledby="tour-heading">
+      <div class="container-site">
+        <div class="grid gap-6 lg:grid-cols-2 lg:items-end">
+          {% include "partials/section_header.html" with eyebrow=gallery_page.tour_eyebrow|default:"Virtual experience" title=gallery_page.tour_title|default:"Explore Humana Apparels in 360°" align="left" id="tour-heading" %}
+          <p class="section-subtitle lg:pb-1" data-reveal="fade">{{ gallery_page.tour_text|default:"Take an immersive virtual tour of our manufacturing facility and explore Humana Apparels from a new perspective." }}</p>
+        </div>
+        {# A plain link (no iframe): no third-party requests until the visitor opts in. #}
+        <a href="{{ tour_href }}" target="_blank" rel="noopener noreferrer"
+           class="group card-media relative mt-12 block aspect-[16/10] overflow-hidden rounded-2xl bg-navy shadow-lift sm:aspect-[21/9]" data-reveal="up">
+          {% with factory=gallery_images.0 slide=slides.0 %}
+            {% if gallery_page.tour_image %}
+              <img src="{{ gallery_page.tour_image.url }}" alt="" class="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async">
+            {% elif factory %}
+              <img src="{{ factory.image.url }}" alt="" class="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async">
+            {% elif slide %}
+              <img src="{{ slide.image.url }}" alt="" class="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async">
+            {% endif %}
+          {% endwith %}
+          <span class="absolute inset-0 bg-gradient-to-t from-navy-900/90 via-navy-900/40 to-navy-900/20" aria-hidden="true"></span>
+          <span class="absolute left-1/2 top-1/2 inline-flex size-24 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/40 backdrop-blur transition-transform duration-500 group-hover:scale-110 sm:size-32" aria-hidden="true">
+            <span class="text-xl font-extrabold sm:text-2xl">360°</span>
+            <i class="ph-duotone ph-play text-lg"></i>
+          </span>
+          <span class="absolute inset-x-0 bottom-0 flex flex-col gap-4 p-6 sm:flex-row sm:items-end sm:justify-between sm:p-10">
+            <span class="text-2xl font-extrabold leading-tight text-white sm:text-3xl">Step inside.<br>Look around.</span>
+            <span class="flex flex-col items-start gap-2 sm:items-end">
+              <span class="btn-primary">{{ gallery_page.tour_button_text|default:"Explore 360° Factory Tour" }}<i class="ph-duotone ph-arrow-up-right btn-arrow" aria-hidden="true"></i></span>
+              <span class="text-xs text-white/70">Opens the full experience in a new tab</span>
+            </span>
+          </span>
+        </a>
+      </div>
+    </section>
+  {% endif %}
+  {% endwith %}
+
+  {# ========================= ACTIVITIES ========================= #}
+  {% if activities %}
+    <section class="section bg-white">
+      <div class="container-site">
+        <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          {% include "partials/section_header.html" with eyebrow=activities_section.eyebrow|default:"Our Activities" title=activities_section.title|default:"Our Activities" subtitle=activities_section.subtitle align="left" %}
+          <a href="{% url 'activities' %}" class="link-arrow shrink-0" data-reveal="fade">
+            View all<span class="sr-only"> activities</span><i class="ph-duotone ph-arrow-right btn-arrow" aria-hidden="true"></i>
+          </a>
+        </div>
+
+        <div class="mt-12 grid gap-6 lg:grid-cols-2">
+          {% for activity in activities %}
+            {% if forloop.first %}
+              <article class="group card card-hover relative flex flex-col overflow-hidden lg:row-span-2" data-reveal="up">
+                <div class="card-media aspect-[16/10] lg:aspect-auto lg:flex-1">
+                  <img src="{{ activity.image.url }}" alt="" class="h-full w-full object-cover" loading="lazy" decoding="async">
+                  {% if activity.tag %}<span class="absolute left-4 top-4 rounded-full bg-amber px-3 py-1 text-xs font-semibold text-navy-800">{{ activity.tag }}</span>{% endif %}
+                </div>
+                <div class="p-7">
+                  <p class="flex items-center gap-2 text-sm text-muted"><i class="ph-duotone ph-calendar-blank" aria-hidden="true"></i><time datetime="{{ activity.activity_date|date:'Y-m-d' }}">{{ activity.activity_date|date:"M j, Y" }}</time></p>
+                  <h3 class="mt-3 text-2xl font-bold tracking-tight transition-colors group-hover:text-amber-dark">{{ activity.title }}</h3>
+                  <p class="mt-3 line-clamp-3 leading-relaxed">{{ activity.excerpt }}</p>
+                </div>
+              </article>
+            {% else %}
+              <article class="group card card-hover flex flex-col overflow-hidden sm:flex-row" data-reveal="up" data-reveal-delay="{% widthratio forloop.counter0 1 100 %}">
+                <div class="card-media aspect-[16/10] sm:aspect-auto sm:w-2/5 sm:shrink-0">
+                  <img src="{{ activity.image.url }}" alt="" class="h-full w-full object-cover" loading="lazy" decoding="async">
+                </div>
+                <div class="flex flex-col p-6">
+                  {% if activity.tag %}<span class="self-start rounded-full bg-amber/15 px-3 py-1 text-xs font-semibold text-amber-dark">{{ activity.tag }}</span>{% endif %}
+                  <h3 class="mt-3 line-clamp-2 text-lg font-bold tracking-tight transition-colors group-hover:text-amber-dark">{{ activity.title }}</h3>
+                  <p class="mt-2 line-clamp-2 text-sm leading-relaxed">{{ activity.excerpt }}</p>
+                  <p class="mt-auto flex items-center gap-2 pt-4 text-sm text-muted"><i class="ph-duotone ph-calendar-blank" aria-hidden="true"></i><time datetime="{{ activity.activity_date|date:'Y-m-d' }}">{{ activity.activity_date|date:"M j, Y" }}</time></p>
+                </div>
+              </article>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  {# ========================= CLIENTS (marquee) ========================= #}
+  {% if clients %}
+    <section class="section-sm bg-surface">
+      <div class="container-site">
+        {% include "partials/section_header.html" with eyebrow=customers_section.eyebrow|default:"Trusted By" title=customers_section.title|default:"Our Valued Buyers" %}
+      </div>
+      <div class="marquee mt-12" style="--marquee-duration: {% widthratio marquee_clients|length 1 4 %}s" data-reveal="fade">
+        <ul class="marquee-track">
+          {# Originals first; repeats (needed to fill wide screens) are hidden from assistive tech. #}
+          {% for client in marquee_clients %}
+            <li{% if forloop.counter > clients|length %} aria-hidden="true"{% endif %}>
+              <a href="{{ client.url }}" target="_blank" rel="noopener" class="logo-tile"{% if forloop.counter > clients|length %} tabindex="-1"{% else %} aria-label="{{ client.name }}"{% endif %}>
+                {% if client.logo %}<img src="{{ client.logo.url }}" alt="{% if forloop.counter <= clients|length %}{{ client.name }}{% endif %}" loading="lazy" decoding="async">{% else %}<span class="text-sm font-semibold text-muted">{{ client.name }}</span>{% endif %}
+              </a>
+            </li>
+          {% endfor %}
+          {% for client in marquee_clients %}
+            <li aria-hidden="true">
+              <a href="{{ client.url }}" target="_blank" rel="noopener" class="logo-tile" tabindex="-1">
+                {% if client.logo %}<img src="{{ client.logo.url }}" alt="" loading="lazy" decoding="async">{% else %}<span class="text-sm font-semibold text-muted">{{ client.name }}</span>{% endif %}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+  {% endif %}
+
+  {# ========================= CLOSING CTA ========================= #}
+  <section class="section-sm bg-white">
+    <div class="container-site">
+      <div class="on-dark relative overflow-hidden rounded-2xl bg-navy px-6 py-14 shadow-lift sm:px-12 lg:py-16" data-reveal="up">
+        <div class="pointer-events-none absolute inset-0 bg-grid-faint" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute -right-20 -top-20 size-72 rounded-full bg-amber/15 blur-3xl" aria-hidden="true"></div>
+        <div class="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+          <div class="max-w-2xl">
+            <p class="eyebrow eyebrow-light">{{ hero.closing_eyebrow|default:"Let’s work together" }}</p>
+            <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-white md:text-4xl">{{ hero.closing_title|default:"Your next collection. Our next conversation." }}</h2>
+          </div>
+          <a href="{{ hero.closing_button_url|default:'/contact/' }}" class="btn-primary shrink-0 self-start lg:self-auto">{{ hero.closing_button_text|default:"Talk to our team" }}<i class="ph-duotone ph-arrow-right btn-arrow" aria-hidden="true"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+{% endblock content %}
