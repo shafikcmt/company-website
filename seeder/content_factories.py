@@ -115,6 +115,10 @@ class HomeHeroSectionFactory(BaseFactory):
     bottom_label = data.HERO["bottom_label"]
     bottom_link_text = data.HERO["bottom_link_text"]
     bottom_link_url = data.HERO["bottom_link_url"]
+    closing_eyebrow = data.HERO["closing_eyebrow"]
+    closing_title = data.HERO["closing_title"]
+    closing_button_text = data.HERO["closing_button_text"]
+    closing_button_url = data.HERO["closing_button_url"]
     autoplay = True
     autoplay_interval = 6
     is_active = True
@@ -315,6 +319,14 @@ class GalleryPageFactory(BaseFactory):
     banner_subtitle = data.GALLERY_PAGE["banner_subtitle"]
     all_tab_label = data.GALLERY_PAGE["all_tab_label"]
     videos_title = data.GALLERY_PAGE["videos_title"]
+    home_eyebrow = data.GALLERY_PAGE["home_eyebrow"]
+    home_title = data.GALLERY_PAGE["home_title"]
+    tour_url = data.GALLERY_PAGE["tour_url"]
+    tour_eyebrow = data.GALLERY_PAGE["tour_eyebrow"]
+    tour_title = data.GALLERY_PAGE["tour_title"]
+    tour_text = data.GALLERY_PAGE["tour_text"]
+    tour_button_text = data.GALLERY_PAGE["tour_button_text"]
+    tour_image = image(2000, 1200, "factory-tour", "360° factory tour")
 
 
 # --- Content ----------------------------------------------------------------

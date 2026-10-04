@@ -165,6 +165,13 @@ class SiteSeeder(Seeder):
         site = SiteSettings.objects.filter(pk=1).first() or SiteSettingsFactory.create()
         for field, value in data.SITE.items():
             setattr(site, field, value)
+        # A database restored without its media folder points at files that
+        # no longer exist; drop those so the header shows the text wordmark
+        # instead of a broken image.
+        for field in ("logo", "site_logo", "logo_light", "favicon", "site_favicon"):
+            file = getattr(site, field)
+            if file and not file.storage.exists(file.name):
+                setattr(site, field, None)
         site.save()
         NavbarSettings.objects.get_or_create(pk=1)
         logger.info("✅ Site settings seeded.")

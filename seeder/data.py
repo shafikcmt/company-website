@@ -52,6 +52,10 @@ HERO = {
     "autoplay": True,
     "autoplay_interval": 6,
     "is_active": True,
+    "closing_eyebrow": "Let’s work together",
+    "closing_title": "Your next collection. Our next conversation.",
+    "closing_button_text": "Talk to our team",
+    "closing_button_url": "/contact/",
 }
 
 HERO_SLIDES = [
@@ -391,6 +395,16 @@ GALLERY_PAGE = {
     "banner_subtitle": "A look at our factory floor, our products and the people who make them.",
     "all_tab_label": "All",
     "videos_title": "Videos",
+    "home_eyebrow": "Inside Humana",
+    "home_title": "A closer look at our facilities.",
+    "tour_url": "https://360vr.hameemgroup.com/humana/",
+    "tour_eyebrow": "Virtual experience",
+    "tour_title": "Explore Humana Apparels in 360°",
+    "tour_text": (
+        "Take an immersive virtual tour of our manufacturing facility and "
+        "explore Humana Apparels from a new perspective."
+    ),
+    "tour_button_text": "Explore 360° Factory Tour",
 }
 GALLERY_SECTIONS = {
     "Production": ["Cutting room", "Sewing line", "Down-filling section", "Quilting machines", "Finishing table", "Pressing section"],
