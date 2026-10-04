@@ -1,4 +1,5 @@
 import os
+import os
 from pathlib import Path
 from logging import getLogger
 from datetime import timedelta
@@ -111,6 +112,13 @@ MEDIA_URL = "/media/"
 # --- STATIC AND MEDIA ROOTS ---
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "media"
+
+# Serve /static and /media from Django itself when no separate web server
+# (nginx) sits in front, e.g. the Docker deployment. See core/urls.py.
+SERVE_FILES = os.getenv("SERVE_FILES", "false").strip().lower() == "true"
+
+# Logging in from /admin/login/ directly should land on the admin.
+LOGIN_REDIRECT_URL = "/admin/"
 
 # --- DATABASE CONFIGURATION ---
 DATABASE_URL = environment["DATABASE_URL"]
