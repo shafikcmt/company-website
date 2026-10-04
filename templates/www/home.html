@@ -1,299 +1,87 @@
 {% extends "www/base.html" %}
 {% load static %}
-{% block title %}Humana Apparels Ltd — Premier Garment Manufacturer{% endblock %}
-{% block meta_description %}
-  <meta name="description" content="Humana Apparels Ltd — a compliant, sustainability-driven garment manufacturer in Bangladesh delivering quality apparel to global brands.">
+{% block title %}{{ site.site_name|default:"Humana Apparels Ltd" }} | Apparel Manufacturing{% endblock %}
+{% block meta_description %}<meta name="description" content="{{ site.footer_description|default:'Explore Humana Apparels, our manufacturing capabilities, products and facilities.'|striptags }}">{% endblock %}
+{% block body_class %}humana-home{% endblock %}
+{% block fonts %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 {% endblock %}
 {% block extra_css %}
-  <style>
-    .hero-slide { opacity: 0; transition: opacity 1s ease-in-out; }
-    .hero-slide.is-active { opacity: 1; }
-  </style>
+<link href="{% static 'css/home.css' %}" rel="stylesheet">
 {% endblock %}
+{% block header %}{% include "www/partials/home_header.html" %}{% endblock %}
 {% block content %}
-
-  <!-- ========================= HERO CAROUSEL ========================= -->
-  <section id="hero" class="relative w-full h-[380px] sm:h-[520px] overflow-hidden bg-brand-navy">
-    <!-- Slides (clear images, no overlay) -->
-    {% for slide in hero.slides %}
-      <div class="hero-slide absolute inset-0{% if forloop.first %} is-active{% endif %}" data-hero-slide="{{ forloop.counter0 }}">
-        {% if slide.image %}
-          <img src="{{ slide.image.url }}" alt="{{ slide.title|default:'Humana Apparels' }}" class="w-full h-full object-cover">
-        {% endif %}
-      </div>
-    {% empty %}
-      <div class="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900"></div>
-    {% endfor %}
-
-    <!-- Content pinned to bottom-center -->
-    <div class="absolute bottom-12 left-0 right-0 z-10 flex flex-col items-center gap-4 px-4 text-center pointer-events-none">
-      {% if hero.section.badge_text %}
-        <span class="pointer-events-auto inline-block rounded-full bg-brand-orange px-4 py-1.5 text-sm font-semibold text-white shadow-lg">
-          {{ hero.section.badge_text }}
-        </span>
-      {% endif %}
-      {% if hero.section.title %}
-        <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white drop-shadow-lg max-w-4xl">{{ hero.section.title }}</h1>
-      {% endif %}
-      {% if hero.section.subtitle %}
-        <p class="text-lg text-white/90 drop-shadow max-w-2xl">{{ hero.section.subtitle }}</p>
-      {% endif %}
-      {% if hero.section.cta_primary_active and hero.section.cta_primary_text or hero.section.cta_secondary_active and hero.section.cta_secondary_text %}
-        <div class="mt-2 flex flex-col sm:flex-row items-center gap-4">
-          {% if hero.section.cta_primary_active and hero.section.cta_primary_text %}
-            <a href="{{ hero.section.cta_primary_url|default:'#' }}"
-               class="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-brand-orange px-6 py-3 font-semibold text-white hover:bg-brand-orange-dark transition-colors shadow-lg">
-              {{ hero.section.cta_primary_text }}<i class="ph ph-duotone ph-arrow-right"></i>
-            </a>
-          {% endif %}
-          {% if hero.section.cta_secondary_active and hero.section.cta_secondary_text %}
-            <a href="{{ hero.section.cta_secondary_url|default:'#' }}"
-               class="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-white border-2 border-white px-6 py-3 font-semibold text-brand-navy hover:bg-gray-100 transition-colors shadow-lg">
-              {{ hero.section.cta_secondary_text }}
-            </a>
-          {% endif %}
-        </div>
-      {% endif %}
-    </div>
-
-    <!-- Arrows + dots -->
-    {% if hero.slides|length > 1 %}
-      <button type="button" data-hero-prev aria-label="Previous"
-              class="absolute z-20 left-4 top-1/2 -translate-y-1/2 size-11 inline-flex items-center justify-center rounded-full bg-white/30 text-white backdrop-blur hover:bg-brand-orange transition-colors">
-        <i class="ph ph-duotone ph-caret-left text-xl"></i>
-      </button>
-      <button type="button" data-hero-next aria-label="Next"
-              class="absolute z-20 right-4 top-1/2 -translate-y-1/2 size-11 inline-flex items-center justify-center rounded-full bg-white/30 text-white backdrop-blur hover:bg-brand-orange transition-colors">
-        <i class="ph ph-duotone ph-caret-right text-xl"></i>
-      </button>
-      <div class="absolute z-20 bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-        {% for slide in hero.slides %}
-          <button type="button" data-hero-dot="{{ forloop.counter0 }}" aria-label="Slide {{ forloop.counter }}"
-                  class="size-2.5 rounded-full border border-white transition-colors {% if forloop.first %}bg-brand-orange border-brand-orange{% endif %}"></button>
-        {% endfor %}
-      </div>
-    {% endif %}
-  </section>
-
-  <!-- ========================= INTRODUCTION ========================= -->
-  {% if intro %}
-    <section class="py-20 lg:py-24 px-4 bg-white">
-      <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
-        <!-- ===== Image column: layered / dynamic composition ===== -->
-        <div class="relative">
-          <!-- Decorative offset orange panel peeking from behind (top-left) -->
-          <div class="absolute -top-5 -left-5 h-40 w-40 rounded-3xl bg-amber-100 hidden sm:block" aria-hidden="true"></div>
-          <!-- Dotted accent pattern (top-right) -->
-          <div class="absolute -top-4 -right-4 h-28 w-28 rounded-2xl bg-[radial-gradient(#fcd34d_1.5px,transparent_1.5px)] [background-size:14px_14px] opacity-70 hidden sm:block" aria-hidden="true"></div>
-
-          <!-- Image + floating card -->
-          <div class="relative">
-            {% if intro.image %}
-              <img src="{{ intro.image.url }}" alt="{{ intro.title|default:'About Humana' }}" class="relative z-10 w-full aspect-[4/3] object-cover rounded-3xl shadow-xl ring-1 ring-gray-900/5">
-            {% else %}
-              <div class="relative z-10 w-full aspect-[4/3] rounded-3xl bg-gray-100 flex items-center justify-center text-gray-300 shadow-xl">
-                <i class="ph ph-duotone ph-buildings text-6xl"></i>
-              </div>
-            {% endif %}
-
-            <!-- Floating credibility card: inside the image on mobile, overlapping out on desktop -->
-            {% with stat=stats.items.0 %}
-              <div class="absolute z-20 bottom-4 right-4 sm:-bottom-6 sm:-right-6 flex items-center gap-3 rounded-2xl bg-white/95 backdrop-blur p-4 pr-5 shadow-xl ring-1 ring-gray-900/5">
-                {% if stat %}
-                  <span class="shrink-0 inline-flex items-center justify-center size-12 rounded-xl bg-brand-orange text-white">
-                    <i class="ph ph-duotone {{ stat.icon|default:'ph-trophy' }} text-2xl"></i>
-                  </span>
-                  <span>
-                    <span class="block text-2xl font-extrabold leading-none tracking-tight text-brand-navy">{{ stat.value }}</span>
-                    <span class="block mt-1 text-xs font-medium text-gray-500">{{ stat.title }}</span>
-                  </span>
-                {% else %}
-                  <span class="shrink-0 inline-flex items-center justify-center size-12 rounded-xl bg-brand-orange text-white">
-                    <i class="ph ph-duotone ph-seal-check text-2xl"></i>
-                  </span>
-                  <span class="block max-w-[10rem] text-sm font-semibold leading-snug text-brand-navy">Certified Sustainable Manufacturer</span>
-                {% endif %}
-              </div>
-            {% endwith %}
-          </div>
-        </div>
-
-        <!-- ===== Content column ===== -->
-        <div class="relative">
-          <span class="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-brand-orange-dark">
-            <span class="h-px w-6 bg-brand-orange"></span>Who We Are
-          </span>
-          {% if intro.title %}<h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-brand-navy">{{ intro.title }}</h2>{% endif %}
-          {% if intro.content %}<div class="mt-4 text-gray-600 leading-relaxed">{{ intro.content|safe }}</div>{% endif %}
-
-          {% if intro_features %}
-            <div class="mt-8 space-y-3">
-              {% for feature in intro_features %}
-                <div class="group flex items-start gap-4 rounded-2xl border border-gray-100 bg-gray-50/60 p-4 transition-all duration-200 hover:bg-white hover:border-amber-200 hover:shadow-md hover:-translate-y-0.5">
-                  <span class="shrink-0 inline-flex items-center justify-center size-12 rounded-xl bg-amber-100 text-brand-orange-dark transition-colors group-hover:bg-brand-orange group-hover:text-white">
-                    <i class="ph ph-duotone {{ feature.icon }} text-2xl"></i>
-                  </span>
-                  <div class="min-w-0">
-                    <span class="block font-semibold text-brand-navy">{{ feature.title }}</span>
-                    <span class="block mt-0.5 text-sm text-gray-600">{{ feature.description }}</span>
-                  </div>
-                </div>
-              {% endfor %}
-            </div>
-          {% endif %}
-
-          <a href="{% url 'about' %}" class="group mt-8 inline-flex items-center gap-2 rounded-full bg-brand-orange px-6 py-3 font-semibold text-white hover:bg-brand-orange-dark transition-colors">
-            Learn More<i class="ph ph-duotone ph-arrow-right transition-transform duration-200 group-hover:translate-x-1"></i>
-          </a>
-        </div>
-      </div>
-    </section>
-  {% endif %}
-
-  <!-- ========================= SERVICES ========================= -->
-  {% if services.items %}
-    <section class="py-20 px-4 bg-gray-50">
-      <div class="max-w-7xl mx-auto">
-        <div class="max-w-2xl mx-auto text-center">
-          <span class="text-sm font-semibold uppercase tracking-wide text-brand-orange-dark">What We Offer</span>
-          <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-brand-navy">{{ services.title|default:"Our Services" }}</h2>
-          {% if services.subtitle %}<p class="mt-4 text-gray-600">{{ services.subtitle }}</p>{% endif %}
-        </div>
-        <div class="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {% for service in services.items %}
-            <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow p-7">
-              <span class="inline-flex items-center justify-center size-14 rounded-xl bg-amber-50 text-brand-orange-dark">
-                <i class="ph ph-duotone {{ service.icon }} text-2xl"></i>
-              </span>
-              <h3 class="mt-5 text-xl font-bold tracking-tight text-brand-navy">{{ service.title }}</h3>
-              <div class="mt-2 text-gray-600 leading-relaxed">{{ service.description|safe }}</div>
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-    </section>
-  {% endif %}
-
-  <!-- ========================= STATS ========================= -->
-  {% if stats.items %}
-    <section class="py-16 px-4 bg-brand-navy">
-      <div class="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-        {% for stat in stats.items %}
-          <div>
-            {% if stat.icon %}<i class="ph ph-duotone {{ stat.icon }} text-4xl text-brand-orange"></i>{% endif %}
-            <div class="mt-2 text-4xl md:text-5xl font-extrabold text-white" data-counter data-value="{{ stat.value }}">{{ stat.value }}</div>
-            <div class="mt-1 text-sm uppercase tracking-wide text-gray-400">{{ stat.title }}</div>
-          </div>
-        {% endfor %}
-      </div>
-    </section>
-  {% endif %}
-
-  <!-- ========================= OUR ACTIVITIES ========================= -->
-  {% if activities.items %}
-    <section class="py-20 px-4 bg-white">
-      <div class="max-w-7xl mx-auto">
-        <div class="flex items-end justify-between gap-4 mb-12">
-          <div>
-            <span class="text-sm font-semibold uppercase tracking-wide text-brand-orange-dark">Our Activities</span>
-            <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-brand-navy">Our Activities</h2>
-          </div>
-          <a href="{% url 'activities' %}" class="hidden sm:inline-flex items-center gap-2 font-semibold text-brand-orange-dark hover:text-amber-700">
-            View All<i class="ph ph-duotone ph-arrow-right"></i>
-          </a>
-        </div>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {% for activity in activities.items %}
-            <div class="group flex flex-col bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow overflow-hidden">
-              <div class="relative aspect-video overflow-hidden">
-                {% if activity.image %}
-                  <img src="{{ activity.image.url }}" alt="{{ activity.title }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                {% endif %}
-                {% if activity.tag %}<span class="absolute top-3 left-3 rounded-full bg-brand-orange px-3 py-1 text-xs font-semibold text-white">{{ activity.tag }}</span>{% endif %}
-              </div>
-              <div class="flex flex-col flex-1 p-6">
-                <h3 class="text-lg font-bold tracking-tight text-brand-navy group-hover:text-brand-orange-dark transition-colors line-clamp-2">{{ activity.title }}</h3>
-                <p class="mt-2 text-sm text-gray-600 line-clamp-2">{{ activity.excerpt }}</p>
-                <div class="mt-auto pt-4 flex items-center gap-2 text-sm text-gray-500">
-                  <i class="ph ph-duotone ph-calendar-blank"></i>{{ activity.activity_date|date:"M j, Y" }}
-                </div>
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-    </section>
-  {% endif %}
-
-  <!-- ========================= CLIENTS ========================= -->
-  {% if clients %}
-    <section class="py-20 px-4 bg-gray-50">
-      <div class="max-w-7xl mx-auto text-center">
-        <span class="text-sm font-semibold uppercase tracking-wide text-brand-orange-dark">Trusted By</span>
-        <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-brand-navy">Our Valued Buyers</h2>
-        <div class="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 items-center">
-          {% for client in clients %}
-            <a href="{{ client.url }}" target="_blank" rel="noopener"
-               class="flex items-center justify-center bg-white rounded-2xl shadow-sm hover:shadow-md p-6 transition">
-              {% if client.logo %}
-                <img src="{{ client.logo.url }}" alt="{{ client.name }}" class="h-12 w-auto object-contain grayscale hover:grayscale-0 transition">
-              {% else %}
-                <span class="text-sm font-semibold text-gray-500">{{ client.name }}</span>
-              {% endif %}
-            </a>
-          {% endfor %}
-        </div>
-      </div>
-    </section>
-  {% endif %}
-
-{% endblock content %}
-{% block extra_js %}
-  <script>
-    // Hero crossfade carousel (auto + manual + dots)
-    (function () {
-      var slides = document.querySelectorAll('[data-hero-slide]');
-      if (slides.length < 2) return;
-      var dots = document.querySelectorAll('[data-hero-dot]');
-      var current = 0, timer;
-      function show(i) {
-        current = (i + slides.length) % slides.length;
-        slides.forEach(function (s, idx) { s.classList.toggle('is-active', idx === current); });
-        dots.forEach(function (d, idx) {
-          d.classList.toggle('bg-brand-orange', idx === current);
-          d.classList.toggle('border-brand-orange', idx === current);
-        });
-      }
-      function restart() { clearInterval(timer); timer = setInterval(function () { show(current + 1); }, 5000); }
-      var n = document.querySelector('[data-hero-next]'), p = document.querySelector('[data-hero-prev]');
-      if (n) n.addEventListener('click', function () { show(current + 1); restart(); });
-      if (p) p.addEventListener('click', function () { show(current - 1); restart(); });
-      dots.forEach(function (d) { d.addEventListener('click', function () { show(parseInt(d.dataset.heroDot, 10)); restart(); }); });
-      restart();
-    })();
-
-    // Count-up stats on scroll
-    (function () {
-      var counters = document.querySelectorAll('[data-counter]');
-      if (!counters.length || !('IntersectionObserver' in window)) return;
-      function animate(el) {
-        var raw = el.dataset.value || el.textContent, m = raw.match(/[\d.,]+/);
-        if (!m) return;
-        var pre = raw.slice(0, m.index), suf = raw.slice(m.index + m[0].length), target = parseFloat(m[0].replace(/,/g, ''));
-        if (isNaN(target)) return;
-        var start = null;
-        function step(ts) {
-          if (!start) start = ts;
-          var prog = Math.min((ts - start) / 1600, 1);
-          el.textContent = pre + Math.floor(prog * target).toLocaleString() + suf;
-          if (prog < 1) requestAnimationFrame(step); else el.textContent = pre + target.toLocaleString() + suf;
-        }
-        requestAnimationFrame(step);
-      }
-      var io = new IntersectionObserver(function (es) {
-        es.forEach(function (e) { if (e.isIntersecting) { animate(e.target); io.unobserve(e.target); } });
-      }, { threshold: 0.4 });
-      counters.forEach(function (c) { io.observe(c); });
-    })();
-  </script>
+{% include "www/partials/home_hero.html" %}
+{% if company_facts or stats.items %}
+<section class="home-facts" aria-label="Company at a glance"><div class="home-shell home-facts-grid">
+{% if company_facts %}
+{% for fact in company_facts %}<div class="home-fact"><span>{{ fact.label }}</span><strong>{{ fact.value }}</strong>{% if fact.subtext %}<small>{{ fact.subtext }}</small>{% endif %}</div>{% endfor %}
+{% else %}
+{% for stat in stats.items %}<div class="home-fact"><span>{{ stat.title }}</span><strong>{{ stat.value }}</strong></div>{% endfor %}
+{% endif %}
+</div></section>
+{% endif %}
+{% if intro %}
+<section id="company" class="home-section">
+<div class="home-shell grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
+{% if intro.image %}<figure class="home-intro-image" data-home-reveal><img src="{{ intro.image.url }}" alt="People and production at Humana Apparels" width="1440" height="1080" loading="lazy"><figcaption>{{ site.site_name|default:"Humana Apparels Ltd" }}</figcaption></figure>{% endif %}
+<div {% if not intro.image %}class="lg:col-span-2"{% endif %}><p class="home-label">Who we are</p><h2 class="home-heading">{{ intro.title|default:"The people behind the apparel" }}</h2>
+{% if intro.subtitle %}<p class="home-lead mt-6">{{ intro.subtitle }}</p>{% endif %}
+{% if intro.content %}<div class="home-copy mt-5">{{ intro.content|safe }}</div>{% endif %}
+<a class="home-text-link mt-7" href="{% url 'about' %}">Discover our company {% include "www/partials/home_arrow.html" %}</a></div>
+</div>
+{% if intro_features %}<div class="home-shell home-strengths">{% for feature in intro_features %}<article class="home-strength"><i class="ph ph-duotone {{ feature.icon|default:'ph-check-circle' }}" aria-hidden="true"></i><h3>{{ feature.title }}</h3><p>{{ feature.description }}</p></article>{% endfor %}</div>{% endif %}
+</section>
+{% endif %}
+{% if services.items %}
+<section class="home-section home-soft" id="capabilities"><div class="home-shell home-capabilities">
+<div><p class="home-label">Manufacturing capabilities</p><h2 class="home-heading">{{ services.title|default:"From concept to finished garment" }}</h2>
+{% if services.subtitle %}<p class="home-copy mt-6">{{ services.subtitle }}</p>{% endif %}
+<a class="home-text-link mt-7" href="{% url 'products' %}">Explore our products {% include "www/partials/home_arrow.html" %}</a>
+{% if production_steps %}<ol class="home-process" aria-label="Production process">{% for step in production_steps %}<li><span class="home-process-number" aria-hidden="true">{{ forloop.counter|stringformat:"02d" }}</span><div>{{ step.name }}{% if step.note %}<small>{{ step.note }}</small>{% endif %}</div></li>{% endfor %}</ol>{% endif %}
+</div>
+<div class="home-service-list">{% for service in services.items %}<article class="home-service"><i class="ph ph-duotone {{ service.icon|default:'ph-needle' }}" aria-hidden="true"></i><div><h3>{{ service.title }}</h3><div class="home-copy mt-3">{{ service.description|safe }}</div></div></article>{% endfor %}</div>
+</div></section>
+{% endif %}
+{% if products_preview %}
+<section class="home-section home-products" aria-labelledby="products-heading"><div class="home-shell">
+<div class="home-section-head"><div><p class="home-label">Product portfolio</p><h2 id="products-heading" class="home-heading">Explore what we make.</h2></div><a class="home-text-link" href="{% url 'products' %}">View portfolio {% include "www/partials/home_arrow.html" %}</a></div>
+<div class="home-category-grid">{% for category in products_preview %}<a class="home-category" href="{% url 'products' %}"><h3>{{ category.name }}</h3>{% include "www/partials/home_arrow.html" %}</a>{% endfor %}</div>
+</div></section>
+{% endif %}
+{% if clients %}
+<section class="home-section home-buyers" aria-labelledby="buyers-heading"><div class="home-shell">
+<div class="home-section-head"><div><p class="home-label">Brand relationships</p><h2 class="home-heading" id="buyers-heading">Our valued buyers.</h2></div><a class="home-text-link" href="{% url 'customers' %}">Meet our customers {% include "www/partials/home_arrow.html" %}</a></div>
+<div class="home-logo-grid">{% for client in clients %}
+{% if client.url %}<a href="{{ client.url }}" class="home-logo" target="_blank" rel="noopener noreferrer" aria-label="{{ client.name }} (opens in a new tab)">{% else %}<div class="home-logo">{% endif %}
+{% if client.logo %}<img src="{{ client.logo.url }}" alt="{{ client.name }}" loading="lazy" width="200" height="100">{% else %}<span>{{ client.name }}</span>{% endif %}
+{% if client.url %}</a>{% else %}</div>{% endif %}
+{% endfor %}</div>
+</div></section>
+{% endif %}
+{% if gallery_images %}
+<section class="home-section home-factory" aria-labelledby="factory-heading"><div class="home-shell">
+<div class="home-section-head"><div><p class="home-label">Inside Humana</p><h2 class="home-heading" id="factory-heading">A closer look at our facilities.</h2></div><a class="home-text-link" href="{% url 'gallery' %}">Explore the gallery {% include "www/partials/home_arrow.html" %}</a></div>
+<div class="home-gallery" data-home-reveal>{% for photo in gallery_images %}<a href="{% url 'gallery' %}" class="home-gallery-item">{% if photo.image %}<img src="{{ photo.image.url }}" alt="{{ photo.caption }}" loading="lazy" width="900" height="675">{% endif %}<span>{{ photo.caption }}{% include "www/partials/home_arrow.html" %}</span></a>{% endfor %}</div>
+</div></section>
+{% endif %}
+{% include "www/partials/home_virtual_tour.html" %}
+{% if certificates %}
+<section class="home-section home-soft" aria-labelledby="certificates-heading"><div class="home-shell">
+<div class="home-section-head"><div><p class="home-label">Standards &amp; responsibility</p><h2 class="home-heading" id="certificates-heading">Our certifications.</h2></div><a class="home-text-link" href="{% url 'complience' %}">View compliance details {% include "www/partials/home_arrow.html" %}</a></div>
+<div class="home-certificate-grid">{% for certificate in certificates %}<a class="home-certificate" href="{% if certificate.website_url %}{{ certificate.website_url }}{% else %}{% url 'complience' %}{% endif %}" {% if certificate.website_url %}target="_blank" rel="noopener noreferrer" aria-label="{{ certificate.name }} (opens in a new tab)"{% endif %}>{% if certificate.image %}<img src="{{ certificate.image.url }}" alt="" loading="lazy" width="160" height="100">{% endif %}<span>{{ certificate.name }}</span></a>{% endfor %}</div>
+<div class="home-responsibility"><h3>Explore our approach to sustainability.</h3><a class="home-text-link" href="{% url 'sustainability' %}">Sustainability at Humana {% include "www/partials/home_arrow.html" %}</a></div>
+</div></section>
+{% endif %}
+{% if activities.items %}
+<section class="home-section" aria-labelledby="activities-heading"><div class="home-shell">
+<div class="home-section-head"><div><p class="home-label">Company updates</p><h2 class="home-heading" id="activities-heading">{{ activities.title|default:"Our activities" }}</h2></div><a class="home-text-link" href="{% url 'activities' %}">All activities {% include "www/partials/home_arrow.html" %}</a></div>
+<div class="home-activities">{% for activity in activities.items %}<article class="home-activity">{% if activity.image %}<img src="{{ activity.image.url }}" alt="{{ activity.title }}" loading="lazy" width="800" height="500">{% endif %}<div>{% if activity.tag %}<span class="home-label">{{ activity.tag }}</span>{% endif %}<h3>{{ activity.title }}</h3><p class="home-copy mt-3">{{ activity.excerpt }}</p><time datetime="{{ activity.activity_date|date:'Y-m-d' }}">{{ activity.activity_date|date:"F j, Y" }}</time></div></article>{% endfor %}</div>
+</div></section>
+{% endif %}
+<section class="home-contact"><div class="home-shell home-section-head"><div><p class="home-label">Let’s work together</p><h2 class="home-heading">Your next collection.<br>Our next conversation.</h2></div><a class="home-button" href="{% url 'contact' %}">Talk to our team {% include "www/partials/home_arrow.html" %}</a></div></section>
 {% endblock %}
+{% block footer %}{% include "www/partials/home_footer.html" %}{% endblock %}
+{% block extra_js %}<script src="{% static 'js/home.js' %}" defer></script>{% endblock %}

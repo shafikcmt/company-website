@@ -1,0 +1,21 @@
+<a href="#main-content" class="home-skip">Skip to content</a>
+<header class="home-header">
+  <div class="home-shell home-header-inner">
+    <a class="home-brand" href="{% url 'home' %}" aria-label="{{ site.site_name|default:'Humana Apparels Ltd' }} home">
+      {% if site.site_logo %}<img src="{{ site.site_logo.url }}" alt="{{ site.site_name|default:'Humana Apparels Ltd' }}" width="180" height="56">{% else %}<span>{{ site.site_name|default:"Humana Apparels Ltd" }}</span>{% endif %}
+    </a>
+    <button class="home-menu-button" type="button" data-home-menu aria-expanded="false" aria-controls="home-navigation" hidden><span>Menu</span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h18"/></svg></button>
+    <nav id="home-navigation" class="home-navigation" aria-label="Main navigation">
+      {% if not navbar or navbar.show_home %}<a href="{% url 'home' %}" aria-current="page">Home</a>{% endif %}
+      {% if not navbar or navbar.show_about %}<a href="{% url 'about' %}">About</a>{% endif %}
+      {% if not navbar or navbar.show_products %}<a href="{% url 'products' %}">Products</a>{% endif %}
+      {% if not navbar or navbar.show_customers %}<a href="{% url 'customers' %}">Customers</a>{% endif %}
+      {% if not navbar or navbar.show_compliance %}<a href="{% url 'complience' %}">Compliance</a>{% endif %}
+      {% if not navbar or navbar.show_sustainability %}<a href="{% url 'sustainability' %}">Sustainability</a>{% endif %}
+      {% if not navbar or navbar.show_gallery %}<a href="{% url 'gallery' %}">Gallery</a>{% endif %}
+      {% if not navbar or navbar.show_activities %}<a href="{% url 'activities' %}">Activities</a>{% endif %}
+      {% if not navbar or navbar.show_career %}<a href="{% url 'career' %}">Career</a>{% endif %}
+      {% if not navbar or navbar.show_contact %}<a class="home-nav-contact" href="{% url 'contact' %}">Get in touch {% include "www/partials/home_arrow.html" %}</a>{% endif %}
+    </nav>
+  </div>
+</header>

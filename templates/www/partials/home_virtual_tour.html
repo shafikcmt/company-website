@@ -1,0 +1,54 @@
+<section id="virtual-tour" class="home-section home-tour" aria-labelledby="virtual-tour-heading">
+  <div class="home-shell">
+    <div class="home-section-head home-tour-heading">
+      <div>
+        <p class="home-label">Virtual experience</p>
+        <h2 id="virtual-tour-heading" class="home-heading">Explore Humana Apparels in 360°</h2>
+      </div>
+      <p class="home-copy">Take an immersive virtual tour of our manufacturing facility and explore Humana Apparels from a new perspective.</p>
+    </div>
+
+    {% comment %}
+      The tour renders in an iframe but its player raises a cross-origin parent
+      API error. Use a normal external link: no third-party requests until click.
+      Reuse the existing gallery preview, with the active hero image as fallback.
+    {% endcomment %}
+    <div data-home-reveal>
+      <a class="home-tour-preview"
+         href="https://360vr.hameemgroup.com/humana/"
+         target="_blank"
+         rel="noopener noreferrer"
+         aria-label="Explore 360° Factory Tour (opens in a new tab)">
+        {% with factory=gallery_images.0 slide=hero.slides.0 %}
+          {% if factory.image %}
+            <img class="home-tour-image" src="{{ factory.image.url }}" alt="" width="1440" height="1080" loading="lazy" decoding="async">
+          {% elif slide.image %}
+            <img class="home-tour-image" src="{{ slide.image.url }}" alt="" width="1440" height="1080" loading="lazy" decoding="async">
+          {% endif %}
+        {% endwith %}
+        <span class="home-tour-shade" aria-hidden="true"></span>
+        <span class="home-tour-topline" aria-hidden="true">
+          <span>Inside Humana Apparels</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 4h6v6M20 4l-9 9M10 4H4v16h16v-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="home-tour-control" aria-hidden="true">
+          <svg class="home-tour-orbit" viewBox="0 0 144 144" fill="none" stroke="currentColor" stroke-width="1">
+            <circle cx="72" cy="72" r="65" stroke-dasharray="2 7"/>
+            <path d="M12 80c10 32 110 32 120-2M125 85l7-7 3 10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="home-tour-disc">
+            <span>360°</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="m9 5 11 7-11 7z"/></svg>
+          </span>
+        </span>
+        <span class="home-tour-bottom">
+          <span class="home-tour-caption">Step inside.<br>Look around.</span>
+          <span class="home-tour-action">
+            <span class="home-button">Explore 360° Factory Tour {% include "www/partials/home_arrow.html" %}</span>
+            <span class="home-tour-note">Opens the full experience in a new tab</span>
+          </span>
+        </span>
+      </a>
+    </div>
+  </div>
+</section>
