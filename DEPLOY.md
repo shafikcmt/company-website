@@ -31,7 +31,19 @@ docker compose exec db pg_dump -U hapl hapl > backup.sql         # database back
 
 ## Public domain (Cloudflare Tunnel)
 
-Add a public hostname `humanaapparels.com` (and `www`) → `http://localhost:3003`
-on the tunnel, then switch `.env` to `docker/env.production.example` values
-(DJANGO_ENV=production, HTTPS cookies, `SECURE_PROXY_SSL_HEADER=HTTP_X_FORWARDED_PROTO,https`)
-and run the deploy script again.
+humanaapparels.com lives in its own Cloudflare account, so it has its own
+tunnel, run by the `cloudflared` service in `docker-compose.yml` (profile
+`tunnel`), separate from the server's system cloudflared used by other sites.
+
+1. Cloudflare (humanaapparels account) → Zero Trust → Networks → Tunnels →
+   Create tunnel (Cloudflared) → copy the token.
+2. Public hostnames: `humanaapparels.com` and `www.humanaapparels.com` →
+   service `HTTP` / `web:8000`. Leave mail records (MX, SPF/DMARC TXT,
+   autodiscover and DKIM CNAMEs) untouched and DNS-only.
+3. Switch `.env` to the `docker/env.production.example` values (keep the
+   existing `SECRET_KEY` and `POSTGRES_PASSWORD`), set
+   `COMPOSE_PROFILES=tunnel` and `CLOUDFLARE_TUNNEL_TOKEN`, then run
+   `bash scripts/deploy-docker.sh`.
+
+With `SECURE_SSL_REDIRECT=true`, http://192.168.245.25:3003 redirects to
+HTTPS, so use the domain (admin included) from then on.
