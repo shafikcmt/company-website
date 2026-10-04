@@ -1,191 +1,127 @@
 {% extends "www/base.html" %}
-{% load static %}
-{% block title %}Our Products — Humana Apparels Ltd{% endblock %}
-{% block meta_description %}
-  <meta name="description" content="Explore the product portfolio of Humana Apparels Ltd — knitwear, woven, sweaters and more for global brands.">
-{% endblock %}
-{% block extra_css %}
-  <style>
-    .pcarousel-slide { opacity: 0; transition: opacity 1s ease-in-out; }
-    .pcarousel-slide.is-active { opacity: 1; }
-  </style>
-{% endblock %}
 {% block content %}
 
-  <!-- ========================= CAROUSEL / HEADER ========================= -->
-  <section id="pcarousel" class="relative h-[60vh] min-h-[380px] overflow-hidden bg-brand-navy">
-    {% for slide in carousel %}
-      <div class="pcarousel-slide absolute inset-0{% if forloop.first %} is-active{% endif %}" data-pslide="{{ forloop.counter0 }}">
-        {% if slide.image %}<img src="{{ slide.image.url }}" alt="{{ slide.alt }}" class="w-full h-full object-cover">{% endif %}
+  {# ========================= BANNER (crossfading carousel) ========================= #}
+  <section class="pt-header on-dark relative isolate flex min-h-[380px] items-end overflow-hidden bg-navy sm:min-h-[480px]" aria-label="{{ page.banner_title|default:'Our Products' }}">
+    {% if carousel %}
+      <div class="absolute inset-0 -z-10" data-fader>
+        {% for slide in carousel %}
+          <img src="{{ slide.image.url }}" alt="{{ slide.alt }}" class="hero-slide h-full w-full object-cover{% if forloop.first %} is-active{% endif %}" data-fader-item
+               {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async">
+        {% endfor %}
       </div>
-    {% endfor %}
-    <div class="absolute inset-0 bg-brand-navy/50"></div>
-    <div class="relative z-10 h-full max-w-7xl mx-auto px-4 flex flex-col justify-center">
-      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white">Our Products</h1>
-      <nav class="mt-3 flex items-center gap-2 text-sm text-gray-200" aria-label="Breadcrumb">
-        <a href="{% url 'home' %}" class="hover:text-brand-orange">Home</a>
-        <i class="ph ph-duotone ph-caret-right text-xs"></i><span class="text-brand-orange">Products</span>
-      </nav>
-    </div>
-    {% if carousel|length > 1 %}
-      <button type="button" data-pprev aria-label="Previous" class="absolute z-20 left-4 top-1/2 -translate-y-1/2 size-11 inline-flex items-center justify-center rounded-full bg-white/30 text-white backdrop-blur hover:bg-brand-orange transition-colors"><i class="ph ph-duotone ph-caret-left text-xl"></i></button>
-      <button type="button" data-pnext aria-label="Next" class="absolute z-20 right-4 top-1/2 -translate-y-1/2 size-11 inline-flex items-center justify-center rounded-full bg-white/30 text-white backdrop-blur hover:bg-brand-orange transition-colors"><i class="ph ph-duotone ph-caret-right text-xl"></i></button>
+    {% elif page.banner_image %}
+      <img src="{{ page.banner_image.url }}" alt="" class="absolute inset-0 -z-10 h-full w-full object-cover" fetchpriority="high">
+    {% else %}
+      <div class="absolute inset-0 -z-10 bg-grid-faint" aria-hidden="true"></div>
     {% endif %}
+    <div class="absolute inset-0 -z-10 bg-gradient-to-t from-navy-800 via-navy/75 to-navy/40" aria-hidden="true"></div>
+    <div class="container-site relative py-14 sm:py-16">
+      <nav class="flex items-center gap-2 text-sm text-white/70" aria-label="Breadcrumb" data-reveal="fade">
+        <a href="{% url 'home' %}" class="transition-colors hover:text-amber">Home</a>
+        <i class="ph-duotone ph-caret-right text-[10px]" aria-hidden="true"></i><span class="text-amber" aria-current="page">Products</span>
+      </nav>
+      <div class="mt-6 max-w-3xl" data-reveal="up">
+        {% if page.eyebrow %}<p class="eyebrow eyebrow-light">{{ page.eyebrow }}</p>{% endif %}
+        <h1 class="{% if page.eyebrow %}mt-4 {% endif %}text-4xl font-extrabold tracking-tight text-white md:text-5xl lg:text-6xl">{{ page.banner_title|default:page.title|default:"Our Products" }}</h1>
+        {% with sub=page.banner_subtitle|default:page.subtitle %}{% if sub %}<p class="mt-5 max-w-2xl text-base leading-relaxed text-white/75 md:text-lg">{{ sub }}</p>{% endif %}{% endwith %}
+      </div>
+    </div>
   </section>
 
-  <!-- ========================= SECTIONS (before portfolio) ========================= -->
-  {% for section in sections %}
-    {% if not section.after_products %}
-      <section class="py-16 px-4 {% cycle 'bg-white' 'bg-gray-50' %}">
-        <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
-          <div class="{% cycle '' 'lg:order-2' %}">
-            <span class="text-sm font-semibold uppercase tracking-wide text-brand-orange-dark">Capabilities</span>
-            <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-brand-navy">{{ section.title }}</h2>
-            <div class="mt-4 text-gray-600 leading-relaxed">{{ section.description|safe }}</div>
-          </div>
-          <div class="{% cycle '' 'lg:order-1' %}">
-            {% if section.image %}<img src="{{ section.image.url }}" alt="{{ section.title }}" class="w-full aspect-[4/3] object-cover rounded-2xl shadow-md">{% endif %}
-          </div>
+  {# ========================= SECTIONS (before portfolio) ========================= #}
+  {% for section in sections_before %}
+    <section class="section {% cycle 'bg-white' 'bg-surface' %} overflow-hidden">
+      <div class="container-site grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+        <div class="{% cycle '' 'lg:order-2' %}" data-reveal="{% cycle 'right' 'left' %}">
+          <p class="eyebrow">{{ section.eyebrow|default:"Capabilities" }}</p>
+          <h2 class="section-title mt-4">{{ section.title }}</h2>
+          <div class="rich-text mt-5">{{ section.description|safe }}</div>
         </div>
-      </section>
-    {% endif %}
+        <div class="{% cycle '' 'lg:order-1' %}" data-reveal="{% cycle 'left' 'right' %}">
+          {% if section.image %}
+            <div class="card-media aspect-[4/3] rounded-2xl shadow-lift">
+              <img src="{{ section.image.url }}" alt="{{ section.title }}" class="h-full w-full object-cover" loading="lazy" decoding="async">
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
   {% endfor %}
 
-  <!-- ========================= PRODUCT PORTFOLIO (tabs) ========================= -->
-  {% if product_portfolio %}
-    <section class="py-20 px-4 bg-white">
-      <div class="max-w-7xl mx-auto">
-        <div class="max-w-2xl mx-auto text-center mb-12">
-          <span class="text-sm font-semibold uppercase tracking-wide text-brand-orange-dark">What We Make</span>
-          <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-brand-navy">Product Portfolio</h2>
-        </div>
+  {# ========================= PRODUCT PORTFOLIO ========================= #}
+  {% if portfolio %}
+    <section class="section bg-white" aria-labelledby="portfolio-title">
+      <div class="container-site">
+        {% include "partials/section_header.html" with eyebrow=page.portfolio_eyebrow|default:"What We Make" title=page.portfolio_title|default:"Product Portfolio" subtitle=page.portfolio_subtitle id="portfolio-title" %}
 
-        <!-- Category tabs -->
-        <div class="flex flex-wrap justify-center gap-2 mb-10" role="tablist">
-          {% for item in product_portfolio %}
-            <button type="button" data-cat-tab="{{ forloop.counter0 }}"
-                    class="cat-tab rounded-full px-5 py-2 text-sm font-semibold transition-colors {% if forloop.first %}bg-brand-orange text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
-              {{ item.section }}
-            </button>
-          {% endfor %}
-        </div>
+        <div data-tabs class="mt-12">
+          <div class="flex flex-wrap justify-center gap-2" role="tablist" aria-label="{{ page.portfolio_title|default:'Product categories' }}">
+            {% for category in portfolio %}
+              <button type="button" role="tab" id="cat-tab-{{ category.id }}" aria-controls="cat-panel-{{ category.id }}"
+                      aria-selected="{% if forloop.first %}true{% else %}false{% endif %}" tabindex="{% if forloop.first %}0{% else %}-1{% endif %}" class="pill">
+                {{ category.name }}<span class="text-xs opacity-60">{{ category.products|length }}</span>
+              </button>
+            {% endfor %}
+          </div>
 
-        <!-- Category panels -->
-        {% for item in product_portfolio %}
-          <div class="cat-panel {% if not forloop.first %}hidden{% endif %}" data-cat-panel="{{ forloop.counter0 }}">
-            <!-- Gender filter -->
-            <div class="flex flex-wrap justify-center gap-2 mb-8">
-              <button type="button" class="gender-filter rounded-full px-4 py-1.5 text-sm font-medium bg-brand-navy text-white" data-gender="all">All</button>
-              {% if item.has_male %}<button type="button" class="gender-filter rounded-full px-4 py-1.5 text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200" data-gender="male">Men's</button>{% endif %}
-              {% if item.has_female %}<button type="button" class="gender-filter rounded-full px-4 py-1.5 text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200" data-gender="female">Women's</button>{% endif %}
-              {% if item.has_other %}<button type="button" class="gender-filter rounded-full px-4 py-1.5 text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200" data-gender="other">Other</button>{% endif %}
-            </div>
-            <!-- Product grid -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-              {% for product in item.male_products %}
-                <div class="product-card group bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow overflow-hidden" data-gender="male">
-                  <div class="aspect-square bg-white overflow-hidden"><img src="{{ product.image }}" alt="{{ product.name }}" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"></div>
-                  <div class="p-4"><h3 class="font-semibold text-brand-navy line-clamp-1">{{ product.name }}</h3><p class="text-sm text-gray-500">Buyer: {{ product.buyer }}</p></div>
+          {% for category in portfolio %}
+            <div role="tabpanel" id="cat-panel-{{ category.id }}" aria-labelledby="cat-tab-{{ category.id }}" class="mt-10" {% if not forloop.first %}hidden{% endif %}>
+              {% if category.genders|length > 1 %}
+                <div class="mb-8 flex flex-wrap justify-center gap-2" data-filter="cat-grid-{{ category.id }}" role="group" aria-label="Filter {{ category.name }} by range">
+                  <button type="button" class="pill !py-1.5" data-filter-value="all" aria-pressed="true">All</button>
+                  {% if "male" in category.genders %}<button type="button" class="pill !py-1.5" data-filter-value="male" aria-pressed="false">Men's</button>{% endif %}
+                  {% if "female" in category.genders %}<button type="button" class="pill !py-1.5" data-filter-value="female" aria-pressed="false">Women's</button>{% endif %}
+                  {% if "other" in category.genders %}<button type="button" class="pill !py-1.5" data-filter-value="other" aria-pressed="false">Unisex</button>{% endif %}
                 </div>
-              {% endfor %}
-              {% for product in item.female_products %}
-                <div class="product-card group bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow overflow-hidden" data-gender="female">
-                  <div class="aspect-square bg-white overflow-hidden"><img src="{{ product.image }}" alt="{{ product.name }}" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"></div>
-                  <div class="p-4"><h3 class="font-semibold text-brand-navy line-clamp-1">{{ product.name }}</h3><p class="text-sm text-gray-500">Buyer: {{ product.buyer }}</p></div>
-                </div>
-              {% endfor %}
-              {% for product in item.other_products %}
-                <div class="product-card group bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow overflow-hidden" data-gender="other">
-                  <div class="aspect-square bg-white overflow-hidden"><img src="{{ product.image }}" alt="{{ product.name }}" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"></div>
-                  <div class="p-4"><h3 class="font-semibold text-brand-navy line-clamp-1">{{ product.name }}</h3><p class="text-sm text-gray-500">Buyer: {{ product.buyer }}</p></div>
-                </div>
-              {% endfor %}
-              {% if not item.has_male and not item.has_female and not item.has_other %}
-                <p class="col-span-full text-center text-gray-500 py-8">No products in this category yet.</p>
+              {% endif %}
+
+              {% if category.products %}
+                <ul id="cat-grid-{{ category.id }}" class="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+                  {% for product in category.products %}
+                    <li data-filter-item="{% if product.gender == 'Male' %}male{% elif product.gender == 'Female' %}female{% else %}other{% endif %}">
+                      <article class="group card card-hover h-full overflow-hidden">
+                        <div class="card-media aspect-square bg-surface">
+                          <img src="{{ product.image.url }}" alt="{{ product.name }}" class="h-full w-full object-contain" loading="lazy" decoding="async">
+                        </div>
+                        <div class="p-4">
+                          <h3 class="line-clamp-1 font-semibold">{{ product.name }}</h3>
+                          {% if product.buyer %}<p class="mt-1 text-sm text-muted">Buyer: {{ product.buyer }}</p>{% endif %}
+                        </div>
+                      </article>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <p class="py-8 text-center text-muted">No products in this category yet.</p>
               {% endif %}
             </div>
-          </div>
-        {% endfor %}
+          {% endfor %}
+        </div>
       </div>
     </section>
   {% endif %}
 
-  <!-- ========================= SECTIONS (after portfolio) ========================= -->
-  {% for section in sections %}
-    {% if section.after_products %}
-      <section class="py-16 px-4 {% cycle 'bg-gray-50' 'bg-white' %}">
-        <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
-          <div class="{% cycle '' 'lg:order-2' %}">
-            <span class="text-sm font-semibold uppercase tracking-wide text-brand-orange-dark">More</span>
-            <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-brand-navy">{{ section.title }}</h2>
-            <div class="mt-4 text-gray-600 leading-relaxed">{{ section.description|safe }}</div>
-          </div>
-          <div class="{% cycle '' 'lg:order-1' %}">
-            {% if section.image %}<img src="{{ section.image.url }}" alt="{{ section.title }}" class="w-full aspect-[4/3] object-cover rounded-2xl shadow-md">{% endif %}
-          </div>
+  {# ========================= SECTIONS (after portfolio) ========================= #}
+  {% for section in sections_after %}
+    <section class="section {% cycle 'bg-surface' 'bg-white' %} overflow-hidden">
+      <div class="container-site grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+        <div class="{% cycle '' 'lg:order-2' %}" data-reveal="up">
+          <p class="eyebrow">{{ section.eyebrow|default:"More" }}</p>
+          <h2 class="section-title mt-4">{{ section.title }}</h2>
+          <div class="rich-text mt-5">{{ section.description|safe }}</div>
         </div>
-      </section>
-    {% endif %}
+        <div class="{% cycle '' 'lg:order-1' %}" data-reveal="up">
+          {% if section.image %}
+            <div class="card-media aspect-[4/3] rounded-2xl shadow-lift">
+              <img src="{{ section.image.url }}" alt="{{ section.title }}" class="h-full w-full object-cover" loading="lazy" decoding="async">
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
   {% endfor %}
 
-  <!-- ========================= CTA ========================= -->
-  <section class="py-16 px-4 bg-brand-navy text-center">
-    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white">Looking for a manufacturing partner?</h2>
-    <p class="mt-3 text-gray-300 max-w-xl mx-auto">Tell us about your product and we'll show you what Humana Apparels can deliver.</p>
-    <a href="{% url 'contact' %}" class="mt-8 inline-flex items-center gap-2 rounded-full bg-brand-orange px-7 py-3.5 font-semibold text-white hover:bg-brand-orange-dark transition-colors">Contact Us<i class="ph ph-duotone ph-arrow-right"></i></a>
-  </section>
+  {% include "partials/cta_band.html" with title=page.cta_title|default:"Looking for a manufacturing partner?" text=page.cta_text|default:"Tell us about your product and we'll show you what Humana Apparels can deliver." button_text=page.cta_button_text|default:"Contact Us" button_url=page.cta_button_url|default:"/contact/" %}
 
 {% endblock content %}
-{% block extra_js %}
-  <script>
-    // Product carousel crossfade
-    (function () {
-      var slides = document.querySelectorAll('[data-pslide]');
-      if (slides.length > 1) {
-        var cur = 0, timer;
-        function show(i) { cur = (i + slides.length) % slides.length; slides.forEach(function (s, idx) { s.classList.toggle('is-active', idx === cur); }); }
-        function restart() { clearInterval(timer); timer = setInterval(function () { show(cur + 1); }, 5000); }
-        var n = document.querySelector('[data-pnext]'), p = document.querySelector('[data-pprev]');
-        if (n) n.addEventListener('click', function () { show(cur + 1); restart(); });
-        if (p) p.addEventListener('click', function () { show(cur - 1); restart(); });
-        restart();
-      }
-    })();
-
-    // Category tabs
-    (function () {
-      var tabs = document.querySelectorAll('.cat-tab');
-      var panels = document.querySelectorAll('.cat-panel');
-      tabs.forEach(function (tab) {
-        tab.addEventListener('click', function () {
-          var idx = tab.dataset.catTab;
-          tabs.forEach(function (t) {
-            var on = t === tab;
-            t.classList.toggle('bg-brand-orange', on); t.classList.toggle('text-white', on);
-            t.classList.toggle('bg-gray-100', !on); t.classList.toggle('text-gray-700', !on);
-          });
-          panels.forEach(function (pnl) { pnl.classList.toggle('hidden', pnl.dataset.catPanel !== idx); });
-        });
-      });
-    })();
-
-    // Gender filter (scoped per panel)
-    (function () {
-      document.querySelectorAll('.cat-panel').forEach(function (panel) {
-        var filters = panel.querySelectorAll('.gender-filter');
-        var cards = panel.querySelectorAll('.product-card');
-        filters.forEach(function (f) {
-          f.addEventListener('click', function () {
-            var g = f.dataset.gender;
-            filters.forEach(function (x) {
-              var on = x === f;
-              x.classList.toggle('bg-brand-navy', on); x.classList.toggle('text-white', on);
-              x.classList.toggle('bg-gray-100', !on); x.classList.toggle('text-gray-700', !on);
-            });
-            cards.forEach(function (c) { c.classList.toggle('hidden', g !== 'all' && c.dataset.gender !== g); });
-          });
-        });
-      });
-    })();
-  </script>
-{% endblock %}

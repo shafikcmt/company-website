@@ -1,6 +1,12 @@
+import re
+
 from django.db import models
 from django.core.exceptions import ValidationError
-from django.core.validators import FileExtensionValidator
+from django.core.validators import (
+    FileExtensionValidator,
+    MinValueValidator,
+    MaxValueValidator,
+)
 from common.models import BaseModel
 from common.fields import OptimizedImageField
 
@@ -19,7 +25,9 @@ class SiteSettings(BaseModel):
     """Singleton model holding global site-wide settings."""
 
     company_name = models.CharField(max_length=200, default="HAPL")
-    logo = OptimizedImageField(upload_to="site/", blank=True, null=True)
+    logo = OptimizedImageField(
+        upload_to="site/", max_dimensions=(800, 300), blank=True, null=True
+    )
     favicon = OptimizedImageField(
         upload_to="site/", max_dimensions=(128, 128), blank=True, null=True
     )
@@ -33,10 +41,54 @@ class SiteSettings(BaseModel):
     # --- Frontend-facing settings (used by the public site templates) ---
     site_name = models.CharField(max_length=200, default="Humana Apparels Ltd")
     site_tagline = models.CharField(max_length=300, blank=True, null=True)
-    site_logo = OptimizedImageField(upload_to="settings/", blank=True, null=True)
-    site_favicon = OptimizedImageField(upload_to="settings/", blank=True, null=True)
-    footer_description = models.TextField(blank=True, null=True)
+    site_logo = OptimizedImageField(
+        upload_to="settings/",
+        max_dimensions=(800, 300),
+        blank=True,
+        null=True,
+        help_text="Logo for light backgrounds.",
+    )
+    logo_light = OptimizedImageField(
+        upload_to="settings/",
+        max_dimensions=(800, 300),
+        blank=True,
+        null=True,
+        help_text="White / light logo used on the navy header and footer.",
+    )
+    site_favicon = OptimizedImageField(
+        upload_to="settings/", max_dimensions=(256, 256), blank=True, null=True
+    )
+
+    # --- Header ---
+    header_cta_text = models.CharField(
+        max_length=100, blank=True, null=True, help_text='e.g. "Get in touch"'
+    )
+    header_cta_url = models.CharField(
+        max_length=200, blank=True, null=True, help_text="e.g. /contact/"
+    )
+
+    # --- Footer ---
+    footer_description = models.TextField(
+        blank=True, null=True, help_text="Short about text in the footer."
+    )
+    footer_address = models.CharField(max_length=300, blank=True, null=True)
+    footer_phone = models.CharField(max_length=50, blank=True, null=True)
+    footer_email = models.EmailField(blank=True, null=True)
+    footer_links_title = models.CharField(max_length=100, blank=True, null=True)
+    footer_contact_title = models.CharField(max_length=100, blank=True, null=True)
+    footer_social_title = models.CharField(max_length=100, blank=True, null=True)
     footer_copyright = models.CharField(max_length=300, blank=True, null=True)
+
+    # --- Default SEO ---
+    meta_title = models.CharField(max_length=200, blank=True, null=True)
+    meta_description = models.CharField(max_length=300, blank=True, null=True)
+    og_image = OptimizedImageField(
+        upload_to="settings/",
+        max_dimensions=(1200, 630),
+        blank=True,
+        null=True,
+        help_text="Social sharing image (1200×630 recommended).",
+    )
 
     class Meta:
         verbose_name = "Site Settings"
@@ -54,6 +106,20 @@ class SiteSettings(BaseModel):
     def load(cls):
         obj, _ = cls.objects.get_or_create(pk=1)
         return obj
+
+    @property
+    def primary_logo(self):
+        """Logo for light backgrounds, falling back to the legacy field."""
+        return self.site_logo or self.logo or None
+
+    @property
+    def header_logo(self):
+        """Logo for the navy header/footer: light variant first."""
+        return self.logo_light or self.site_logo or self.logo or None
+
+    @property
+    def favicon_file(self):
+        return self.site_favicon or self.favicon or None
 
 
 class NavbarSettings(BaseModel):
@@ -129,6 +195,12 @@ class MailSettings(BaseModel):
 class BaseSection(BaseModel):
     """Abstract base model for content sections with title and subtitle"""
 
+    eyebrow = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="Small label shown above the section title.",
+    )
     title = models.CharField(max_length=200, null=True, blank=True)
     subtitle = models.CharField(max_length=500, blank=True, null=True)
 
@@ -139,18 +211,60 @@ class BaseSection(BaseModel):
         return self.title or f"{self.__class__.__name__} Section {self.id}"
 
 
+class PageMixin(models.Model):
+    """Abstract fields shared by every page-level model: the banner at the top
+    of the page, the closing call-to-action band and per-page SEO."""
+
+    banner_title = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text="Page banner heading. Falls back to the section title.",
+    )
+    banner_subtitle = models.CharField(max_length=500, blank=True, null=True)
+    banner_image = OptimizedImageField(
+        upload_to="pages/banners/",
+        max_dimensions=(2400, 1200),
+        blank=True,
+        null=True,
+        help_text="Optional background image for the page banner.",
+    )
+    cta_title = models.CharField(max_length=200, blank=True, null=True)
+    cta_text = models.CharField(max_length=500, blank=True, null=True)
+    cta_button_text = models.CharField(max_length=100, blank=True, null=True)
+    cta_button_url = models.CharField(max_length=200, blank=True, null=True)
+    meta_title = models.CharField(max_length=200, blank=True, null=True)
+    meta_description = models.CharField(max_length=300, blank=True, null=True)
+
+    class Meta:
+        abstract = True
+
+
 # --- --- Home Page Models --- ---
 class HomeHeroSection(BaseModel):
     """Section model for home page hero/carousel"""
 
     badge_text = models.CharField(
+        "eyebrow",
         max_length=200,
         blank=True,
         null=True,
         help_text="Small label shown above the title",
     )
     title = models.CharField(max_length=300, blank=True, null=True)
-    subtitle = models.CharField(max_length=500, blank=True, null=True)
+    highlight_word = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="Part of the title rendered in amber (must appear in the title).",
+    )
+    subtitle = models.CharField(
+        "description",
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="Paragraph shown under the title.",
+    )
 
     cta_primary_text = models.CharField(max_length=100, blank=True, null=True)
     cta_primary_url = models.CharField(max_length=200, blank=True, null=True)
@@ -160,34 +274,116 @@ class HomeHeroSection(BaseModel):
     cta_secondary_url = models.CharField(max_length=200, blank=True, null=True)
     cta_secondary_active = models.BooleanField(default=True)
 
+    bottom_label = models.CharField(
+        max_length=150,
+        blank=True,
+        null=True,
+        help_text='Label at the bottom of the text panel, e.g. "Humana Apparels Ltd"',
+    )
+    bottom_link_text = models.CharField(
+        max_length=100, blank=True, null=True, help_text='e.g. "Inside our factory"'
+    )
+    bottom_link_url = models.CharField(max_length=200, blank=True, null=True)
+
+    autoplay = models.BooleanField(default=True)
+    autoplay_interval = models.PositiveSmallIntegerField(
+        default=6,
+        validators=[MinValueValidator(2), MaxValueValidator(30)],
+        help_text="Seconds per slide.",
+    )
+    is_active = models.BooleanField(
+        default=True, help_text="Only the first active hero is shown."
+    )
+
+    class Meta:
+        verbose_name = "Home Hero"
+        verbose_name_plural = "Home Hero"
+
     def __str__(self):
-        return f"Hero Section {self.id}"
+        return self.title or f"Hero Section {self.id}"
+
+    def title_words(self):
+        """Split the title into words, flagging those inside `highlight_word`
+        so the template can reveal word-by-word and colour the highlight."""
+        title = (self.title or "").strip()
+        if not title:
+            return []
+        highlight = (self.highlight_word or "").strip()
+        before, middle, after = title, "", ""
+        if highlight:
+            match = re.search(re.escape(highlight), title, flags=re.IGNORECASE)
+            if match:
+                before = title[: match.start()]
+                middle = title[match.start() : match.end()]
+                after = title[match.end() :]
+        words = []
+        for chunk, is_highlight in ((before, False), (middle, True), (after, False)):
+            for word in chunk.split():
+                words.append({"text": word, "highlight": is_highlight})
+        return words
 
 
 class HomeCarouselSlide(BaseModel):
+    FOCAL_CHOICES = (
+        ("center", "Center"),
+        ("top", "Top"),
+        ("bottom", "Bottom"),
+    )
+    # Literal class names so Tailwind's content scanner keeps them.
+    FOCAL_CLASSES = {
+        "center": "object-center",
+        "top": "object-top",
+        "bottom": "object-bottom",
+    }
+
     section = models.ForeignKey(
         HomeHeroSection, related_name="slides", on_delete=models.CASCADE, null=True
     )
     title = models.CharField(max_length=200, null=True, blank=True)
     subtitle = models.CharField(max_length=500, blank=True, null=True)
-    image = OptimizedImageField(upload_to="home/carousel/")
+    image = OptimizedImageField(upload_to="home/carousel/", max_dimensions=(2400, 1600))
+    alt_text = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text="Describe the image for screen readers.",
+    )
+    caption = models.CharField(max_length=200, blank=True, null=True)
+    focal_point = models.CharField(
+        max_length=10,
+        choices=FOCAL_CHOICES,
+        default="center",
+        help_text="Which part of the image stays visible when cropped.",
+    )
     is_active = models.BooleanField(default=True)
     cta_text = models.CharField(max_length=100, blank=True, null=True)
     cta_url = models.URLField(blank=True, null=True)
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
-        ordering = ["order"]
+        ordering = ["order", "id"]
 
     def __str__(self):
-        return self.title or f"Slide {self.id}"
+        return self.title or self.alt_text or f"Slide {self.id}"
+
+    @property
+    def focal_class(self):
+        return self.FOCAL_CLASSES.get(self.focal_point, "object-center")
+
+    @property
+    def alt(self):
+        return self.alt_text or self.title or self.caption or ""
 
 
 class HomeIntroductionSection(BaseSection):
     """Section model for home page introduction"""
 
     content = models.TextField(null=True, blank=True)
-    image = OptimizedImageField(upload_to="home/", blank=True, null=True)
+    image = OptimizedImageField(
+        upload_to="home/", max_dimensions=(1600, 1200), blank=True, null=True
+    )
+    cta_text = models.CharField(max_length=100, blank=True, null=True)
+    cta_url = models.CharField(max_length=200, blank=True, null=True)
 
 
 class HomeIntroductionFeature(BaseModel):
@@ -240,26 +436,64 @@ class CompanyStats(BaseModel):
     section = models.ForeignKey(
         HomeStatsSection, related_name="stats", on_delete=models.CASCADE, null=True
     )
-    title = models.CharField(max_length=100)
-    value = models.CharField(max_length=50)
+    number = models.PositiveIntegerField(
+        blank=True, null=True, help_text="Animated number, e.g. 2400"
+    )
+    prefix = models.CharField(max_length=10, blank=True, null=True)
+    suffix = models.CharField(
+        max_length=10, blank=True, null=True, help_text='e.g. "+", "K", "%"'
+    )
+    label = models.CharField(
+        max_length=150,
+        blank=True,
+        null=True,
+        help_text="Readable description shown under the number.",
+    )
+    order = models.PositiveIntegerField(default=0)
+    # Legacy fields, kept for backwards compatibility. `value` is kept in sync
+    # with number/prefix/suffix on save.
+    title = models.CharField(max_length=100, blank=True, default="")
+    value = models.CharField(max_length=50, blank=True, default="")
     icon = models.CharField(max_length=50, blank=True, null=True)
 
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "Company stat"
+        verbose_name_plural = "Company stats"
+
     def __str__(self):
-        return self.title
+        return self.display_label or self.display_value or f"Stat {self.id}"
+
+    def save(self, *args, **kwargs):
+        if self.number is not None:
+            self.value = f"{self.prefix or ''}{self.number:,}{self.suffix or ''}"
+        if self.label and not self.title:
+            self.title = self.label[:100]
+        super().save(*args, **kwargs)
+
+    @property
+    def display_value(self):
+        if self.number is not None:
+            return f"{self.prefix or ''}{self.number:,}{self.suffix or ''}"
+        return self.value
+
+    @property
+    def display_label(self):
+        return self.label or self.title
 
 
 # --- About Page Models ---
-class AboutSection(BaseSection):
+class AboutSection(BaseSection, PageMixin):
     """Main about section model"""
 
     content = models.TextField(null=True, blank=True)
     image = OptimizedImageField(
-        upload_to="about/", max_dimensions=(800, 800), blank=True, null=True
+        upload_to="about/", max_dimensions=(1600, 1200), blank=True, null=True
     )
 
 
 class WhyUsSection(BaseSection):
-    """Section model for 'Why choose us' features"""
+    """Section model for 'Why choose us' features (core values on About)"""
 
     pass
 
@@ -293,7 +527,7 @@ class TeamMember(BaseModel):
     )
     name = models.CharField(max_length=100)
     position = models.CharField(max_length=100)
-    image = OptimizedImageField(upload_to="team/", max_dimensions=(400, 400))
+    image = OptimizedImageField(upload_to="team/", max_dimensions=(600, 800))
     is_management = models.BooleanField(default=False)
     bio = models.TextField(blank=True, null=True)
     linkedin_url = models.URLField(blank=True, null=True)
@@ -329,7 +563,7 @@ class FAQ(BaseModel):
 
 
 # --- Customers Page Models ---
-class CustomersSection(BaseSection):
+class CustomersSection(BaseSection, PageMixin):
     """Section model for customer showcase"""
 
     pass
@@ -340,7 +574,7 @@ class Customer(BaseModel):
         CustomersSection, related_name="customers", on_delete=models.CASCADE, null=True
     )
     name = models.CharField(max_length=100)
-    logo = OptimizedImageField(upload_to="customers/", max_dimensions=(200, 200))
+    logo = OptimizedImageField(upload_to="customers/", max_dimensions=(400, 200))
     url = models.URLField()
     is_featured = models.BooleanField(default=False, help_text="Display on home page")
     order = models.PositiveIntegerField(default=0)
@@ -369,7 +603,7 @@ class Testimonial(BaseModel):
     author = models.CharField(max_length=100)
     position = models.CharField(max_length=100)
     company_logo = OptimizedImageField(
-        upload_to="testimonials/", max_dimensions=(100, 100)
+        upload_to="testimonials/", max_dimensions=(200, 200)
     )
     is_featured = models.BooleanField(default=False, help_text="Featured testimonial")
     order = models.PositiveIntegerField(default=0)
@@ -382,10 +616,21 @@ class Testimonial(BaseModel):
 
 
 # --- Contact Page Models ---
-class ContactSection(BaseSection):
+class ContactSection(BaseSection, PageMixin):
     """Main contact section model"""
 
-    pass
+    groups_title = models.CharField(
+        max_length=200, blank=True, null=True, help_text='e.g. "Key Contacts"'
+    )
+    groups_empty_text = models.CharField(
+        max_length=300,
+        blank=True,
+        null=True,
+        help_text="Shown when no contact groups exist.",
+    )
+    socials_title = models.CharField(
+        max_length=200, blank=True, null=True, help_text='e.g. "Connect With Us"'
+    )
 
 
 class ContactData(BaseModel):
@@ -394,12 +639,12 @@ class ContactData(BaseModel):
     )
     map_title = models.CharField(max_length=200)
     map_subtitle = models.CharField(max_length=500, blank=True, null=True)
-    map_image = OptimizedImageField(upload_to="contact/")
+    map_image = OptimizedImageField(upload_to="contact/", max_dimensions=(1600, 1000))
     map_url = models.URLField()
     address = models.CharField(max_length=200)
     office_title = models.CharField(max_length=200)
     office_subtitle = models.CharField(max_length=500, blank=True, null=True)
-    office_image = OptimizedImageField(upload_to="contact/")
+    office_image = OptimizedImageField(upload_to="contact/", max_dimensions=(1600, 1000))
     fax = models.CharField(max_length=20, blank=True, null=True)
 
     def __str__(self):
@@ -466,22 +711,36 @@ class ContactMember(BaseModel):
 
 
 class Social(BaseModel):
+    """Social profile link — used on the contact page and in the site footer."""
+
     section = models.ForeignKey(
         ContactSection, related_name="socials", on_delete=models.CASCADE, null=True
     )
     name = models.CharField(max_length=100)
     url = models.URLField()
     icon = models.CharField(max_length=50, help_text="Phosphor Icon class")
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
 
     def __str__(self):
         return self.name
 
 
 # --- Career Page Models ---
-class CareerSection(BaseSection):
+class CareerSection(BaseSection, PageMixin):
     """Section model for career listings"""
 
-    pass
+    positions_title = models.CharField(
+        max_length=200, blank=True, null=True, help_text='e.g. "Open Positions"'
+    )
+    positions_empty_text = models.CharField(
+        max_length=300,
+        blank=True,
+        null=True,
+        help_text="Shown when there are no open positions.",
+    )
 
 
 class CareerPosition(BaseModel):
@@ -553,7 +812,7 @@ class JobApplication(BaseModel):
 
 
 # --- Activities Page Models ---
-class ActivitiesSection(BaseSection):
+class ActivitiesSection(BaseSection, PageMixin):
     """Section model for company activities (CSR, events, compliance initiatives)"""
 
     pass
@@ -566,7 +825,7 @@ class Activity(BaseModel):
     title = models.CharField(max_length=200)
     excerpt = models.CharField(max_length=500)
     content = models.TextField(null=True, blank=True)
-    image = OptimizedImageField(upload_to="activities/", max_dimensions=(1000, 1000))
+    image = OptimizedImageField(upload_to="activities/", max_dimensions=(1600, 1000))
     activity_date = models.DateField()
     tag = models.CharField(
         max_length=50,
@@ -576,15 +835,20 @@ class Activity(BaseModel):
     )
     is_featured = models.BooleanField(default=False, help_text="Feature on home page")
 
+    class Meta:
+        verbose_name_plural = "Activities"
+
     def __str__(self):
         return self.title
 
 
 # --- Products Page Models ---
-class ProductsPage(BaseSection):
+class ProductsPage(BaseSection, PageMixin):
     """Main products page model"""
 
-    pass
+    portfolio_eyebrow = models.CharField(max_length=100, blank=True, null=True)
+    portfolio_title = models.CharField(max_length=200, blank=True, null=True)
+    portfolio_subtitle = models.CharField(max_length=500, blank=True, null=True)
 
 
 class ProductCarouselSlide(BaseModel):
@@ -593,8 +857,12 @@ class ProductCarouselSlide(BaseModel):
     page = models.ForeignKey(
         ProductsPage, related_name="carousel_slides", on_delete=models.CASCADE
     )
-    image = OptimizedImageField(upload_to="products/carousel/")
+    image = OptimizedImageField(upload_to="products/carousel/", max_dimensions=(2400, 1200))
     alt = models.CharField(max_length=100)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
 
     def __str__(self):
         return self.alt
@@ -606,12 +874,17 @@ class ProductSection(BaseModel):
     page = models.ForeignKey(
         ProductsPage, related_name="sections", on_delete=models.CASCADE
     )
+    eyebrow = models.CharField(max_length=100, blank=True, null=True)
     title = models.CharField(max_length=200)
     description = models.TextField()
-    image = OptimizedImageField(upload_to="products/sections/")
+    image = OptimizedImageField(upload_to="products/sections/", max_dimensions=(1600, 1200))
     after_products = models.BooleanField(
         default=False, help_text="Display this section after the product portfolio"
     )
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
 
     def __str__(self):
         return self.title
@@ -624,6 +897,11 @@ class ProductCategory(BaseModel):
         ProductsPage, related_name="categories", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=100)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name_plural = "Product categories"
 
     def __str__(self):
         return self.name
@@ -642,7 +920,7 @@ class Product(BaseModel):
         blank=True,
     )
     name = models.CharField(max_length=200)
-    image = OptimizedImageField(upload_to="products/items/")
+    image = OptimizedImageField(upload_to="products/items/", max_dimensions=(1000, 1000))
     buyer = models.CharField(max_length=200)
     order = models.PositiveIntegerField(default=0)
 
@@ -654,10 +932,16 @@ class Product(BaseModel):
 
 
 # --- Compliance Page Models ---
-class CompliancePage(BaseSection):
+class CompliancePage(BaseSection, PageMixin):
     """Main compliance page model"""
 
-    pass
+    audit_eyebrow = models.CharField(max_length=100, blank=True, null=True)
+    audit_title = models.CharField(max_length=200, blank=True, null=True)
+    audit_description = models.CharField(max_length=500, blank=True, null=True)
+    standards_title = models.CharField(max_length=200, blank=True, null=True)
+    standards_description = models.CharField(max_length=500, blank=True, null=True)
+    certificates_eyebrow = models.CharField(max_length=100, blank=True, null=True)
+    certificates_title = models.CharField(max_length=200, blank=True, null=True)
 
 
 class ComplianceSection(BaseModel):
@@ -666,9 +950,18 @@ class ComplianceSection(BaseModel):
     page = models.ForeignKey(
         CompliancePage, related_name="sections", on_delete=models.CASCADE
     )
+    eyebrow = models.CharField(
+        max_length=100, blank=True, null=True, help_text='Defaults to "Standard".'
+    )
     title = models.CharField(max_length=200)
     description = models.TextField()
-    image = OptimizedImageField(upload_to="compliance/sections/")
+    image = OptimizedImageField(
+        upload_to="compliance/sections/", max_dimensions=(1600, 1000)
+    )
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
 
     def __str__(self):
         return self.title
@@ -681,7 +974,9 @@ class ComplianceCertificate(BaseModel):
         CompliancePage, related_name="certificates", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=200)
-    image = OptimizedImageField(upload_to="compliance/certificates/")
+    image = OptimizedImageField(
+        upload_to="compliance/certificates/", max_dimensions=(600, 600)
+    )
     website_url = models.URLField(
         blank=True,
         null=True,
@@ -789,10 +1084,12 @@ class ProductionStep(BaseModel):
 
 
 # --- Sustainability Page Models ---
-class SustainabilityPage(BaseSection):
+class SustainabilityPage(BaseSection, PageMixin):
     """Main sustainability page model"""
 
-    pass
+    certificates_title = models.CharField(
+        max_length=200, blank=True, null=True, help_text='e.g. "Recognized By"'
+    )
 
 
 class SustainabilitySection(BaseModel):
@@ -801,9 +1098,18 @@ class SustainabilitySection(BaseModel):
     page = models.ForeignKey(
         SustainabilityPage, related_name="sections", on_delete=models.CASCADE
     )
+    eyebrow = models.CharField(
+        max_length=100, blank=True, null=True, help_text='Defaults to "Chapter NN".'
+    )
     title = models.CharField(max_length=200)
     description = models.TextField()
-    image = OptimizedImageField(upload_to="sustainability/sections/")
+    image = OptimizedImageField(
+        upload_to="sustainability/sections/", max_dimensions=(1600, 1600)
+    )
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
 
     def __str__(self):
         return self.title
@@ -816,17 +1122,28 @@ class SustainabilityCertificate(BaseModel):
         SustainabilityPage, related_name="certificates", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=200)
-    image = OptimizedImageField(upload_to="sustainability/certificates/")
+    image = OptimizedImageField(
+        upload_to="sustainability/certificates/", max_dimensions=(600, 600)
+    )
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
 
     def __str__(self):
         return self.name
 
 
 # --- Gallery Page Models ---
-class GalleryPage(BaseSection):
+class GalleryPage(BaseSection, PageMixin):
     """Main gallery page model"""
 
-    pass
+    all_tab_label = models.CharField(
+        max_length=50, blank=True, null=True, help_text='Filter tab label, e.g. "All"'
+    )
+    videos_title = models.CharField(
+        max_length=100, blank=True, null=True, help_text='e.g. "Videos"'
+    )
 
 
 class GallerySection(BaseModel):
@@ -836,6 +1153,10 @@ class GallerySection(BaseModel):
         GalleryPage, related_name="sections", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=100)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
 
     def __str__(self):
         return self.name
@@ -848,7 +1169,7 @@ class GalleryImage(BaseModel):
         GallerySection, related_name="images", on_delete=models.CASCADE
     )
     caption = models.CharField(max_length=200)
-    image = OptimizedImageField(upload_to="gallery/images/")
+    image = OptimizedImageField(upload_to="gallery/images/", max_dimensions=(2000, 2000))
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -866,6 +1187,10 @@ class GalleryVideo(BaseModel):
     )
     caption = models.CharField(max_length=200)
     youtube_url = models.URLField(help_text="YouTube embed URL")
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
 
     def __str__(self):
         return self.caption
@@ -912,6 +1237,7 @@ class AuditStatus(BaseModel):
 
     class Meta:
         ordering = ["sl_no"]
+        verbose_name_plural = "Audit status"
 
     def __str__(self):
         return f"{self.sl_no}. {self.name}"

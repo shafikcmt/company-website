@@ -1,6 +1,7 @@
 import logging
 from django.core.management.base import BaseCommand
 from seeder.content_seeder import (
+    SiteSeeder,
     HomeSeeder,
     AboutSeeder,
     CustomerSeeder,
@@ -17,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Map of all available seeders
 SEEDERS = {
+    "site": SiteSeeder,
     "home": HomeSeeder,
     "about": AboutSeeder,
     "customers": CustomerSeeder,
@@ -31,7 +33,7 @@ SEEDERS = {
 
 
 class Command(BaseCommand):
-    help = "Seeds the database with initial data"
+    help = "Seeds the database with realistic demo content"
 
     def add_arguments(self, parser):
         parser.add_argument(

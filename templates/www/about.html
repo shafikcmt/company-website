@@ -1,111 +1,102 @@
 {% extends "www/base.html" %}
-{% load static %}
-{% block title %}About Us — Humana Apparels Ltd{% endblock %}
-{% block meta_description %}
-  <meta name="description" content="About Humana Apparels Ltd — company overview, core values, leadership team and FAQs.">
-{% endblock %}
 {% block content %}
 
-  <!-- ========================= PAGE HEADER ========================= -->
-  {% if about.image %}
-    {% include "partials/page_header.html" with heading="About Us" breadcrumb="About" bg_image=about.image.url %}
-  {% else %}
-    {% include "partials/page_header.html" with heading="About Us" breadcrumb="About" %}
-  {% endif %}
+  {% include "partials/page_header.html" with heading=page.banner_title|default:"About Us" subtitle=page.banner_subtitle eyebrow=page.eyebrow bg_image=page.banner_image|default:page.image breadcrumb=page.banner_title|default:"About" %}
 
-  <!-- ========================= ABOUT 2-COL ========================= -->
-  {% if about %}
-    <section class="py-20 px-4 bg-white">
-      <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
-        <div>
-          {% if about.image %}
-            <img src="{{ about.image.url }}" alt="{{ about.title|default:'About' }}" class="w-full aspect-[4/3] object-cover rounded-2xl shadow-md">
-          {% else %}
-            <div class="w-full aspect-[4/3] rounded-2xl bg-gray-100 flex items-center justify-center text-gray-300"><i class="ph ph-duotone ph-buildings text-6xl"></i></div>
-          {% endif %}
+  {# ========================= COMPANY OVERVIEW ========================= #}
+  {% if page.pk %}
+    <section class="section overflow-hidden bg-white">
+      <div class="container-site grid items-center gap-14 lg:grid-cols-2 lg:gap-24">
+        <div class="relative" data-reveal="left">
+          <div class="absolute -bottom-6 -left-6 hidden size-48 rounded-3xl bg-amber/15 sm:block" aria-hidden="true"></div>
+          <div class="card-media relative aspect-[4/3] rounded-2xl bg-surface shadow-lift">
+            {% if page.image %}
+              <img src="{{ page.image.url }}" alt="{{ page.title|default:'' }}" class="h-full w-full object-cover" loading="lazy" decoding="async">
+            {% else %}
+              <div class="flex h-full items-center justify-center text-navy/20"><i class="ph-duotone ph-buildings text-7xl" aria-hidden="true"></i></div>
+            {% endif %}
+          </div>
         </div>
         <div>
-          <span class="text-sm font-semibold uppercase tracking-wide text-brand-orange-dark">Company Overview</span>
-          <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-brand-navy">{{ about.title|default:"Crafting Quality Apparel" }}</h2>
-          {% if about.subtitle %}<p class="mt-4 text-lg text-gray-600">{{ about.subtitle }}</p>{% endif %}
-          {% if about.content %}<div class="mt-4 text-gray-600 leading-relaxed">{{ about.content|safe }}</div>{% endif %}
+          {% include "partials/section_header.html" with eyebrow=page.eyebrow|default:"Company Overview" title=page.title|default:"Crafting Quality Apparel" subtitle=page.subtitle align="left" %}
+          {% if page.content %}<div class="rich-text mt-6" data-reveal="up">{{ page.content|safe }}</div>{% endif %}
+
           {% if key_facts %}
-            <div class="mt-8 grid grid-cols-2 gap-6">
+            <dl class="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-navy/10 ring-1 ring-navy/5" data-reveal="up">
               {% for fact in key_facts %}
-                <div class="flex items-center gap-3">
-                  {% if fact.icon %}<i class="ph ph-duotone {{ fact.icon }} text-3xl text-brand-orange-dark"></i>{% endif %}
-                  <div>
-                    <div class="text-2xl font-extrabold text-brand-navy">{{ fact.value }}</div>
-                    <div class="text-xs uppercase tracking-wide text-gray-500">{{ fact.title }}</div>
-                  </div>
+                <div class="flex flex-col bg-white p-5">
+                  <dd class="order-1 flex items-center gap-2 text-2xl font-extrabold tabular-nums tracking-tight text-navy">
+                    {% if fact.icon %}<i class="ph-duotone {{ fact.icon }} text-2xl text-amber-dark" aria-hidden="true"></i>{% endif %}
+                    {% if fact.number is not None %}<span data-count-to="{{ fact.number }}" data-prefix="{{ fact.prefix|default:'' }}" data-suffix="{{ fact.suffix|default:'' }}">{{ fact.display_value }}</span>{% else %}{{ fact.display_value }}{% endif %}
+                  </dd>
+                  <dt class="order-2 mt-1 text-sm font-medium text-muted">{{ fact.display_label }}</dt>
                 </div>
               {% endfor %}
-            </div>
+            </dl>
           {% endif %}
         </div>
       </div>
     </section>
   {% endif %}
 
-  <!-- ========================= CORE VALUES ========================= -->
+  {# ========================= CORE VALUES ========================= #}
   {% if core_values %}
-    <section class="py-20 px-4 bg-gray-50">
-      <div class="max-w-7xl mx-auto">
-        <div class="max-w-2xl mx-auto text-center">
-          <span class="text-sm font-semibold uppercase tracking-wide text-brand-orange-dark">What Drives Us</span>
-          <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-brand-navy">Our Core Values</h2>
-        </div>
-        <div class="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <section class="section bg-surface">
+      <div class="container-site">
+        {% include "partials/section_header.html" with eyebrow=why_section.eyebrow|default:"What Drives Us" title=why_section.title|default:"Our Core Values" subtitle=why_section.subtitle %}
+        <div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {% for value in core_values %}
-            <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow p-7">
-              <span class="inline-flex items-center justify-center size-14 rounded-xl bg-amber-50 text-brand-orange-dark"><i class="ph ph-duotone {{ value.icon }} text-2xl"></i></span>
-              <h3 class="mt-5 text-xl font-bold tracking-tight text-brand-navy">{{ value.title }}</h3>
-              <p class="mt-2 text-gray-600 leading-relaxed">{{ value.description }}</p>
-            </div>
+            <article class="group card card-hover p-8" data-reveal="up" data-reveal-delay="{% cycle '0' '100' '200' %}">
+              <div class="flex items-start justify-between gap-4">
+                <span class="icon-tile"><i class="ph-duotone {{ value.icon }}" aria-hidden="true"></i></span>
+                {% if value.stat_number %}<span class="text-3xl font-extrabold tracking-tight text-navy/15">{{ value.stat_number }}</span>{% endif %}
+              </div>
+              <h3 class="mt-6 text-xl font-bold tracking-tight">{{ value.title }}</h3>
+              <div class="rich-text mt-2 text-[0.95rem]">{{ value.description|safe }}</div>
+            </article>
           {% endfor %}
         </div>
       </div>
     </section>
   {% endif %}
 
-  <!-- ========================= TEAM ========================= -->
-  {% if team.management or team.staff %}
-    <section class="py-20 px-4 bg-white">
-      <div class="max-w-7xl mx-auto">
-        <div class="max-w-2xl mx-auto text-center">
-          <span class="text-sm font-semibold uppercase tracking-wide text-brand-orange-dark">Leadership</span>
-          <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-brand-navy">{{ team.title|default:"Meet Our Team" }}</h2>
-          {% if team.subtitle %}<p class="mt-4 text-gray-600">{{ team.subtitle }}</p>{% endif %}
-        </div>
+  {# ========================= TEAM ========================= #}
+  {% if management or staff %}
+    <section class="section bg-white">
+      <div class="container-site">
+        {% include "partials/section_header.html" with eyebrow=team_section.eyebrow|default:"Leadership" title=team_section.title|default:"Meet Our Team" subtitle=team_section.subtitle %}
 
-        <!-- Management (larger cards) -->
-        {% if team.management %}
-          <div class="mt-14 grid grid-cols-2 lg:grid-cols-4 gap-6">
-            {% for member in team.management %}
-              <div class="group bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow overflow-hidden">
-                <div class="aspect-[3/4] overflow-hidden bg-gray-100">
-                  {% if member.image %}<img src="{{ member.image.url }}" alt="{{ member.name }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">{% endif %}
+        {% if management %}
+          <div class="mt-14 grid grid-cols-2 gap-6 lg:grid-cols-4">
+            {% for member in management %}
+              <article class="group card card-hover overflow-hidden" data-reveal="up" data-reveal-delay="{% cycle '0' '100' '200' '300' %}">
+                <div class="card-media aspect-[3/4] bg-surface">
+                  {% if member.image %}<img src="{{ member.image.url }}" alt="{{ member.name }}" class="h-full w-full object-cover" loading="lazy" decoding="async">{% endif %}
+                  {% if member.linkedin_url %}
+                    <a href="{{ member.linkedin_url }}" target="_blank" rel="noopener" aria-label="{{ member.name }} on LinkedIn"
+                       class="absolute bottom-3 right-3 inline-flex size-10 items-center justify-center rounded-full bg-white/95 text-lg text-navy shadow-soft transition hover:bg-amber">
+                      <i class="ph-duotone ph-linkedin-logo" aria-hidden="true"></i>
+                    </a>
+                  {% endif %}
                 </div>
-                <div class="p-4 text-center">
-                  <h3 class="font-bold text-brand-navy">{{ member.name }}</h3>
-                  <p class="text-sm text-brand-orange-dark">{{ member.position }}</p>
-                  {% if member.linkedin_url %}<a href="{{ member.linkedin_url }}" target="_blank" rel="noopener" class="mt-2 inline-flex text-gray-400 hover:text-brand-orange-dark"><i class="ph ph-duotone ph-linkedin-logo text-xl"></i></a>{% endif %}
+                <div class="p-5 text-center">
+                  <h3 class="font-bold">{{ member.name }}</h3>
+                  <p class="mt-1 text-sm font-medium text-amber-dark">{{ member.position }}</p>
                 </div>
-              </div>
+              </article>
             {% endfor %}
           </div>
         {% endif %}
 
-        <!-- Staff (smaller grid) -->
-        {% if team.staff %}
-          <div class="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
-            {% for member in team.staff %}
-              <div class="text-center">
-                <div class="size-24 mx-auto rounded-full overflow-hidden bg-gray-100">
-                  {% if member.image %}<img src="{{ member.image.url }}" alt="{{ member.name }}" class="w-full h-full object-cover">{% endif %}
+        {% if staff %}
+          <div class="mt-14 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-6">
+            {% for member in staff %}
+              <div class="group text-center" data-reveal="fade">
+                <div class="mx-auto size-28 overflow-hidden rounded-full bg-surface ring-4 ring-surface transition group-hover:ring-amber/40">
+                  {% if member.image %}<img src="{{ member.image.url }}" alt="{{ member.name }}" class="h-full w-full object-cover" loading="lazy" decoding="async">{% endif %}
                 </div>
-                <h3 class="mt-3 font-semibold text-sm text-brand-navy">{{ member.name }}</h3>
-                <p class="text-xs text-gray-500">{{ member.position }}</p>
+                <h3 class="mt-4 text-sm font-semibold">{{ member.name }}</h3>
+                <p class="text-xs text-muted">{{ member.position }}</p>
               </div>
             {% endfor %}
           </div>
@@ -114,40 +105,30 @@
     </section>
   {% endif %}
 
-  <!-- ========================= FAQ ========================= -->
-  {% if faq.faqs %}
-    <section class="py-20 px-4 bg-gray-50">
-      <div class="max-w-3xl mx-auto">
-        <div class="text-center">
-          <span class="text-sm font-semibold uppercase tracking-wide text-brand-orange-dark">Got Questions?</span>
-          <h2 class="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight text-brand-navy">{{ faq.title|default:"Frequently Asked Questions" }}</h2>
+  {# ========================= FAQ ========================= #}
+  {% if faqs %}
+    <section class="section bg-surface">
+      <div class="container-site grid gap-12 lg:grid-cols-12">
+        <div class="lg:col-span-4">
+          {% include "partials/section_header.html" with eyebrow=faq_section.eyebrow|default:"Got Questions?" title=faq_section.title|default:"Frequently Asked Questions" subtitle=faq_section.subtitle align="left" %}
         </div>
-        <div class="mt-12 space-y-4">
-          {% for item in faq.faqs %}
-            <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-              <button type="button" class="faq-toggle w-full flex items-center justify-between gap-4 text-left p-5 font-semibold text-brand-navy">
+        <div class="space-y-3 lg:col-span-8">
+          {% for item in faqs %}
+            <details class="group card overflow-hidden open:shadow-lift" data-reveal="up"{% if forloop.first %} open{% endif %}>
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-5 text-left font-semibold text-navy sm:p-6 [&::-webkit-details-marker]:hidden">
                 {{ item.question }}
-                <i class="ph ph-duotone ph-caret-down text-brand-orange-dark transition-transform shrink-0"></i>
-              </button>
-              <div class="faq-content hidden px-5 pb-5 text-gray-600 leading-relaxed">{{ item.answer|safe }}</div>
-            </div>
+                <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-amber/15 text-amber-dark transition-transform duration-300 group-open:rotate-45">
+                  <i class="ph-duotone ph-plus" aria-hidden="true"></i>
+                </span>
+              </summary>
+              <div class="rich-text px-5 pb-6 sm:px-6">{{ item.answer|safe }}</div>
+            </details>
           {% endfor %}
         </div>
       </div>
     </section>
   {% endif %}
+
+  {% include "partials/cta_band.html" with title=page.cta_title text=page.cta_text button_text=page.cta_button_text button_url=page.cta_button_url %}
 
 {% endblock content %}
-{% block extra_js %}
-  <script>
-    // FAQ accordion (vanilla)
-    document.querySelectorAll('.faq-toggle').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var content = btn.nextElementSibling;
-        var icon = btn.querySelector('i');
-        content.classList.toggle('hidden');
-        icon.classList.toggle('rotate-180');
-      });
-    });
-  </script>
-{% endblock %}

@@ -2,6 +2,14 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 
+def _link(title, icon, url_name):
+    return {"title": title, "icon": icon, "link": reverse_lazy(url_name)}
+
+
+def _group(title, *items):
+    return {"title": title, "separator": True, "collapsible": True, "items": list(items)}
+
+
 UNFOLD_CONFIG = {
     "SITE_TITLE": "HAPL Admin",
     "SITE_HEADER": "Humana Apparels",
@@ -13,19 +21,20 @@ UNFOLD_CONFIG = {
     "SHOW_HISTORY": True,
     "SHOW_VIEW_ON_SITE": True,
     "BORDER_RADIUS": "8px",
+    # Brand navy (#093E61 = 600) as the admin primary colour.
     "COLORS": {
         "primary": {
-            "50": "255 251 235",
-            "100": "254 243 199",
-            "200": "253 230 138",
-            "300": "252 211 77",
-            "400": "251 191 36",
-            "500": "245 158 11",
-            "600": "217 119 6",
-            "700": "180 83 9",
-            "800": "146 64 14",
-            "900": "120 53 15",
-            "950": "69 26 3",
+            "50": "#EEF5FA",
+            "100": "#D6E6F1",
+            "200": "#ADCDE4",
+            "300": "#78A6C9",
+            "400": "#3A76A3",
+            "500": "#0E4A75",
+            "600": "#093E61",
+            "700": "#07344F",
+            "800": "#06293F",
+            "900": "#041F30",
+            "950": "#02121D",
         },
     },
     "SIDEBAR": {
@@ -36,236 +45,81 @@ UNFOLD_CONFIG = {
                 "title": _("Dashboard"),
                 "separator": False,
                 "collapsible": True,
-                "items": [
-                    {
-                        "title": _("Dashboard"),
-                        "icon": "dashboard",
-                        "link": reverse_lazy("admin:index"),
-                    },
-                ],
+                "items": [_link(_("Dashboard"), "dashboard", "admin:index")],
             },
-            {
-                "title": _("Global Settings"),
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("Site Settings"),
-                        "icon": "settings",
-                        "link": reverse_lazy("admin:hapl_sitesettings_changelist"),
-                    },
-                    {
-                        "title": _("Navbar Settings"),
-                        "icon": "menu",
-                        "link": reverse_lazy("admin:hapl_navbarsettings_changelist"),
-                    },
-                    {
-                        "title": _("Mail Settings"),
-                        "icon": "mail",
-                        "link": reverse_lazy("admin:hapl_mailsettings_changelist"),
-                    },
-                ],
-            },
-            {
-                "title": _("Home Page"),
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("Hero Banner"),
-                        "icon": "image",
-                        "link": reverse_lazy("admin:hapl_homeherosection_changelist"),
-                    },
-                    {
-                        "title": _("Introduction"),
-                        "icon": "info",
-                        "link": reverse_lazy(
-                            "admin:hapl_homeintroductionsection_changelist"
-                        ),
-                    },
-                    {
-                        "title": _("Services"),
-                        "icon": "build",
-                        "link": reverse_lazy(
-                            "admin:hapl_homeservicessection_changelist"
-                        ),
-                    },
-                    {
-                        "title": _("Stats"),
-                        "icon": "bar_chart",
-                        "link": reverse_lazy("admin:hapl_homestatssection_changelist"),
-                    },
-                ],
-            },
-            {
-                "title": _("About Page"),
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("About Section"),
-                        "icon": "corporate_fare",
-                        "link": reverse_lazy("admin:hapl_aboutsection_changelist"),
-                    },
-                    {
-                        "title": _("Team"),
-                        "icon": "group",
-                        "link": reverse_lazy("admin:hapl_teamsection_changelist"),
-                    },
-                    {
-                        "title": _("FAQ"),
-                        "icon": "help",
-                        "link": reverse_lazy("admin:hapl_faqsection_changelist"),
-                    },
-                ],
-            },
-            {
-                "title": _("Customers Page"),
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("Customers"),
-                        "icon": "handshake",
-                        "link": reverse_lazy("admin:hapl_customerssection_changelist"),
-                    },
-                    {
-                        "title": _("Testimonials"),
-                        "icon": "format_quote",
-                        "link": reverse_lazy(
-                            "admin:hapl_testimonialssection_changelist"
-                        ),
-                    },
-                ],
-            },
-            {
-                "title": _("Contact Page"),
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("Contact Section"),
-                        "icon": "contact_page",
-                        "link": reverse_lazy("admin:hapl_contactsection_changelist"),
-                    },
-                    {
-                        "title": _("Contact Data"),
-                        "icon": "location_on",
-                        "link": reverse_lazy("admin:hapl_contactdata_changelist"),
-                    },
-                ],
-            },
-            {
-                "title": _("Activities Page"),
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("Activities"),
-                        "icon": "volunteer_activism",
-                        "link": reverse_lazy("admin:hapl_activitiessection_changelist"),
-                    },
-                ],
-            },
-            {
-                "title": _("Career Page"),
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("Career"),
-                        "icon": "work",
-                        "link": reverse_lazy("admin:hapl_careersection_changelist"),
-                    },
-                    {
-                        "title": _("Applications"),
-                        "icon": "description",
-                        "link": reverse_lazy("admin:hapl_jobapplication_changelist"),
-                    },
-                ],
-            },
-            {
-                "title": _("Products Page"),
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("Products"),
-                        "icon": "inventory_2",
-                        "link": reverse_lazy("admin:hapl_productspage_changelist"),
-                    },
-                ],
-            },
-            {
-                "title": _("Compliance Page"),
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("Compliance"),
-                        "icon": "verified",
-                        "link": reverse_lazy("admin:hapl_compliancepage_changelist"),
-                    },
-                ],
-            },
-            {
-                "title": _("Sustainability Page"),
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("Sustainability"),
-                        "icon": "eco",
-                        "link": reverse_lazy(
-                            "admin:hapl_sustainabilitypage_changelist"
-                        ),
-                    },
-                ],
-            },
-            {
-                "title": _("Gallery Page"),
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("Gallery"),
-                        "icon": "photo_library",
-                        "link": reverse_lazy("admin:hapl_gallerypage_changelist"),
-                    },
-                    {
-                        "title": _("Gallery Sections"),
-                        "icon": "photo_library",
-                        "link": reverse_lazy("admin:hapl_gallerysection_changelist"),
-                    },
-                    {
-                        "title": _("Gallery Images"),
-                        "icon": "image",
-                        "link": reverse_lazy("admin:hapl_galleryimage_changelist"),
-                    },
-                    {
-                        "title": _("Gallery Videos"),
-                        "icon": "play_circle",
-                        "link": reverse_lazy("admin:hapl_galleryvideo_changelist"),
-                    },
-                ],
-            },
-            {
-                "title": _("System"),
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("Users"),
-                        "icon": "manage_accounts",
-                        "link": reverse_lazy("admin:users_user_changelist"),
-                    },
-                    {
-                        "title": _("Audit Log"),
-                        "icon": "history",
-                        "link": reverse_lazy("admin:auditlog_logentry_changelist"),
-                    },
-                ],
-            },
+            _group(
+                _("Site Settings"),
+                _link(_("Site settings"), "settings", "admin:hapl_sitesettings_changelist"),
+                _link(_("Navigation"), "menu", "admin:hapl_navbarsettings_changelist"),
+                _link(_("Social links"), "share", "admin:hapl_social_changelist"),
+                _link(_("Mail settings"), "mail", "admin:hapl_mailsettings_changelist"),
+            ),
+            _group(
+                _("Home"),
+                _link(_("Hero"), "view_carousel", "admin:hapl_homeherosection_changelist"),
+                _link(_("Hero slides"), "photo_library", "admin:hapl_homecarouselslide_changelist"),
+                _link(_("Introduction"), "info", "admin:hapl_homeintroductionsection_changelist"),
+                _link(_("Services"), "design_services", "admin:hapl_homeservicessection_changelist"),
+                _link(_("Stats"), "monitoring", "admin:hapl_homestatssection_changelist"),
+            ),
+            _group(
+                _("About"),
+                _link(_("About page"), "corporate_fare", "admin:hapl_aboutsection_changelist"),
+                _link(_("Core values"), "diamond", "admin:hapl_whyussection_changelist"),
+                _link(_("Team"), "groups", "admin:hapl_teamsection_changelist"),
+                _link(_("FAQ"), "help", "admin:hapl_faqsection_changelist"),
+            ),
+            _group(
+                _("Products"),
+                _link(_("Products page"), "storefront", "admin:hapl_productspage_changelist"),
+                _link(_("Categories"), "category", "admin:hapl_productcategory_changelist"),
+                _link(_("Products"), "checkroom", "admin:hapl_product_changelist"),
+            ),
+            _group(
+                _("Customers"),
+                _link(_("Customers page"), "handshake", "admin:hapl_customerssection_changelist"),
+                _link(_("Customers"), "business", "admin:hapl_customer_changelist"),
+                _link(_("Testimonials"), "format_quote", "admin:hapl_testimonialssection_changelist"),
+            ),
+            _group(
+                _("Compliance"),
+                _link(_("Compliance page"), "verified", "admin:hapl_compliancepage_changelist"),
+                _link(_("Audit status"), "fact_check", "admin:hapl_auditstatus_changelist"),
+                _link(_("Certificates"), "workspace_premium", "admin:hapl_compliancecertificate_changelist"),
+            ),
+            _group(
+                _("Sustainability"),
+                _link(_("Sustainability page"), "eco", "admin:hapl_sustainabilitypage_changelist"),
+            ),
+            _group(
+                _("Gallery"),
+                _link(_("Gallery page"), "photo_library", "admin:hapl_gallerypage_changelist"),
+                _link(_("Sections"), "folder", "admin:hapl_gallerysection_changelist"),
+                _link(_("Images"), "image", "admin:hapl_galleryimage_changelist"),
+                _link(_("Videos"), "play_circle", "admin:hapl_galleryvideo_changelist"),
+            ),
+            _group(
+                _("News & Activities"),
+                _link(_("Activities page"), "newspaper", "admin:hapl_activitiessection_changelist"),
+                _link(_("Activities"), "volunteer_activism", "admin:hapl_activity_changelist"),
+            ),
+            _group(
+                _("Career"),
+                _link(_("Career page"), "work", "admin:hapl_careersection_changelist"),
+                _link(_("Positions"), "badge", "admin:hapl_careerposition_changelist"),
+                _link(_("Applications"), "description", "admin:hapl_jobapplication_changelist"),
+            ),
+            _group(
+                _("Contact"),
+                _link(_("Contact page"), "contact_page", "admin:hapl_contactsection_changelist"),
+                _link(_("Office & map"), "location_on", "admin:hapl_contactdata_changelist"),
+                _link(_("Contact groups"), "contacts", "admin:hapl_contactgroup_changelist"),
+            ),
+            _group(
+                _("System"),
+                _link(_("Users"), "manage_accounts", "admin:users_user_changelist"),
+                _link(_("Audit log"), "history", "admin:auditlog_logentry_changelist"),
+            ),
         ],
     },
     "DASHBOARD_CALLBACK": "hapl.dashboard.dashboard_callback",

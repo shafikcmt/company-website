@@ -1,165 +1,76 @@
-{% load static %}
-{% with cur=request.resolver_match.url_name %}
-<header id="main-header"
-        class="sticky top-0 flex flex-wrap md:justify-start md:flex-nowrap z-50 w-full bg-background/80 backdrop-blur-sm py-1 transition-shadow duration-300">
-  <nav class="relative max-w-7xl w-full md:flex md:items-center md:justify-between md:gap-3 mx-auto px-4 sm:px-6 lg:px-8 py-2">
-    <!-- Logo w/ Collapse Button -->
-    <div class="flex items-center justify-between">
-      <a class="flex-none font-semibold text-xl focus:outline-none focus:opacity-80"
-         href="{% url 'home' %}"
-         aria-label="Humana Apparels Ltd">
-        <img class="h-12 dark:brightness-200"
-             src="{% static 'images/humana_logo.png' %}"
-             alt="Humana Apparels Ltd">
-      </a>
-      <!-- Collapse Button & Theme Switch (Mobile) -->
-      <div class="flex items-center md:hidden">
-        {% include "partials/theme_switch.html" %}
-        <div class="w-px h-6 bg-border/50 mr-3 ml-1"></div>
-        <!-- Collapse Button -->
-        <button type="button"
-                class="hs-collapse-toggle relative size-9 flex justify-center items-center text-sm font-semibold rounded-lg border border-border/30 hover:bg-card/10 focus:outline-none focus:bg-card/10 disabled:opacity-50 disabled:pointer-events-none"
-                id="hs-base-header-collapse"
-                data-hs-collapse="#hs-base-header">
-          <i class="ph ph-duotone ph-list text-xl hs-collapse-open:hidden text-primary"></i>
-          <i class="ph ph-duotone ph-x text-xl hidden hs-collapse-open:block text-red-500"></i>
-          <span class="sr-only">Toggle navigation</span>
-        </button>
-      </div>
-      <!-- End Collapse Button -->
+{% comment %}
+  Site header — fixed, transparent over the navy page banners; condenses into
+  a blurred navy bar on scroll (site.js toggles .is-scrolled). Nav items and
+  the CTA come from hapl.context_processors.site_context + SiteSettings.
+{% endcomment %}
+{% with site_name=site.site_name|default:"Humana Apparels Ltd" %}
+<header class="site-header" data-site-header>
+  <div class="container-site site-header-inner flex items-center justify-between gap-6">
+    <a href="{% url 'home' %}" class="flex shrink-0 items-center gap-3" aria-label="{{ site_name }} — home">
+      {% if site.header_logo %}
+        <img src="{{ site.header_logo.url }}" alt="{{ site_name }}" class="site-header-logo" width="160" height="48">
+      {% else %}
+        <span class="text-lg font-extrabold tracking-tight text-white xl:text-xl">{{ site_name }}</span>
+      {% endif %}
+    </a>
+
+    <nav class="hidden xl:block" aria-label="Main">
+      {# 1280–1535px: Contact is a plain link (no room for the CTA); 1536px+: CTA button. #}
+      <ul class="flex items-center gap-5 2xl:gap-7">
+        {% for item in nav_items %}
+          <li{% if item.url_name == "contact" %} class="2xl:hidden"{% endif %}><a href="{{ item.url }}" class="nav-link"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a></li>
+        {% endfor %}
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-3">
+      {% if contact_visible %}
+        <a href="{{ site.header_cta_url|default:'/contact/' }}" class="btn-primary hidden !px-5 !py-2.5 !text-sm sm:inline-flex xl:hidden 2xl:inline-flex">
+          {{ site.header_cta_text|default:"Get in Touch" }}<i class="ph-duotone ph-arrow-right btn-arrow" aria-hidden="true"></i>
+        </a>
+      {% endif %}
+      <button type="button" class="burger xl:hidden" data-drawer-toggle aria-controls="mobile-drawer" aria-expanded="false" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-    <!-- End Logo w/ Collapse Button -->
-    <!-- Collapse -->
-    <div id="hs-base-header"
-         class="hs-collapse hidden overflow-hidden transition-all duration-300 basis-full grow md:block"
-         aria-labelledby="hs-base-header-collapse">
-      <div class="overflow-hidden overflow-y-auto max-h-[calc(100dvh)]">
-        <div class="md:py-0 flex flex-col md:flex-row md:items-center md:justify-end gap-0.5 md:gap-1 font-medium py-4 text-foreground/80">
-          <!-- Home -->
-          <a class="p-2 flex items-center hover:text-primary border-b-2 md:border-b-0 border-transparent {% if cur == 'home' %}text-primary md:border-b-2 md:border-accent{% endif %}"
-             href="{% url 'home' %}">
-            <i class="ph ph-duotone ph-house-line me-3 md:me-2 block md:hidden"></i>
-            Home
-          </a>
-          <!-- About (Dropdown) -->
-          <div class="hs-dropdown [--strategy:static] md:[--strategy:fixed] [--adaptive:none] [--trigger:hover]">
-            <button type="button"
-                    class="hs-dropdown-toggle w-full p-2 flex items-center gap-x-1 hover:text-primary {% if cur == 'about' or cur == 'customers' %}text-primary{% endif %}">
-              <i class="ph ph-duotone ph-info me-3 md:me-2 md:hidden"></i>
-              About
-              <i class="ph ph-duotone ph-caret-down text-xs hs-dropdown-open:rotate-180 transition-transform"></i>
-            </button>
-            <div class="hs-dropdown-menu transition-[opacity,margin] duration-200 hs-dropdown-open:opacity-100 opacity-0 hidden md:w-56 z-50 md:bg-card md:rounded-xl md:shadow-lg md:border md:border-border/60 md:p-2 md:mt-2 ps-6 md:ps-2">
-              <a class="flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-foreground/80 hover:bg-accent/10 hover:text-primary {% if cur == 'about' %}text-primary{% endif %}"
-                 href="{% url 'about' %}">
-                <i class="ph ph-duotone ph-buildings text-base"></i> About Us
-              </a>
-              <a class="flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-foreground/80 hover:bg-accent/10 hover:text-primary"
-                 href="{% url 'about' %}#why-humana">
-                <i class="ph ph-duotone ph-star text-base"></i> Why Humana
-              </a>
-              <a class="flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-foreground/80 hover:bg-accent/10 hover:text-primary {% if cur == 'customers' %}text-primary{% endif %}"
-                 href="{% url 'customers' %}">
-                <i class="ph ph-duotone ph-users-three text-base"></i> Our Customers
-              </a>
-            </div>
-          </div>
-          <!-- Why Humana -->
-          <a class="p-2 flex items-center hover:text-primary"
-             href="{% url 'about' %}#why-humana">
-            <i class="ph ph-duotone ph-star me-3 md:me-2 block md:hidden"></i>
-            Why Humana
-          </a>
-          <!-- Products -->
-          <a class="p-2 flex items-center hover:text-primary border-b-2 md:border-b-0 border-transparent {% if cur == 'products' %}text-primary md:border-b-2 md:border-accent{% endif %}"
-             href="{% url 'products' %}">
-            <i class="ph ph-duotone ph-shopping-bag me-3 md:me-2 block md:hidden"></i>
-            Products
-          </a>
-          <!-- Compliance (Dropdown) -->
-          <div class="hs-dropdown [--strategy:static] md:[--strategy:fixed] [--adaptive:none] [--trigger:hover]">
-            <button type="button"
-                    class="hs-dropdown-toggle w-full p-2 flex items-center gap-x-1 hover:text-primary {% if cur == 'complience' %}text-primary{% endif %}">
-              <i class="ph ph-duotone ph-shield-check me-3 md:me-2 md:hidden"></i>
-              Compliance
-              <i class="ph ph-duotone ph-caret-down text-xs hs-dropdown-open:rotate-180 transition-transform"></i>
-            </button>
-            <div class="hs-dropdown-menu transition-[opacity,margin] duration-200 hs-dropdown-open:opacity-100 opacity-0 hidden md:w-60 z-50 md:bg-card md:rounded-xl md:shadow-lg md:border md:border-border/60 md:p-2 md:mt-2 ps-6 md:ps-2">
-              <a class="flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-foreground/80 hover:bg-accent/10 hover:text-primary {% if cur == 'complience' %}text-primary{% endif %}"
-                 href="{% url 'complience' %}">
-                <i class="ph ph-duotone ph-shield-check text-base"></i> Compliance Overview
-              </a>
-              <a class="flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-foreground/80 hover:bg-accent/10 hover:text-primary"
-                 href="{% url 'complience' %}#certifications">
-                <i class="ph ph-duotone ph-certificate text-base"></i> Certifications
-              </a>
-              <a class="flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-foreground/80 hover:bg-accent/10 hover:text-primary"
-                 href="{% url 'complience' %}#code-of-conduct">
-                <i class="ph ph-duotone ph-scroll text-base"></i> Code of Conduct
-              </a>
-            </div>
-          </div>
-          <!-- Sustainability -->
-          <a class="p-2 flex items-center hover:text-primary border-b-2 md:border-b-0 border-transparent {% if cur == 'sustainability' %}text-primary md:border-b-2 md:border-accent{% endif %}"
-             href="{% url 'sustainability' %}">
-            <i class="ph ph-duotone ph-leaf me-3 md:me-2 block md:hidden"></i>
-            Sustainability
-          </a>
-          <!-- Gallery -->
-          <a class="p-2 flex items-center hover:text-primary border-b-2 md:border-b-0 border-transparent {% if cur == 'gallery' %}text-primary md:border-b-2 md:border-accent{% endif %}"
-             href="{% url 'gallery' %}">
-            <i class="ph ph-duotone ph-image me-3 md:me-2 block md:hidden"></i>
-            Gallery
-          </a>
-          <!-- Activities -->
-          <a class="p-2 flex items-center hover:text-primary border-b-2 md:border-b-0 border-transparent {% if cur == 'activities' %}text-primary md:border-b-2 md:border-accent{% endif %}"
-             href="{% url 'activities' %}">
-            <i class="ph ph-duotone ph-hand-heart me-3 md:me-2 block md:hidden"></i>
-            Activities
-          </a>
-          <!-- Contact -->
-          <a class="p-2 flex items-center hover:text-primary border-b-2 md:border-b-0 border-transparent {% if cur == 'contact' %}text-primary md:border-b-2 md:border-accent{% endif %}"
-             href="{% url 'contact' %}">
-            <i class="ph ph-duotone ph-phone me-3 md:me-2 block md:hidden"></i>
-            Contact
-          </a>
-          <!-- Divider & Career CTA (Desktop) -->
-          <div class="flex items-center">
-            <div class="hidden md:block w-px h-6 bg-border/50 mx-4"></div>
-            <!-- Career -->
-            <a class="p-2 flex items-center hover:text-primary md:px-4 md:py-1.5 md:rounded-lg md:bg-primary md:text-accent md:hover:text-accent md:hover:bg-primary/90 md:font-semibold transition-colors"
-               href="{% url 'career' %}">
-              <i class="ph ph-duotone ph-briefcase me-3 md:me-2 block md:hidden"></i>
-              Career
-            </a>
-          </div>
-          <!-- Divider & Theme Switch (Desktop) -->
-          <div class="hidden md:flex md:items-center">
-            <div class="w-px h-6 bg-border/50 mx-4"></div>
-            {% include "partials/theme_switch.html" %}
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- End Collapse -->
-  </nav>
+  </div>
 </header>
+
+{# Mobile drawer #}
+<div class="drawer-backdrop" data-drawer-backdrop aria-hidden="true"></div>
+<div id="mobile-drawer" class="drawer" data-drawer role="dialog" aria-modal="true" aria-label="Menu" aria-hidden="true" inert>
+  <div class="flex h-20 items-center justify-between border-b border-white/10 px-6">
+    <span class="text-base font-bold text-white">{{ site_name }}</span>
+    <button type="button" class="burger" data-drawer-close aria-label="Close menu" aria-expanded="true">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <nav class="flex-1 overflow-y-auto px-3 py-4" aria-label="Mobile">
+    <ul class="space-y-1">
+      {% for item in nav_items %}
+        <li>
+          <a href="{{ item.url }}" class="drawer-link" style="--i: {{ forloop.counter0 }}"{% if item.active %} aria-current="page"{% endif %}>
+            {{ item.label }}<i class="ph-duotone ph-caret-right text-sm opacity-50" aria-hidden="true"></i>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+  <div class="border-t border-white/10 p-6">
+    {% if contact_visible %}
+      <a href="{{ site.header_cta_url|default:'/contact/' }}" class="btn-primary w-full">
+        {{ site.header_cta_text|default:"Get in Touch" }}<i class="ph-duotone ph-arrow-right btn-arrow" aria-hidden="true"></i>
+      </a>
+    {% endif %}
+    {% if footer_socials %}
+      <div class="mt-5 flex items-center justify-center gap-2">
+        {% for social in footer_socials %}
+          <a href="{{ social.url }}" target="_blank" rel="noopener" aria-label="{{ social.name }}" class="inline-flex size-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-amber hover:text-navy-800">
+            <i class="ph-duotone {{ social.icon }} text-lg" aria-hidden="true"></i>
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>
 {% endwith %}
-<!-- Sticky navbar shadow on scroll (vanilla JS) -->
-<script>
-  (function () {
-    var header = document.getElementById('main-header');
-    if (!header) return;
-    var onScroll = function () {
-      if (window.scrollY > 8) {
-        header.classList.add('shadow-md', 'bg-background/95');
-        header.classList.remove('bg-background/80');
-      } else {
-        header.classList.remove('shadow-md', 'bg-background/95');
-        header.classList.add('bg-background/80');
-      }
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-  })();
-</script>

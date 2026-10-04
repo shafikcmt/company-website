@@ -1,0 +1,125 @@
+{% comment %}
+  Home hero — navy text panel (42%) + image carousel (58%), stacked on mobile
+  (image first). Every string comes from HomeHeroSection; the fallbacks below
+  only render when the database is empty. Behaviour lives in site.js
+  (initHero): crossfade, Ken Burns, autoplay progress, pause on hover / hidden
+  tab, keyboard arrows and touch swipe.
+
+  Context: hero (HomeHeroSection|None), slides (list), has_stats (bool)
+{% endcomment %}
+{% with words=hero.title_words slide_count=slides|length %}
+<section class="hero" data-hero
+         data-autoplay="{% if hero %}{{ hero.autoplay|yesno:'true,false' }}{% else %}true{% endif %}"
+         data-interval="{{ hero.autoplay_interval|default:6 }}"
+         aria-roledescription="carousel"
+         aria-label="{{ hero.title|default:'Humana Apparels Ltd' }}">
+
+  {# ---------------- Text panel ---------------- #}
+  <div class="hero-panel {% if has_stats %}lg:!pb-32{% endif %}">
+    <div class="pointer-events-none absolute inset-0 bg-grid-faint" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute -left-32 bottom-0 size-[28rem] rounded-full bg-amber/10 blur-3xl" aria-hidden="true"></div>
+
+    <div class="relative flex flex-1 flex-col justify-center">
+      <div class="max-w-xl">
+        {% with eyebrow=hero.badge_text|default:"Premier Garment Manufacturer" %}
+          <p class="hero-reveal eyebrow eyebrow-light" style="--i: 0">{{ eyebrow }}</p>
+        {% endwith %}
+
+        <h1 class="hero-title mt-5 font-extrabold leading-[1.08] tracking-tight text-white">
+          {% if words %}
+            {% for word in words %}<span class="hero-word hero-reveal{% if word.highlight %} text-amber{% endif %}" style="--i: {{ forloop.counter }}">{{ word.text }}</span>{% if not forloop.last %} {% endif %}{% endfor %}
+          {% else %}
+            <span class="hero-word hero-reveal" style="--i: 1">Quality Apparel,</span>
+            <span class="hero-word hero-reveal text-amber" style="--i: 2">Crafted Responsibly</span>
+          {% endif %}
+        </h1>
+
+        {% with base=words|length|default:2 %}
+          <p class="hero-reveal mt-6 max-w-lg text-base leading-relaxed text-white/75 sm:text-lg" style="--i: {{ base|add:1 }}">
+            {{ hero.subtitle|default:"Delivering compliant, sustainable garments to global brands from our facility in Bangladesh." }}
+          </p>
+
+          <div class="hero-reveal mt-9 flex flex-wrap items-center gap-x-7 gap-y-4" style="--i: {{ base|add:2 }}">
+            {% if not hero or hero.cta_primary_active %}
+              {% with text=hero.cta_primary_text|default:"Explore Products" %}
+                <a href="{{ hero.cta_primary_url|default:'/products/' }}" class="btn-primary !px-7 !py-3.5">
+                  {{ text }}<i class="ph-duotone ph-arrow-right btn-arrow" aria-hidden="true"></i>
+                </a>
+              {% endwith %}
+            {% endif %}
+            {% if not hero or hero.cta_secondary_active %}
+              {% with text=hero.cta_secondary_text|default:"Contact Us" %}
+                <a href="{{ hero.cta_secondary_url|default:'/contact/' }}" class="btn-ghost text-white">{{ text }}</a>
+              {% endwith %}
+            {% endif %}
+          </div>
+        {% endwith %}
+      </div>
+    </div>
+
+    {# Bottom label + link #}
+    {% with label=hero.bottom_label|default:"Humana Apparels Ltd" link_text=hero.bottom_link_text|default:"Inside our factory" %}
+      <div class="hero-reveal relative mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 lg:mt-12" style="--i: {{ words|length|add:4 }}">
+        <span class="text-xs font-semibold uppercase tracking-[0.18em] text-white/50">{{ label }}</span>
+        <a href="{{ hero.bottom_link_url|default:'/gallery/' }}" class="link-arrow !text-sm !text-white hover:!text-amber">
+          {{ link_text }}<i class="ph-duotone ph-arrow-up-right btn-arrow" aria-hidden="true"></i>
+        </a>
+      </div>
+    {% endwith %}
+  </div>
+
+  {# ---------------- Image carousel ---------------- #}
+  <div class="hero-media" data-hero-media>
+    {% for slide in slides %}
+      <div class="hero-slide{% if forloop.first %} is-active{% endif %}" data-hero-slide
+           role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} / {{ slide_count }}"
+           {% if not forloop.first %}aria-hidden="true"{% endif %}>
+        <img src="{{ slide.image.url }}" alt="{{ slide.alt }}" class="{{ slide.focal_class }}"
+             {% if forloop.first %}fetchpriority="high" loading="eager"{% else %}loading="lazy"{% endif %}
+             decoding="async" width="2400" height="1600">
+        {% if slide.caption %}
+          <p class="absolute bottom-24 left-5 z-10 hidden max-w-xs border-l-2 border-amber pl-3 text-sm font-medium text-white/90 sm:left-8 sm:block {% if has_stats %}lg:bottom-36{% else %}lg:bottom-28{% endif %}">{{ slide.caption }}</p>
+        {% endif %}
+      </div>
+    {% empty %}
+      <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-navy-500 to-navy-800 text-white/20" aria-hidden="true">
+        <i class="ph-duotone ph-factory text-8xl"></i>
+      </div>
+    {% endfor %}
+
+    {# Contrast for the transparent header and the control bar #}
+    <div class="pointer-events-none absolute inset-x-0 top-0 z-[2] h-40 bg-gradient-to-b from-navy-900/70 to-transparent" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-48 bg-gradient-to-t from-navy-900/80 to-transparent" aria-hidden="true"></div>
+
+    {% if slide_count > 1 %}
+      <div class="absolute inset-x-0 bottom-0 z-10 flex items-center justify-between gap-4 px-5 pb-5 sm:px-8 sm:pb-7 {% if has_stats %}lg:pb-24{% endif %}">
+        <p class="min-w-[4.5rem] text-sm font-semibold tabular-nums tracking-wider text-white" aria-live="polite" aria-atomic="true">
+          <span class="sr-only">Slide </span><span data-hero-current>01</span><span class="text-white/50"> / {{ slide_count|stringformat:"02d" }}</span>
+        </p>
+
+        <div class="hidden items-center gap-2 sm:flex">
+          {% for slide in slides %}
+            <button type="button" class="hero-dot" data-hero-dot aria-label="Go to slide {{ forloop.counter }}" aria-current="{% if forloop.first %}true{% else %}false{% endif %}">
+              <span class="hero-dot-bar"><span class="hero-dot-fill"></span></span>
+            </button>
+          {% endfor %}
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button type="button" class="hero-ctrl" data-hero-prev aria-label="Previous slide">
+            <i class="ph-duotone ph-caret-left" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="hero-ctrl" data-hero-toggle aria-pressed="false"
+                  aria-label="Pause slideshow" data-label-pause="Pause slideshow" data-label-play="Play slideshow">
+            <i class="ph-duotone ph-pause" data-icon-pause aria-hidden="true"></i>
+            <i class="ph-duotone ph-play" data-icon-play aria-hidden="true" hidden></i>
+          </button>
+          <button type="button" class="hero-ctrl" data-hero-next aria-label="Next slide">
+            <i class="ph-duotone ph-caret-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endwith %}

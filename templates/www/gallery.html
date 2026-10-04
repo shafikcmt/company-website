@@ -1,135 +1,87 @@
 {% extends "www/base.html" %}
-{% load static %}
-{% block title %}Gallery — Humana Apparels Ltd{% endblock %}
-{% block meta_description %}
-  <meta name="description" content="Photo and video gallery of Humana Apparels Ltd — our factory, products, culture and events.">
-{% endblock %}
 {% block content %}
 
-  <!-- ========================= PAGE HEADER ========================= -->
-  {% include "partials/page_header.html" with heading="Gallery" breadcrumb="Gallery" %}
+  {% include "partials/page_header.html" with heading=page.banner_title|default:page.title|default:"Gallery" subtitle=page.banner_subtitle|default:page.subtitle eyebrow=page.eyebrow bg_image=page.banner_image breadcrumb="Gallery" %}
 
-  {% if gallery_data.images_by_section or gallery_data.videos_by_section %}
-    <section class="py-20 px-4 bg-white">
-      <div class="max-w-7xl mx-auto">
-
-        <!-- Tabs -->
-        <div class="flex flex-wrap justify-center gap-2 mb-12" role="tablist">
-          {% for section, images in gallery_data.images_by_section.items %}
-            <button type="button" data-gallery-tab="img-{{ forloop.counter0 }}"
-                    class="gallery-tab rounded-full px-5 py-2 text-sm font-semibold transition-colors {% if forloop.first %}bg-brand-orange text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
-              {{ section }}
-            </button>
-          {% endfor %}
-          {% if gallery_data.videos_by_section %}
-            <button type="button" data-gallery-tab="videos"
-                    class="gallery-tab rounded-full px-5 py-2 text-sm font-semibold transition-colors {% if not gallery_data.images_by_section %}bg-brand-orange text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
-              Videos
-            </button>
+  {% if images or videos %}
+    {# ========================= PHOTOS ========================= #}
+    {% if images %}
+      <section class="section bg-white" aria-label="Photos">
+        <div class="container-site">
+          {% if image_sections|length > 1 %}
+            <div class="flex flex-wrap justify-center gap-2" data-filter="gallery-grid" role="group" aria-label="Filter photos">
+              <button type="button" class="pill" data-filter-value="all" aria-pressed="true">{{ page.all_tab_label|default:"All" }}</button>
+              {% for section in image_sections %}
+                <button type="button" class="pill" data-filter-value="section-{{ section.id }}" aria-pressed="false">{{ section.name }}</button>
+              {% endfor %}
+            </div>
           {% endif %}
-        </div>
 
-        <!-- Image panels -->
-        {% for section, images in gallery_data.images_by_section.items %}
-          <div class="gallery-panel {% if not forloop.first %}hidden{% endif %}" data-gallery-panel="img-{{ forloop.counter0 }}">
-            {% if images %}
-              <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {% for image in images %}
-                  <figure class="group relative h-48 md:h-56 lg:h-60 overflow-hidden rounded-xl shadow-md cursor-pointer"
-                          data-lightbox-src="{{ image.url }}" data-lightbox-caption="{{ image.caption }}">
-                    <img src="{{ image.url }}" alt="{{ image.caption }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-                    <div class="absolute inset-0 bg-brand-navy/0 group-hover:bg-brand-navy/30 transition-colors flex items-center justify-center">
-                      <i class="ph ph-duotone ph-magnifying-glass-plus text-3xl text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                    </div>
-                  </figure>
-                {% endfor %}
-              </div>
-            {% else %}
-              <div class="text-center py-16">
-                <i class="ph ph-duotone ph-image-square text-6xl text-gray-300"></i>
-                <p class="mt-4 text-gray-500">No images in this section yet.</p>
-              </div>
-            {% endif %}
-          </div>
-        {% endfor %}
-
-        <!-- Videos panel -->
-        {% if gallery_data.videos_by_section %}
-          <div class="gallery-panel {% if gallery_data.images_by_section %}hidden{% endif %}" data-gallery-panel="videos">
-            {% for section, videos in gallery_data.videos_by_section.items %}
-              {% if videos %}
-                <div class="mb-12 last:mb-0">
-                  <h3 class="text-xl font-bold tracking-tight text-brand-navy mb-6">{{ section }}</h3>
-                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {% for video in videos %}
-                      <div class="bg-white rounded-2xl shadow-md overflow-hidden">
-                        <div class="aspect-video">
-                          <iframe class="w-full h-full" src="{{ video.youtube_url }}" title="{{ video.caption }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                        </div>
-                        {% if video.caption %}<p class="p-4 text-sm font-medium text-gray-600 border-t border-gray-100">{{ video.caption }}</p>{% endif %}
-                      </div>
-                    {% endfor %}
-                  </div>
-                </div>
-              {% endif %}
+          <ul id="gallery-grid" class="mt-10 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {% for item in images %}
+              <li data-filter-item="section-{{ item.section.id }}" data-reveal="fade">
+                <a href="{{ item.image.image.url }}" data-lightbox="gallery" data-caption="{{ item.image.caption }}"
+                   class="group card-media relative block aspect-[4/3] rounded-xl bg-surface shadow-soft">
+                  <img src="{{ item.image.image.url }}" alt="{{ item.image.caption }}" class="h-full w-full object-cover" loading="lazy" decoding="async">
+                  <span class="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-navy-900/80 via-navy-900/0 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-amber">{{ item.section.name }}</span>
+                    <span class="mt-1 line-clamp-2 text-sm font-medium text-white">{{ item.image.caption }}</span>
+                  </span>
+                  <span class="absolute right-3 top-3 inline-flex size-9 items-center justify-center rounded-full bg-white/90 text-navy opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true">
+                    <i class="ph-duotone ph-magnifying-glass-plus"></i>
+                  </span>
+                </a>
+              </li>
             {% endfor %}
-          </div>
-        {% endif %}
+          </ul>
+        </div>
+      </section>
+    {% endif %}
 
-      </div>
-    </section>
+    {# ========================= VIDEOS ========================= #}
+    {% if videos %}
+      <section class="section bg-surface" aria-labelledby="videos-title">
+        <div class="container-site">
+          {% include "partials/section_header.html" with title=page.videos_title|default:"Videos" id="videos-title" %}
+          <ul class="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {% for item in videos %}
+              <li class="card overflow-hidden" data-reveal="up" data-reveal-delay="{% cycle '0' '100' '200' %}">
+                <div class="aspect-video bg-navy-900">
+                  <iframe class="h-full w-full" src="{{ item.video.youtube_url }}" title="{{ item.video.caption }}" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                <div class="p-5">
+                  <p class="text-xs font-semibold uppercase tracking-wider text-amber-dark">{{ item.section.name }}</p>
+                  <p class="mt-1 font-medium text-navy">{{ item.video.caption }}</p>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </section>
+    {% endif %}
 
-    <!-- Lightbox -->
-    <div id="lightbox" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 p-4">
-      <button type="button" id="lightbox-close" aria-label="Close" class="absolute top-5 right-5 size-11 inline-flex items-center justify-center rounded-full bg-white/15 text-white hover:bg-brand-orange"><i class="ph ph-duotone ph-x text-2xl"></i></button>
-      <figure class="max-w-5xl w-full text-center">
-        <img id="lightbox-img" src="" alt="" class="max-h-[80vh] w-auto max-w-full mx-auto object-contain rounded-xl">
-        <figcaption id="lightbox-caption" class="mt-4 text-white/90"></figcaption>
+    {# ========================= LIGHTBOX ========================= #}
+    <div class="fixed inset-0 z-[80] flex items-center justify-center bg-navy-950/95 p-4 backdrop-blur-sm" data-lightbox-root role="dialog" aria-modal="true" aria-label="Image viewer" hidden>
+      <button type="button" class="hero-ctrl absolute right-4 top-4 !size-12 !text-2xl" data-lightbox-close aria-label="Close viewer"><i class="ph-duotone ph-x" aria-hidden="true"></i></button>
+      <button type="button" class="hero-ctrl absolute left-3 top-1/2 -translate-y-1/2 !size-12 sm:left-6" data-lightbox-prev aria-label="Previous image"><i class="ph-duotone ph-caret-left" aria-hidden="true"></i></button>
+      <button type="button" class="hero-ctrl absolute right-3 top-1/2 -translate-y-1/2 !size-12 sm:right-6" data-lightbox-next aria-label="Next image"><i class="ph-duotone ph-caret-right" aria-hidden="true"></i></button>
+      <figure class="w-full max-w-5xl text-center">
+        <img src="" alt="" class="mx-auto max-h-[78vh] w-auto max-w-full rounded-xl object-contain" data-lightbox-img>
+        <figcaption class="mt-4 flex items-center justify-center gap-4 text-white/85">
+          <span data-lightbox-caption></span>
+          <span class="text-sm tabular-nums text-white/50" data-lightbox-counter></span>
+        </figcaption>
       </figure>
     </div>
   {% else %}
-    <section class="py-24 px-4 bg-white">
-      <div class="max-w-xl mx-auto text-center">
-        <i class="ph ph-duotone ph-images text-6xl text-gray-300"></i>
-        <p class="mt-4 text-gray-500">Our gallery is being updated. Please check back soon.</p>
+    <section class="section bg-white">
+      <div class="container-site max-w-xl text-center">
+        <i class="ph-duotone ph-images text-6xl text-navy/20" aria-hidden="true"></i>
+        <p class="mt-4 text-muted">Our gallery is being updated. Please check back soon.</p>
       </div>
     </section>
   {% endif %}
 
-{% endblock content %}
-{% block extra_js %}
-  <script>
-    // Gallery tabs
-    (function () {
-      var tabs = document.querySelectorAll('.gallery-tab');
-      var panels = document.querySelectorAll('.gallery-panel');
-      tabs.forEach(function (tab) {
-        tab.addEventListener('click', function () {
-          var id = tab.dataset.galleryTab;
-          tabs.forEach(function (t) {
-            var on = t === tab;
-            t.classList.toggle('bg-brand-orange', on); t.classList.toggle('text-white', on);
-            t.classList.toggle('bg-gray-100', !on); t.classList.toggle('text-gray-700', !on);
-          });
-          panels.forEach(function (p) { p.classList.toggle('hidden', p.dataset.galleryPanel !== id); });
-        });
-      });
-    })();
+  {% include "partials/cta_band.html" with title=page.cta_title text=page.cta_text button_text=page.cta_button_text button_url=page.cta_button_url %}
 
-    // Lightbox
-    (function () {
-      var box = document.getElementById('lightbox');
-      if (!box) return;
-      var img = document.getElementById('lightbox-img');
-      var cap = document.getElementById('lightbox-caption');
-      function open(src, caption) { img.src = src; cap.textContent = caption || ''; box.classList.remove('hidden'); box.classList.add('flex'); }
-      function close() { box.classList.add('hidden'); box.classList.remove('flex'); img.src = ''; }
-      document.querySelectorAll('[data-lightbox-src]').forEach(function (fig) {
-        fig.addEventListener('click', function () { open(fig.dataset.lightboxSrc, fig.dataset.lightboxCaption); });
-      });
-      document.getElementById('lightbox-close').addEventListener('click', close);
-      box.addEventListener('click', function (e) { if (e.target === box) close(); });
-      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
-    })();
-  </script>
-{% endblock %}
+{% endblock content %}

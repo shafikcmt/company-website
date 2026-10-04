@@ -1,53 +1,51 @@
 {% extends "www/base.html" %}
-{% load static %}
-{% block title %}Career — Humana Apparels Ltd{% endblock %}
-{% block meta_description %}
-  <meta name="description" content="Join the team at Humana Apparels Ltd — explore open positions and grow with us.">
-{% endblock %}
 {% block content %}
 
-  <!-- ========================= PAGE HEADER ========================= -->
-  {% include "partials/page_header.html" with heading=career.title|default:"Careers" subtitle=career.subtitle breadcrumb="Career" %}
+  {% include "partials/page_header.html" with heading=page.banner_title|default:page.title|default:"Careers" subtitle=page.banner_subtitle|default:page.subtitle eyebrow=page.eyebrow bg_image=page.banner_image breadcrumb="Career" %}
 
-  <!-- ========================= OPEN POSITIONS ========================= -->
-  <section class="py-20 px-4 bg-gray-50">
-    <div class="max-w-5xl mx-auto">
-      <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-brand-navy mb-10">Open Positions</h2>
-      {% if career.positions %}
-        <div class="space-y-5">
-          {% for position in career.positions %}
-            <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow p-6 sm:p-7">
-              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <h3 class="text-xl font-bold tracking-tight text-brand-navy">{{ position.title }}</h3>
-                  <div class="mt-3 flex flex-wrap items-center gap-2 text-sm">
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 text-amber-700 px-3 py-1"><i class="ph ph-duotone ph-buildings"></i>{{ position.department }}</span>
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 text-gray-700 px-3 py-1"><i class="ph ph-duotone ph-briefcase"></i>{{ position.job_type }}</span>
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 text-gray-700 px-3 py-1"><i class="ph ph-duotone ph-map-pin"></i>{{ position.location }}</span>
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 text-gray-700 px-3 py-1"><i class="ph ph-duotone ph-calendar-blank"></i>Posted {{ position.posted_at|date:"M j, Y" }}</span>
-                  </div>
+  <section class="section bg-surface">
+    <div class="container-site">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <h2 class="section-title" data-reveal="up">{{ page.positions_title|default:"Open Positions" }}</h2>
+        {% if positions %}<p class="text-sm font-medium text-muted" data-reveal="fade">{{ positions|length }} open role{{ positions|length|pluralize }}</p>{% endif %}
+      </div>
+
+      {% if positions %}
+        <div class="mt-10 space-y-5">
+          {% for position in positions %}
+            <article class="group card card-hover p-6 sm:p-8" data-reveal="up">
+              <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                <div class="min-w-0">
+                  <h3 class="text-xl font-bold tracking-tight transition-colors group-hover:text-amber-dark sm:text-2xl">{{ position.title }}</h3>
+                  <ul class="mt-4 flex flex-wrap items-center gap-2 text-sm">
+                    <li class="inline-flex items-center gap-1.5 rounded-full bg-amber/15 px-3 py-1 font-medium text-amber-dark"><i class="ph-duotone ph-buildings" aria-hidden="true"></i>{{ position.department }}</li>
+                    <li class="inline-flex items-center gap-1.5 rounded-full bg-navy/5 px-3 py-1 text-navy"><i class="ph-duotone ph-briefcase" aria-hidden="true"></i>{{ position.get_job_type_display }}</li>
+                    <li class="inline-flex items-center gap-1.5 rounded-full bg-navy/5 px-3 py-1 text-navy"><i class="ph-duotone ph-map-pin" aria-hidden="true"></i>{{ position.location }}</li>
+                    <li class="inline-flex items-center gap-1.5 rounded-full bg-navy/5 px-3 py-1 text-navy"><i class="ph-duotone ph-calendar-blank" aria-hidden="true"></i>Posted <time datetime="{{ position.posted_at|date:'Y-m-d' }}">{{ position.posted_at|date:"M j, Y" }}</time></li>
+                  </ul>
                 </div>
-                <a href="{% url 'career_apply' position.id %}"
-                   class="shrink-0 inline-flex items-center gap-2 rounded-full bg-brand-orange px-6 py-3 font-semibold text-white hover:bg-brand-orange-dark transition-colors">
-                  Apply Now<i class="ph ph-duotone ph-arrow-right"></i>
+                <a href="{% url 'career_apply' position.id %}" class="btn-primary shrink-0 self-start">
+                  Apply now<span class="sr-only">: {{ position.title }}</span><i class="ph-duotone ph-arrow-right btn-arrow" aria-hidden="true"></i>
                 </a>
               </div>
               {% if position.description %}
-                <div class="mt-4 text-gray-600 leading-relaxed">{{ position.description|safe }}</div>
+                <div class="rich-text mt-6 border-t border-navy/5 pt-6">{{ position.description|safe }}</div>
               {% endif %}
               {% if position.deadline %}
-                <p class="mt-4 text-sm text-red-600"><i class="ph ph-duotone ph-clock"></i> Application deadline: {{ position.deadline|date:"F j, Y" }}</p>
+                <p class="mt-5 inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700"><i class="ph-duotone ph-clock" aria-hidden="true"></i>Application deadline: <time datetime="{{ position.deadline|date:'Y-m-d' }}">{{ position.deadline|date:"F j, Y" }}</time></p>
               {% endif %}
-            </div>
+            </article>
           {% endfor %}
         </div>
       {% else %}
-        <div class="text-center py-16 bg-white rounded-2xl shadow-sm">
-          <i class="ph ph-duotone ph-briefcase text-6xl text-gray-300"></i>
-          <p class="mt-4 text-gray-500">There are no open positions at the moment. Please check back later.</p>
+        <div class="card mt-10 py-16 text-center">
+          <i class="ph-duotone ph-briefcase text-6xl text-navy/20" aria-hidden="true"></i>
+          <p class="mt-4 text-muted">{{ page.positions_empty_text|default:"There are no open positions at the moment. Please check back later." }}</p>
         </div>
       {% endif %}
     </div>
   </section>
+
+  {% include "partials/cta_band.html" with title=page.cta_title text=page.cta_text button_text=page.cta_button_text button_url=page.cta_button_url %}
 
 {% endblock content %}

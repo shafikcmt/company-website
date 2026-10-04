@@ -1,12 +1,25 @@
+"""factory_boy factories with realistic garment-industry defaults.
+
+The seeders in content_seeder.py pass explicit values from seeder/data.py;
+the defaults here keep ad-hoc `XFactory.create()` calls (tests, shell)
+meaningful instead of lorem ipsum.
+"""
+
 import factory
 from faker import Faker
+
+from seeder import data
 from seeder.utils import cache_image
 from hapl.models import (
+    SiteSettings,
+    NavbarSettings,
     HomeHeroSection,
     HomeIntroductionSection,
     HomeServicesSection,
     HomeStatsSection,
     AboutSection,
+    WhyUsSection,
+    WhyUsFeature,
     TeamSection,
     FAQSection,
     CustomersSection,
@@ -52,147 +65,270 @@ from hapl.models import (
 fake = Faker()
 
 
+def image(width, height, keyword, label=None, style="photo"):
+    return factory.LazyFunction(
+        lambda: cache_image(width, height, keyword=keyword, label=label or keyword, style=style)
+    )
+
+
+def iterate(items, key):
+    return factory.Iterator([item[key] for item in items])
+
+
 class BaseFactory(factory.django.DjangoModelFactory):
-    """Abstract base factory with common settings."""
-
     class Meta:
         abstract = True
 
 
-# --- Section Factories ---
-
-
-class BaseSectionFactory(BaseFactory):
-    """Base factory for section models"""
-
-    title = factory.Faker("sentence", nb_words=5)
-    subtitle = factory.Faker("sentence", nb_words=12)
-
+# --- Settings ---------------------------------------------------------------
+class SiteSettingsFactory(BaseFactory):
     class Meta:
-        abstract = True
+        model = SiteSettings
+        django_get_or_create = ("id",)
+
+    id = 1
+    site_name = data.SITE["site_name"]
+    site_tagline = data.SITE["site_tagline"]
 
 
+class NavbarSettingsFactory(BaseFactory):
+    class Meta:
+        model = NavbarSettings
+        django_get_or_create = ("id",)
+
+    id = 1
+
+
+# --- Sections / pages -------------------------------------------------------
 class HomeHeroSectionFactory(BaseFactory):
     class Meta:
         model = HomeHeroSection
 
-    badge_text = "Bangladesh's Premier Garment Manufacturer"
-    title = "Quality Apparel, Crafted Responsibly"
-    subtitle = "Delivering compliant, sustainable garments to global brands."
-    cta_primary_text = "Explore Products"
-    cta_primary_url = "/products/"
-    cta_primary_active = True
-    cta_secondary_text = "Contact Us"
-    cta_secondary_url = "/contact/"
-    cta_secondary_active = True
+    badge_text = data.HERO["badge_text"]
+    title = data.HERO["title"]
+    highlight_word = data.HERO["highlight_word"]
+    subtitle = data.HERO["subtitle"]
+    cta_primary_text = data.HERO["cta_primary_text"]
+    cta_primary_url = data.HERO["cta_primary_url"]
+    cta_secondary_text = data.HERO["cta_secondary_text"]
+    cta_secondary_url = data.HERO["cta_secondary_url"]
+    bottom_label = data.HERO["bottom_label"]
+    bottom_link_text = data.HERO["bottom_link_text"]
+    bottom_link_url = data.HERO["bottom_link_url"]
+    autoplay = True
+    autoplay_interval = 6
+    is_active = True
 
 
-class HomeIntroductionSectionFactory(BaseSectionFactory):
+class HomeIntroductionSectionFactory(BaseFactory):
     class Meta:
         model = HomeIntroductionSection
 
-    title = "Crafting Excellence in Apparel Manufacturing"
-    subtitle = "We combine traditional craftsmanship with modern technology that meet global standards."
-    content = factory.Faker("paragraph", nb_sentences=5)
-    image = factory.LazyAttribute(lambda x: cache_image(1920, 1080, keyword="factory"))
+    eyebrow = data.INTRO["eyebrow"]
+    title = data.INTRO["title"]
+    subtitle = data.INTRO["subtitle"]
+    content = data.INTRO["content"]
+    cta_text = data.INTRO["cta_text"]
+    cta_url = data.INTRO["cta_url"]
+    image = image(1600, 1200, "factory", "Humana Apparels factory")
 
 
-class HomeServicesSectionFactory(BaseSectionFactory):
+class HomeServicesSectionFactory(BaseFactory):
     class Meta:
         model = HomeServicesSection
 
-    title = "Our Services"
-    subtitle = "Comprehensive apparel manufacturing solutions tailored to your needs"
+    eyebrow = data.SERVICES_SECTION["eyebrow"]
+    title = data.SERVICES_SECTION["title"]
+    subtitle = data.SERVICES_SECTION["subtitle"]
 
 
-class HomeStatsSectionFactory(BaseSectionFactory):
+class HomeStatsSectionFactory(BaseFactory):
     class Meta:
         model = HomeStatsSection
 
-    title = "Our Impact in Numbers"
-    subtitle = "Key metrics that showcase our growth and success"
+    title = data.STATS_SECTION["title"]
+    subtitle = data.STATS_SECTION["subtitle"]
 
 
-class AboutSectionFactory(BaseSectionFactory):
+class AboutSectionFactory(BaseFactory):
     class Meta:
         model = AboutSection
 
-    title = "Our Story"
-    subtitle = "From humble beginnings to a global apparel manufacturing leader."
-    content = factory.Faker("paragraph", nb_sentences=8)
-    image = factory.LazyAttribute(lambda x: cache_image(1920, 1080, keyword="factory"))
+    eyebrow = data.ABOUT["eyebrow"]
+    title = data.ABOUT["title"]
+    subtitle = data.ABOUT["subtitle"]
+    content = data.ABOUT["content"]
+    banner_title = data.ABOUT["banner_title"]
+    banner_subtitle = data.ABOUT["banner_subtitle"]
+    image = image(1600, 1200, "about", "Our factory in Gorai, Mirzapur")
 
 
-class TeamSectionFactory(BaseSectionFactory):
+class WhyUsSectionFactory(BaseFactory):
+    class Meta:
+        model = WhyUsSection
+
+    eyebrow = data.CORE_VALUES_SECTION["eyebrow"]
+    title = data.CORE_VALUES_SECTION["title"]
+    subtitle = data.CORE_VALUES_SECTION["subtitle"]
+
+
+class TeamSectionFactory(BaseFactory):
     class Meta:
         model = TeamSection
 
-    title = "Our Team"
-    subtitle = "Meet the experts behind our success"
+    eyebrow = data.TEAM_SECTION["eyebrow"]
+    title = data.TEAM_SECTION["title"]
+    subtitle = data.TEAM_SECTION["subtitle"]
 
 
-class FAQSectionFactory(BaseSectionFactory):
+class FAQSectionFactory(BaseFactory):
     class Meta:
         model = FAQSection
 
-    title = "Frequently Asked Questions"
-    subtitle = "Get answers to common questions about our services"
+    eyebrow = data.FAQ_SECTION["eyebrow"]
+    title = data.FAQ_SECTION["title"]
+    subtitle = data.FAQ_SECTION["subtitle"]
 
 
-class CustomersSectionFactory(BaseSectionFactory):
+class CustomersSectionFactory(BaseFactory):
     class Meta:
         model = CustomersSection
 
-    title = "Trusted by Global Fashion Brands"
-    subtitle = "Partnering with industry leaders in sustainable fashion manufacturing"
+    eyebrow = data.CUSTOMERS_PAGE["eyebrow"]
+    title = data.CUSTOMERS_PAGE["title"]
+    subtitle = data.CUSTOMERS_PAGE["subtitle"]
+    banner_title = data.CUSTOMERS_PAGE["banner_title"]
+    banner_subtitle = data.CUSTOMERS_PAGE["banner_subtitle"]
 
 
-class TestimonialsSectionFactory(BaseSectionFactory):
+class TestimonialsSectionFactory(BaseFactory):
     class Meta:
         model = TestimonialsSection
 
-    title = "What Our Clients Say"
-    subtitle = "Read what our clients have to say about us"
+    eyebrow = data.TESTIMONIALS_SECTION["eyebrow"]
+    title = data.TESTIMONIALS_SECTION["title"]
+    subtitle = data.TESTIMONIALS_SECTION["subtitle"]
 
 
-class ContactSectionFactory(BaseSectionFactory):
+class ContactSectionFactory(BaseFactory):
     class Meta:
         model = ContactSection
 
-    title = "Contact Us"
-    subtitle = "Get in touch with our team"
+    eyebrow = data.CONTACT_PAGE["eyebrow"]
+    title = data.CONTACT_PAGE["title"]
+    subtitle = data.CONTACT_PAGE["subtitle"]
+    banner_title = data.CONTACT_PAGE["banner_title"]
+    banner_subtitle = data.CONTACT_PAGE["banner_subtitle"]
+    groups_title = data.CONTACT_PAGE["groups_title"]
+    groups_empty_text = data.CONTACT_PAGE["groups_empty_text"]
+    socials_title = data.CONTACT_PAGE["socials_title"]
 
 
-class CareerSectionFactory(BaseSectionFactory):
+class CareerSectionFactory(BaseFactory):
     class Meta:
         model = CareerSection
 
-    title = "Career Opportunities"
-    subtitle = "Join our team and grow with us"
+    eyebrow = data.CAREER_PAGE["eyebrow"]
+    title = data.CAREER_PAGE["title"]
+    subtitle = data.CAREER_PAGE["subtitle"]
+    banner_title = data.CAREER_PAGE["banner_title"]
+    banner_subtitle = data.CAREER_PAGE["banner_subtitle"]
+    positions_title = data.CAREER_PAGE["positions_title"]
+    positions_empty_text = data.CAREER_PAGE["positions_empty_text"]
 
 
-class ActivitiesSectionFactory(BaseSectionFactory):
+class ActivitiesSectionFactory(BaseFactory):
     class Meta:
         model = ActivitiesSection
 
-    title = "Our Activities"
-    subtitle = "CSR, compliance and community initiatives from across Humana Apparels"
+    eyebrow = data.ACTIVITIES_PAGE["eyebrow"]
+    title = data.ACTIVITIES_PAGE["title"]
+    subtitle = data.ACTIVITIES_PAGE["subtitle"]
+    banner_title = data.ACTIVITIES_PAGE["banner_title"]
+    banner_subtitle = data.ACTIVITIES_PAGE["banner_subtitle"]
 
 
-# --- Content Factories ---
+class ProductsPageFactory(BaseFactory):
+    class Meta:
+        model = ProductsPage
+
+    eyebrow = data.PRODUCTS_PAGE["eyebrow"]
+    title = data.PRODUCTS_PAGE["title"]
+    subtitle = data.PRODUCTS_PAGE["subtitle"]
+    banner_title = data.PRODUCTS_PAGE["banner_title"]
+    banner_subtitle = data.PRODUCTS_PAGE["banner_subtitle"]
+    portfolio_eyebrow = data.PRODUCTS_PAGE["portfolio_eyebrow"]
+    portfolio_title = data.PRODUCTS_PAGE["portfolio_title"]
+    portfolio_subtitle = data.PRODUCTS_PAGE["portfolio_subtitle"]
+    cta_title = data.PRODUCTS_PAGE["cta_title"]
+    cta_text = data.PRODUCTS_PAGE["cta_text"]
+    cta_button_text = data.PRODUCTS_PAGE["cta_button_text"]
+    cta_button_url = data.PRODUCTS_PAGE["cta_button_url"]
 
 
+class CompliancePageFactory(BaseFactory):
+    class Meta:
+        model = CompliancePage
+
+    eyebrow = data.COMPLIANCE_PAGE["eyebrow"]
+    title = data.COMPLIANCE_PAGE["title"]
+    subtitle = data.COMPLIANCE_PAGE["subtitle"]
+    banner_title = data.COMPLIANCE_PAGE["banner_title"]
+    banner_subtitle = data.COMPLIANCE_PAGE["banner_subtitle"]
+    audit_eyebrow = data.COMPLIANCE_PAGE["audit_eyebrow"]
+    audit_title = data.COMPLIANCE_PAGE["audit_title"]
+    audit_description = data.COMPLIANCE_PAGE["audit_description"]
+    standards_title = data.COMPLIANCE_PAGE["standards_title"]
+    standards_description = data.COMPLIANCE_PAGE["standards_description"]
+    certificates_eyebrow = data.COMPLIANCE_PAGE["certificates_eyebrow"]
+    certificates_title = data.COMPLIANCE_PAGE["certificates_title"]
+    cta_title = data.COMPLIANCE_PAGE["cta_title"]
+    cta_text = data.COMPLIANCE_PAGE["cta_text"]
+    cta_button_text = data.COMPLIANCE_PAGE["cta_button_text"]
+    cta_button_url = data.COMPLIANCE_PAGE["cta_button_url"]
+
+
+class SustainabilityPageFactory(BaseFactory):
+    class Meta:
+        model = SustainabilityPage
+
+    eyebrow = data.SUSTAINABILITY_PAGE["eyebrow"]
+    title = data.SUSTAINABILITY_PAGE["title"]
+    subtitle = data.SUSTAINABILITY_PAGE["subtitle"]
+    banner_title = data.SUSTAINABILITY_PAGE["banner_title"]
+    banner_subtitle = data.SUSTAINABILITY_PAGE["banner_subtitle"]
+    certificates_title = data.SUSTAINABILITY_PAGE["certificates_title"]
+    cta_title = data.SUSTAINABILITY_PAGE["cta_title"]
+    cta_text = data.SUSTAINABILITY_PAGE["cta_text"]
+    cta_button_text = data.SUSTAINABILITY_PAGE["cta_button_text"]
+    cta_button_url = data.SUSTAINABILITY_PAGE["cta_button_url"]
+
+
+class GalleryPageFactory(BaseFactory):
+    class Meta:
+        model = GalleryPage
+
+    eyebrow = data.GALLERY_PAGE["eyebrow"]
+    title = data.GALLERY_PAGE["title"]
+    subtitle = data.GALLERY_PAGE["subtitle"]
+    banner_title = data.GALLERY_PAGE["banner_title"]
+    banner_subtitle = data.GALLERY_PAGE["banner_subtitle"]
+    all_tab_label = data.GALLERY_PAGE["all_tab_label"]
+    videos_title = data.GALLERY_PAGE["videos_title"]
+
+
+# --- Content ----------------------------------------------------------------
 class HomeCarouselSlideFactory(BaseFactory):
     class Meta:
         model = HomeCarouselSlide
 
     section = factory.SubFactory(HomeHeroSectionFactory)
-    title = factory.Faker("sentence", nb_words=5)
-    subtitle = factory.Faker("sentence", nb_words=12)
-    image = factory.LazyAttribute(lambda x: cache_image(1920, 1080, keyword="apparel"))
-    cta_text = factory.Faker("word")
-    cta_url = factory.Faker("url")
+    alt_text = iterate(data.HERO_SLIDES, "alt_text")
+    caption = iterate(data.HERO_SLIDES, "caption")
+    focal_point = iterate(data.HERO_SLIDES, "focal_point")
+    image = factory.LazyAttribute(lambda o: cache_image(2400, 1600, keyword=f"hero-{o.order}", label=o.caption))
     is_active = True
+    order = factory.Sequence(lambda n: n)
 
 
 class HomeIntroductionFeatureFactory(BaseFactory):
@@ -200,16 +336,9 @@ class HomeIntroductionFeatureFactory(BaseFactory):
         model = HomeIntroductionFeature
 
     introduction = factory.SubFactory(HomeIntroductionSectionFactory)
-    icon = factory.Faker(
-        "random_element",
-        elements=[
-            "ph-check-circle",
-            "ph-rocket",
-            "ph-star",
-        ],
-    )
-    title = factory.Faker("sentence", nb_words=3)
-    description = factory.Faker("paragraph", nb_sentences=2)
+    icon = iterate(data.INTRO_FEATURES, "icon")
+    title = iterate(data.INTRO_FEATURES, "title")
+    description = iterate(data.INTRO_FEATURES, "description")
 
 
 class ServiceFactory(BaseFactory):
@@ -217,19 +346,11 @@ class ServiceFactory(BaseFactory):
         model = Service
 
     section = factory.SubFactory(HomeServicesSectionFactory)
-    title = factory.Faker("sentence", nb_words=5)
-    description = factory.Faker("paragraph", nb_sentences=4)
-    icon = factory.Faker(
-        "random_element",
-        elements=[
-            "ph-pen-nib",
-            "ph-factory",
-            "ph-leaf",
-            "ph-truck",
-            "ph-gear",
-        ],
-    )
-    image = factory.LazyAttribute(lambda x: cache_image(560, 720, keyword="factory"))
+    title = iterate(data.SERVICES, "title")
+    description = iterate(data.SERVICES, "description")
+    icon = iterate(data.SERVICES, "icon")
+    image = factory.LazyAttribute(lambda o: cache_image(800, 500, keyword=f"service-{o.order}", label=o.title))
+    order = factory.Sequence(lambda n: n)
 
 
 class CompanyStatsFactory(BaseFactory):
@@ -237,18 +358,22 @@ class CompanyStatsFactory(BaseFactory):
         model = CompanyStats
 
     section = factory.SubFactory(HomeStatsSectionFactory)
-    title = factory.Faker("word")
-    value = factory.Faker("numerify", text="##+")
-    icon = factory.Faker(
-        "random_element",
-        elements=[
-            "ph-calendar",
-            "ph-users",
-            "ph-t-shirt",
-            "ph-globe",
-            "ph-factory",
-        ],
-    )
+    icon = iterate(data.STATS, "icon")
+    number = iterate(data.STATS, "number")
+    suffix = iterate(data.STATS, "suffix")
+    label = iterate(data.STATS, "label")
+    order = factory.Sequence(lambda n: n)
+
+
+class WhyUsFeatureFactory(BaseFactory):
+    class Meta:
+        model = WhyUsFeature
+
+    section = factory.SubFactory(WhyUsSectionFactory)
+    icon = iterate(data.CORE_VALUES, "icon")
+    title = iterate(data.CORE_VALUES, "title")
+    description = iterate(data.CORE_VALUES, "description")
+    order = factory.Sequence(lambda n: n)
 
 
 class TeamMemberFactory(BaseFactory):
@@ -256,10 +381,12 @@ class TeamMemberFactory(BaseFactory):
         model = TeamMember
 
     section = factory.SubFactory(TeamSectionFactory)
-    name = factory.Faker("name")
-    position = factory.Faker("job")
-    image = factory.LazyAttribute(lambda x: cache_image(320, 320, keyword="person"))
-    is_management = factory.Faker("boolean")
+    name = iterate(data.MANAGEMENT + data.STAFF, "name")
+    position = iterate(data.MANAGEMENT + data.STAFF, "position")
+    image = factory.LazyAttribute(lambda o: cache_image(600, 800, keyword=f"person-{o.name}", label=o.name))
+    is_management = False
+    linkedin_url = None
+    order = factory.Sequence(lambda n: n)
 
 
 class FAQFactory(BaseFactory):
@@ -267,8 +394,9 @@ class FAQFactory(BaseFactory):
         model = FAQ
 
     section = factory.SubFactory(FAQSectionFactory)
-    question = factory.Faker("sentence", nb_words=8)
-    answer = factory.Faker("paragraph", nb_sentences=4)
+    question = iterate(data.FAQS, "question")
+    answer = iterate(data.FAQS, "answer")
+    order = factory.Sequence(lambda n: n)
 
 
 class CustomerFactory(BaseFactory):
@@ -276,10 +404,11 @@ class CustomerFactory(BaseFactory):
         model = Customer
 
     section = factory.SubFactory(CustomersSectionFactory)
-    name = factory.Faker("company")
-    logo = factory.LazyAttribute(lambda x: cache_image(300, 200, keyword="brand"))
-    url = factory.Faker("url")
-    is_featured = factory.Faker("boolean", chance_of_getting_true=75)
+    name = iterate(data.CUSTOMERS, "name")
+    url = iterate(data.CUSTOMERS, "url")
+    logo = factory.LazyAttribute(lambda o: cache_image(400, 200, keyword=f"logo-{o.name}", label=o.name, style="logo"))
+    is_featured = iterate(data.CUSTOMERS, "is_featured")
+    order = factory.Sequence(lambda n: n)
 
 
 class TestimonialFactory(BaseFactory):
@@ -287,13 +416,14 @@ class TestimonialFactory(BaseFactory):
         model = Testimonial
 
     section = factory.SubFactory(TestimonialsSectionFactory)
-    content = factory.Faker("paragraph", nb_sentences=4)
-    author = factory.Faker("name")
-    position = factory.Faker("job")
+    content = iterate(data.TESTIMONIALS, "content")
+    author = iterate(data.TESTIMONIALS, "author")
+    position = iterate(data.TESTIMONIALS, "position")
     company_logo = factory.LazyAttribute(
-        lambda x: cache_image(200, 200, keyword="logo")
+        lambda o: cache_image(200, 200, keyword=f"brand-{o.position}", label=o.position.split(", ")[-1], style="logo")
     )
-    is_featured = factory.Faker("boolean", chance_of_getting_true=50)
+    is_featured = iterate(data.TESTIMONIALS, "is_featured")
+    order = factory.Sequence(lambda n: n)
 
 
 class ContactDataFactory(BaseFactory):
@@ -301,18 +431,15 @@ class ContactDataFactory(BaseFactory):
         model = ContactData
 
     section = factory.SubFactory(ContactSectionFactory)
-    map_title = "Visit Our Headquarters"
-    map_subtitle = "Get directions to our main office and manufacturing facility."
-    map_image = factory.LazyAttribute(lambda x: cache_image(600, 400, keyword="map"))
-    map_url = "https://www.google.com/maps"
-    address = factory.Faker("address")
-    office_title = "Contact Us"
-    office_subtitle = "Reach out to our team for inquiries and support."
-    office_image = factory.LazyAttribute(
-        lambda x: cache_image(600, 400, keyword="office")
-    )
-    # max_length=20 — keep it short (faker's phone_number can exceed 20 chars)
-    fax = factory.LazyFunction(lambda: fake.numerify("+8802########"))
+    office_title = data.CONTACT_DATA["office_title"]
+    office_subtitle = data.CONTACT_DATA["office_subtitle"]
+    address = data.CONTACT_DATA["address"]
+    fax = data.CONTACT_DATA["fax"]
+    map_title = data.CONTACT_DATA["map_title"]
+    map_subtitle = data.CONTACT_DATA["map_subtitle"]
+    map_url = data.CONTACT_DATA["map_url"]
+    map_image = image(1600, 1000, "map", "Gorai, Mirzapur")
+    office_image = image(1600, 1000, "office", "Factory & office")
 
 
 class ContactPhoneFactory(BaseFactory):
@@ -320,10 +447,9 @@ class ContactPhoneFactory(BaseFactory):
         model = ContactPhone
 
     contact = factory.SubFactory(ContactDataFactory)
-    # max_length=20 — faker's phone_number can exceed 20 chars
-    number = factory.LazyFunction(lambda: fake.numerify("+8801#########"))
-    type = factory.Faker("random_element", elements=["phone", "whatsapp"])
-    is_primary = factory.Faker("boolean", chance_of_getting_true=25)
+    number = iterate(data.CONTACT_PHONES, "number")
+    type = iterate(data.CONTACT_PHONES, "type")
+    is_primary = iterate(data.CONTACT_PHONES, "is_primary")
 
 
 class ContactEmailFactory(BaseFactory):
@@ -331,9 +457,9 @@ class ContactEmailFactory(BaseFactory):
         model = ContactEmail
 
     contact = factory.SubFactory(ContactDataFactory)
-    email = factory.Faker("email")
-    department = factory.Faker("job")
-    is_primary = factory.Faker("boolean", chance_of_getting_true=25)
+    email = iterate(data.CONTACT_EMAILS, "email")
+    department = iterate(data.CONTACT_EMAILS, "department")
+    is_primary = iterate(data.CONTACT_EMAILS, "is_primary")
 
 
 class ContactGroupFactory(BaseFactory):
@@ -341,7 +467,7 @@ class ContactGroupFactory(BaseFactory):
         model = ContactGroup
 
     section = factory.SubFactory(ContactSectionFactory)
-    name = factory.Faker("word")
+    name = factory.Iterator(list(data.CONTACT_GROUPS))
 
 
 class ContactMemberFactory(BaseFactory):
@@ -349,12 +475,11 @@ class ContactMemberFactory(BaseFactory):
         model = ContactMember
 
     group = factory.SubFactory(ContactGroupFactory)
-    name = factory.Faker("name")
-    position = factory.Faker("job")
-    image = factory.LazyAttribute(lambda x: cache_image(320, 320, keyword="person"))
-    email = factory.Faker("email")
-    # max_length=20 — faker's phone_number can exceed 20 chars
-    phone = factory.LazyFunction(lambda: fake.numerify("+8801#########"))
+    name = "Mahmudul Hasan"
+    position = "Senior Merchandiser"
+    email = "merchandising@humanaapparels.com"
+    phone = "+8801711002002"
+    image = factory.LazyAttribute(lambda o: cache_image(400, 400, keyword=f"person-{o.name}", label=o.name))
 
 
 class SocialFactory(BaseFactory):
@@ -362,17 +487,10 @@ class SocialFactory(BaseFactory):
         model = Social
 
     section = factory.SubFactory(ContactSectionFactory)
-    name = factory.Faker("word")
-    url = factory.Faker("url")
-    icon = factory.Faker(
-        "random_element",
-        elements=[
-            "ph-facebook-logo",
-            "ph-instagram-logo",
-            "ph-linkedin-logo",
-            "ph-twitter-logo",
-        ],
-    )
+    name = iterate(data.SOCIALS, "name")
+    url = iterate(data.SOCIALS, "url")
+    icon = iterate(data.SOCIALS, "icon")
+    order = factory.Sequence(lambda n: n)
 
 
 class CareerPositionFactory(BaseFactory):
@@ -380,15 +498,17 @@ class CareerPositionFactory(BaseFactory):
         model = CareerPosition
 
     section = factory.SubFactory(CareerSectionFactory)
-    title = factory.Faker("sentence", nb_words=6)
-    type = factory.Faker(
-        "random_element", elements=["Full-time", "Part-time", "Contract"]
-    )
-    location = factory.Faker("city")
-    department = factory.Faker("word")
-    posted_at = factory.Faker("date_object")
-    description = factory.Faker("paragraph", nb_sentences=6)
-    status = factory.Faker("random_element", elements=["active", "inactive"])
+    title = iterate(data.POSITIONS, "title")
+    department = iterate(data.POSITIONS, "department")
+    location = iterate(data.POSITIONS, "location")
+    type = iterate(data.POSITIONS, "type")
+    job_type = iterate(data.POSITIONS, "job_type")
+    description = iterate(data.POSITIONS, "description")
+    posted_at = factory.Faker("date_between", start_date="-30d", end_date="today")
+    deadline = factory.Faker("date_between", start_date="+14d", end_date="+45d")
+    apply_email = "careers@humanaapparels.com"
+    status = "active"
+    order = factory.Sequence(lambda n: n)
 
 
 class JobApplicationFactory(BaseFactory):
@@ -396,22 +516,17 @@ class JobApplicationFactory(BaseFactory):
         model = JobApplication
 
     position = factory.SubFactory(CareerPositionFactory)
-    full_name = factory.Faker("name")
-    email = factory.Faker("email")
-    phone = factory.LazyFunction(lambda: fake.numerify("+8801#########"))
-    experience_years = factory.Faker(
-        "pydecimal", right_digits=1, min_value=0, max_value=30
+    full_name = factory.Iterator(["Rakib Hasan", "Moushumi Akter", "Sajid Karim", "Nadia Islam", "Fahim Reza", "Tania Sultana"])
+    email = factory.LazyAttribute(lambda o: f"{o.full_name.split()[0].lower()}.{fake.random_int(10, 99)}@example.com")
+    phone = factory.LazyFunction(lambda: fake.numerify("+88017########"))
+    experience_years = factory.Faker("pydecimal", right_digits=1, min_value=1, max_value=12)
+    cover_letter = (
+        "I have several years of experience in woven garment production and would "
+        "welcome the chance to contribute to your team."
     )
-    cover_letter = factory.Faker("paragraph", nb_sentences=4)
-    # A small valid PDF so the resume passes the model's extension/size validators
-    # and is downloadable from the admin.
-    resume = factory.django.FileField(
-        filename="resume.pdf", data=b"%PDF-1.4 sample resume for testing"
-    )
-    status = factory.Faker(
-        "random_element",
-        elements=["new", "reviewed", "shortlisted", "rejected", "hired"],
-    )
+    # A small valid PDF so the resume passes the model's extension/size validators.
+    resume = factory.django.FileField(filename="resume.pdf", data=b"%PDF-1.4 sample resume for testing")
+    status = factory.Iterator(["new", "reviewed", "shortlisted"])
 
 
 class ActivityFactory(BaseFactory):
@@ -419,58 +534,23 @@ class ActivityFactory(BaseFactory):
         model = Activity
 
     section = factory.SubFactory(ActivitiesSectionFactory)
-    # title/excerpt/tag are supplied explicitly from SAMPLE_ACTIVITIES by the
-    # seeders (see content_seeder.py) so demo data uses real activity content,
-    # not invented Faker text. content stays None — there is no detail page.
-    title = factory.Faker("sentence", nb_words=7)
-    excerpt = factory.Faker("sentence", nb_words=16)
+    title = iterate(data.ACTIVITIES, "title")
+    excerpt = iterate(data.ACTIVITIES, "excerpt")
+    tag = iterate(data.ACTIVITIES, "tag")
+    activity_date = iterate(data.ACTIVITIES, "activity_date")
+    is_featured = iterate(data.ACTIVITIES, "is_featured")
     content = None
-    image = factory.LazyAttribute(lambda x: cache_image(800, 600, keyword="csr"))
-    activity_date = factory.Faker("date_between", start_date="-1y", end_date="today")
-    tag = factory.Faker("word")
-    is_featured = factory.Faker("boolean", chance_of_getting_true=25)
+    image = factory.LazyAttribute(lambda o: cache_image(1600, 1000, keyword=f"activity-{o.title}", label=o.tag))
 
 
-class ProductsPageFactory(BaseSectionFactory):
-    class Meta:
-        model = ProductsPage
-
-    title = "Our Products"
-    subtitle = "Explore our diverse range of high-quality apparel products"
-
-
-class CompliancePageFactory(BaseSectionFactory):
-    class Meta:
-        model = CompliancePage
-
-    title = "Compliance"
-    subtitle = "Our commitment to ethical and sustainable manufacturing practices"
-
-
-class SustainabilityPageFactory(BaseSectionFactory):
-    class Meta:
-        model = SustainabilityPage
-
-    title = "Sustainability"
-    subtitle = "Our initiatives for a greener and more sustainable future"
-
-
-class GalleryPageFactory(BaseSectionFactory):
-    class Meta:
-        model = GalleryPage
-
-    title = "Gallery"
-    subtitle = "Visual showcase of our facilities, products, and team"
-
-
-# Add these content factories
 class ProductCarouselSlideFactory(BaseFactory):
     class Meta:
         model = ProductCarouselSlide
 
     page = factory.SubFactory(ProductsPageFactory)
-    image = factory.LazyAttribute(lambda x: cache_image(800, 600, keyword="fashion"))
-    alt = factory.Faker("sentence", nb_words=4)
+    alt = factory.Iterator(data.PRODUCT_CAROUSEL)
+    image = factory.LazyAttribute(lambda o: cache_image(2400, 1200, keyword=f"products-{o.alt}", label=o.alt))
+    order = factory.Sequence(lambda n: n)
 
 
 class ProductSectionFactory(BaseFactory):
@@ -478,10 +558,12 @@ class ProductSectionFactory(BaseFactory):
         model = ProductSection
 
     page = factory.SubFactory(ProductsPageFactory)
-    title = factory.Faker("sentence", nb_words=4)
-    description = factory.Faker("paragraph", nb_sentences=5)
-    image = factory.LazyAttribute(lambda x: cache_image(600, 400, keyword="apparel"))
-    after_products = factory.Faker("boolean", chance_of_getting_true=20)
+    eyebrow = iterate(data.PRODUCT_SECTIONS, "eyebrow")
+    title = iterate(data.PRODUCT_SECTIONS, "title")
+    description = iterate(data.PRODUCT_SECTIONS, "description")
+    after_products = iterate(data.PRODUCT_SECTIONS, "after_products")
+    image = factory.LazyAttribute(lambda o: cache_image(1600, 1200, keyword=f"psection-{o.title}", label=o.title))
+    order = factory.Sequence(lambda n: n)
 
 
 class ProductCategoryFactory(BaseFactory):
@@ -489,9 +571,8 @@ class ProductCategoryFactory(BaseFactory):
         model = ProductCategory
 
     page = factory.SubFactory(ProductsPageFactory)
-    name = factory.Faker(
-        "random_element", elements=["Jackets", "Pants", "Shirts", "Denim", "Activewear"]
-    )
+    name = factory.Iterator(list(data.PRODUCT_CATEGORIES))
+    order = factory.Sequence(lambda n: n)
 
 
 class ProductFactory(BaseFactory):
@@ -499,10 +580,11 @@ class ProductFactory(BaseFactory):
         model = Product
 
     category = factory.SubFactory(ProductCategoryFactory)
-    gender = factory.Faker("random_element", elements=["Male", "Female"])
-    name = factory.Faker("sentence", nb_words=3)
-    image = factory.LazyAttribute(lambda x: cache_image(300, 300, keyword="clothing"))
-    buyer = factory.Faker("company")
+    name = "Men's Hooded Down Jacket"
+    gender = "Male"
+    buyer = "Hugo Boss"
+    image = factory.LazyAttribute(lambda o: cache_image(800, 800, keyword=f"product-{o.name}", label=o.name))
+    order = factory.Sequence(lambda n: n)
 
 
 class ComplianceSectionFactory(BaseFactory):
@@ -510,9 +592,11 @@ class ComplianceSectionFactory(BaseFactory):
         model = ComplianceSection
 
     page = factory.SubFactory(CompliancePageFactory)
-    title = factory.Faker("sentence", nb_words=4)
-    description = factory.Faker("paragraph", nb_sentences=10)
-    image = factory.LazyAttribute(lambda x: cache_image(600, 400, keyword="factory"))
+    eyebrow = iterate(data.COMPLIANCE_SECTIONS, "eyebrow")
+    title = iterate(data.COMPLIANCE_SECTIONS, "title")
+    description = iterate(data.COMPLIANCE_SECTIONS, "description")
+    image = factory.LazyAttribute(lambda o: cache_image(1600, 1000, keyword=f"compliance-{o.title}", label=o.eyebrow))
+    order = factory.Sequence(lambda n: n)
 
 
 class ComplianceCertificateFactory(BaseFactory):
@@ -520,10 +604,11 @@ class ComplianceCertificateFactory(BaseFactory):
         model = ComplianceCertificate
 
     page = factory.SubFactory(CompliancePageFactory)
-    name = factory.Faker("company")
-    image = factory.LazyAttribute(
-        lambda x: cache_image(200, 200, keyword="certificate")
-    )
+    name = factory.Iterator([name for name, _ in data.COMPLIANCE_CERTIFICATES])
+    website_url = factory.Iterator([url for _, url in data.COMPLIANCE_CERTIFICATES])
+    image = factory.LazyAttribute(lambda o: cache_image(400, 400, keyword=f"cert-{o.name}", label=o.name, style="logo"))
+    is_active = True
+    order = factory.Sequence(lambda n: n)
 
 
 class SustainabilitySectionFactory(BaseFactory):
@@ -531,11 +616,10 @@ class SustainabilitySectionFactory(BaseFactory):
         model = SustainabilitySection
 
     page = factory.SubFactory(SustainabilityPageFactory)
-    title = factory.Faker("sentence", nb_words=4)
-    description = factory.Faker("paragraph", nb_sentences=10)
-    image = factory.LazyAttribute(
-        lambda x: cache_image(600, 400, keyword="sustainable")
-    )
+    title = iterate(data.SUSTAINABILITY_SECTIONS, "title")
+    description = iterate(data.SUSTAINABILITY_SECTIONS, "description")
+    image = factory.LazyAttribute(lambda o: cache_image(1200, 1200, keyword=f"sustain-{o.title}", label=o.title))
+    order = factory.Sequence(lambda n: n)
 
 
 class SustainabilityCertificateFactory(BaseFactory):
@@ -543,10 +627,9 @@ class SustainabilityCertificateFactory(BaseFactory):
         model = SustainabilityCertificate
 
     page = factory.SubFactory(SustainabilityPageFactory)
-    name = factory.Faker("company")
-    image = factory.LazyAttribute(
-        lambda x: cache_image(200, 200, keyword="certificate")
-    )
+    name = factory.Iterator(data.SUSTAINABILITY_CERTIFICATES)
+    image = factory.LazyAttribute(lambda o: cache_image(400, 400, keyword=f"cert-{o.name}", label=o.name, style="logo"))
+    order = factory.Sequence(lambda n: n)
 
 
 class GallerySectionFactory(BaseFactory):
@@ -554,9 +637,8 @@ class GallerySectionFactory(BaseFactory):
         model = GallerySection
 
     page = factory.SubFactory(GalleryPageFactory)
-    name = factory.Faker(
-        "random_element", elements=["Products", "Factory", "Team", "Events"]
-    )
+    name = factory.Iterator(list(data.GALLERY_SECTIONS))
+    order = factory.Sequence(lambda n: n)
 
 
 class GalleryImageFactory(BaseFactory):
@@ -564,22 +646,18 @@ class GalleryImageFactory(BaseFactory):
         model = GalleryImage
 
     section = factory.SubFactory(GallerySectionFactory)
-    caption = factory.Faker("sentence", nb_words=5)
-    image = factory.LazyAttribute(lambda x: cache_image(800, 600, keyword="factory"))
+    caption = "Sewing line"
+    image = factory.LazyAttribute(lambda o: cache_image(1600, 1200, keyword=f"gallery-{o.caption}", label=o.caption))
+    order = factory.Sequence(lambda n: n)
 
 
 class GalleryVideoFactory(BaseFactory):
+    """Not used by the default seed (no verified company videos to embed)."""
+
     class Meta:
         model = GalleryVideo
 
     section = factory.SubFactory(GallerySectionFactory)
-    caption = factory.Faker("sentence", nb_words=5)
-    youtube_url = factory.Faker(
-        "random_element",
-        elements=[
-            "https://www.youtube.com/embed/dQw4w9WgXcQ",
-            "https://www.youtube.com/embed/8p2e_CIqkJo",
-            "https://www.youtube.com/embed/7NOSDKb0HlU",
-            "https://www.youtube.com/embed/L_LUpnjgPso",
-        ],
-    )
+    caption = "Factory walkthrough"
+    youtube_url = "https://www.youtube.com/embed/"
+    order = 0

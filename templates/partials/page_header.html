@@ -1,37 +1,47 @@
 {% comment %}
-  Shared inner-page header banner.
+  Shared inner-page banner. The first block on every inner page, so it
+  reserves room for the fixed header (.pt-header).
 
-  Standardizes the height of every inner page's hero banner so they are
-  consistent site-wide: ~300px on mobile, ~420px from the `sm` breakpoint up.
-  Each page passes its own copy/image into this single sized component, e.g.
+    {% include "partials/page_header.html" with heading=page.banner_title|default:page.title subtitle=page.banner_subtitle|default:page.subtitle eyebrow=page.eyebrow bg_image=page.banner_image breadcrumb="About" %}
 
-    {% include "partials/page_header.html" with heading="About Us" breadcrumb="About" %}
-
-  Accepted variables (all optional except `heading`):
-    heading       main H1 text (required)
-    subtitle      short paragraph rendered under the heading
-    eyebrow       small pill label rendered above the heading
-    eyebrow_icon  phosphor icon name for the pill, e.g. "leaf" (needs `eyebrow`)
-    bg_image      background image URL, rendered full-bleed at 30% opacity
-    breadcrumb    current page label -> renders "Home  /  <label>"
+  Variables (all optional except `heading`):
+    heading       H1 text
+    subtitle      paragraph under the heading
+    eyebrow       small label above the heading
+    eyebrow_icon  phosphor icon name for the label, e.g. "leaf"
+    bg_image      an ImageFieldFile (or URL string) shown behind a navy overlay
+    breadcrumb    current page label -> "Home / <label>"
+    parent_label, parent_url   optional middle breadcrumb
+    tone          "emerald" swaps the navy for the sustainability palette
 {% endcomment %}
-<section class="relative bg-brand-navy overflow-hidden px-4 flex items-center min-h-[300px] sm:min-h-[420px]">
+<section class="pt-header on-dark relative isolate flex min-h-[340px] items-end overflow-hidden {% if tone == 'emerald' %}bg-emerald-950{% else %}bg-navy{% endif %} sm:min-h-[440px]">
   {% if bg_image %}
-    <img src="{{ bg_image }}" alt="{{ heading }}" class="absolute inset-0 w-full h-full object-cover opacity-30">
+    <img src="{% if bg_image.url %}{{ bg_image.url }}{% else %}{{ bg_image }}{% endif %}" alt="" class="absolute inset-0 -z-10 h-full w-full object-cover" fetchpriority="high">
+    <div class="absolute inset-0 -z-10 {% if tone == 'emerald' %}bg-gradient-to-t from-emerald-950 via-emerald-950/75 to-emerald-900/40{% else %}bg-gradient-to-t from-navy-800 via-navy/80 to-navy/50{% endif %}" aria-hidden="true"></div>
+  {% else %}
+    <div class="absolute inset-0 -z-10 bg-grid-faint" aria-hidden="true"></div>
+    <div class="absolute -right-24 -top-24 -z-10 size-96 rounded-full bg-amber/10 blur-3xl" aria-hidden="true"></div>
   {% endif %}
-  <div class="relative w-full max-w-7xl mx-auto py-12">
-    {% if eyebrow %}
-      <span class="inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-300">
-        {% if eyebrow_icon %}<i class="ph ph-duotone ph-{{ eyebrow_icon }}"></i>{% endif %}{{ eyebrow }}
-      </span>
-    {% endif %}
-    <h1 class="{% if eyebrow %}mt-5 {% endif %}text-4xl md:text-5xl font-extrabold tracking-tight text-white">{{ heading }}</h1>
-    {% if subtitle %}<p class="mt-4 max-w-2xl text-gray-300">{{ subtitle }}</p>{% endif %}
+  <div class="container-site relative py-14 sm:py-16">
     {% if breadcrumb %}
-      <nav class="mt-3 flex items-center gap-2 text-sm text-gray-300" aria-label="Breadcrumb">
-        <a href="{% url 'home' %}" class="hover:text-brand-orange">Home</a>
-        <i class="ph ph-duotone ph-caret-right text-xs"></i><span class="text-brand-orange">{{ breadcrumb }}</span>
+      <nav class="flex items-center gap-2 text-sm text-white/70" aria-label="Breadcrumb" data-reveal="fade">
+        <a href="{% url 'home' %}" class="transition-colors hover:text-amber">Home</a>
+        <i class="ph-duotone ph-caret-right text-[10px]" aria-hidden="true"></i>
+        {% if parent_label %}
+          <a href="{{ parent_url }}" class="transition-colors hover:text-amber">{{ parent_label }}</a>
+          <i class="ph-duotone ph-caret-right text-[10px]" aria-hidden="true"></i>
+        {% endif %}
+        <span class="text-amber" aria-current="page">{{ breadcrumb }}</span>
       </nav>
     {% endif %}
+    <div class="mt-6 max-w-3xl" data-reveal="up">
+      {% if eyebrow %}
+        <p class="inline-flex items-center gap-2 rounded-full {% if tone == 'emerald' %}bg-emerald-500/20 text-emerald-100 ring-emerald-400/30{% else %}bg-amber/10 text-amber ring-amber/30{% endif %} px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.14em] ring-1">
+          {% if eyebrow_icon %}<i class="ph-duotone ph-{{ eyebrow_icon }}" aria-hidden="true"></i>{% endif %}{{ eyebrow }}
+        </p>
+      {% endif %}
+      <h1 class="{% if eyebrow %}mt-5 {% endif %}text-4xl font-extrabold tracking-tight text-white md:text-5xl lg:text-6xl">{{ heading }}</h1>
+      {% if subtitle %}<p class="mt-5 max-w-2xl text-base leading-relaxed text-white/75 md:text-lg">{{ subtitle }}</p>{% endif %}
+    </div>
   </div>
 </section>
