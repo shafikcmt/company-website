@@ -35,8 +35,8 @@ SITE_DEFAULTS = {
         "A compliant, sustainability-driven garment manufacturer delivering "
         "quality apparel to global brands from Bangladesh."
     ),
-    "footer_address": "Dhaka, Bangladesh",
-    "footer_email": "info@humanaapparels.com",
+    # Address / phone / email are only copied from verified ContactData below;
+    # no placeholder contact details are published.
     "footer_links_title": "Quick Links",
     "footer_contact_title": "Get in Touch",
     "footer_social_title": "Follow Us",

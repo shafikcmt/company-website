@@ -1,0 +1,33 @@
+<section class="home-hero" aria-label="Humana Apparels" aria-roledescription="carousel" data-home-carousel>
+  <div class="home-hero-copy">
+    {% if hero.section.badge_text %}<p class="home-label">{{ hero.section.badge_text }}</p>{% endif %}
+    <h1>{% firstof hero.section.title site.site_tagline "Humana Apparels" %}</h1>
+    {% if hero.section.subtitle %}<p class="home-hero-description">{{ hero.section.subtitle }}</p>{% elif intro.subtitle %}<p class="home-hero-description">{{ intro.subtitle }}</p>{% endif %}
+    <div class="home-hero-actions">
+      {% if hero.section.cta_primary_active and hero.section.cta_primary_text %}<a class="home-button" href="{{ hero.section.cta_primary_url|default:'/products/' }}">{{ hero.section.cta_primary_text }} {% include "www/partials/home_arrow.html" %}</a>{% endif %}
+      {% if hero.section.cta_secondary_active and hero.section.cta_secondary_text %}<a class="home-button home-button-outline" href="{{ hero.section.cta_secondary_url|default:'/about/' }}">{{ hero.section.cta_secondary_text }}</a>{% endif %}
+      {% if not hero.section.cta_primary_text and not hero.section.cta_secondary_text %}
+        {% if not hero.section or hero.section.cta_primary_active %}<a class="home-button" href="{% url 'products' %}">Explore our products {% include "www/partials/home_arrow.html" %}</a>{% endif %}
+        {% if not hero.section or hero.section.cta_secondary_active %}<a class="home-text-link" href="{% url 'about' %}">Our company</a>{% endif %}
+      {% endif %}
+    </div>
+    <div class="home-hero-foot"><span>{{ site.site_name|default:"Humana Apparels Ltd" }}</span><a href="{% url 'gallery' %}">Inside our factory {% include "www/partials/home_arrow.html" %}</a></div>
+  </div>
+  <div class="home-hero-visual">
+    {% for slide in hero.slides %}
+      <div class="home-slide{% if forloop.first %} is-active{% endif %}" data-home-slide role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ hero.slides|length }}" {% if not forloop.first %}aria-hidden="true" inert{% endif %}>
+        {% if slide.image %}<img src="{{ slide.image.url }}" alt="{{ slide.title|default:'Humana Apparels factory' }}" width="1440" height="1080" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>{% endif %}
+        {% if slide.title or slide.subtitle or slide.cta_text %}<div class="home-slide-caption">{% if slide.title %}<h2>{{ slide.title }}</h2>{% endif %}{% if slide.subtitle %}<p>{{ slide.subtitle }}</p>{% endif %}{% if slide.cta_text and slide.cta_url %}<a class="home-text-link" href="{{ slide.cta_url }}">{{ slide.cta_text }} {% include "www/partials/home_arrow.html" %}</a>{% endif %}</div>{% endif %}
+      </div>
+    {% empty %}<div class="home-hero-empty"><span>{{ site.site_name|default:"Humana Apparels Ltd" }}</span></div>{% endfor %}
+    {% if hero.slides|length > 1 %}
+      <div class="home-slider-controls" data-home-controls hidden>
+        <span class="home-slide-status" data-home-status aria-live="off">01 / {{ hero.slides|length|stringformat:"02d" }}</span>
+        <div class="home-slider-dots">{% for slide in hero.slides %}<button type="button" data-home-dot="{{ forloop.counter0 }}" aria-label="Show slide {{ forloop.counter }}" {% if forloop.first %}aria-current="true"{% endif %}><span></span></button>{% endfor %}</div>
+        <button type="button" data-home-prev aria-label="Previous slide"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button>
+        <button type="button" data-home-next aria-label="Next slide"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
+        <button type="button" data-home-pause aria-label="Pause slideshow">Pause</button>
+      </div>
+    {% endif %}
+  </div>
+</section>

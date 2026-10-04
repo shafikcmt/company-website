@@ -1,7 +1,10 @@
 {% extends "www/base.html" %}
+{% load public_content %}
+{% block title %}{% if page.meta_title %}{{ page.meta_title }}{% else %}Contact — {{ site.site_name|default:"Humana Apparels Ltd" }}{% endif %}{% endblock %}
 {% block content %}
 
-  {% include "partials/page_header.html" with heading=page.banner_title|default:page.title|default:"Contact Us" subtitle=page.banner_subtitle|default:page.subtitle eyebrow=page.eyebrow bg_image=page.banner_image breadcrumb="Contact" %}
+  {% firstof page.banner_title page.title "Contact Us" as heading %}{% firstof page.banner_subtitle page.subtitle as subheading %}
+  {% include "partials/page_header.html" with heading=heading subtitle=subheading eyebrow=page.eyebrow bg_image=page.banner_image breadcrumb="Contact" %}
 
   {# ========================= OFFICE + KEY CONTACTS ========================= #}
   <section class="section bg-white">
@@ -87,14 +90,14 @@
       <div class="container-site text-center" data-reveal="up">
         <h2 class="text-2xl font-bold tracking-tight">{{ page.socials_title|default:"Connect With Us" }}</h2>
         <ul class="mt-6 flex flex-wrap items-center justify-center gap-3">
-          {% for social in socials %}
+          {% for social in socials %}{% with social_url=social.url|public_social_url %}{% if social_url %}
             <li>
-              <a href="{{ social.url }}" target="_blank" rel="noopener" aria-label="{{ social.name }}" title="{{ social.name }}"
+              <a href="{{ social_url }}" target="_blank" rel="noopener" aria-label="{{ social.name }}" title="{{ social.name }}"
                  class="inline-flex size-12 items-center justify-center rounded-full bg-surface text-xl text-navy ring-1 ring-navy/10 transition hover:-translate-y-0.5 hover:bg-amber hover:ring-amber">
                 <i class="ph-duotone {{ social.icon }}" aria-hidden="true"></i>
               </a>
             </li>
-          {% endfor %}
+          {% endif %}{% endwith %}{% endfor %}
         </ul>
       </div>
     </section>

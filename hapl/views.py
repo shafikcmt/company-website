@@ -45,6 +45,7 @@ from hapl.models import (
     SustainabilityPage,
     GalleryPage,
     GallerySection,
+    GalleryImage,
 )
 
 
@@ -103,6 +104,29 @@ def home(request):
     # short client lists are repeated (screen readers only get the first copy).
     repeat = -(-12 // len(clients)) if clients else 0
 
+    # Product categories with one representative image each (2 queries).
+    products_page = ProductsPage.objects.order_by("id").first()
+    categories = []
+    if products_page is not None:
+        categories = list(
+            ProductCategory.objects.filter(page=products_page)
+            .order_by("order", "id")
+            .prefetch_related(
+                Prefetch("products", queryset=Product.objects.order_by("order", "id"))
+            )[:6]
+        )
+    products_preview = []
+    for category in categories:
+        items = list(category.products.all())
+        products_preview.append(
+            {"name": category.name, "count": len(items), "image": items[0].image if items else None}
+        )
+
+    gallery_page = GalleryPage.objects.order_by("id").first()
+    gallery_images = list(
+        GalleryImage.objects.select_related("section").order_by("section__order", "order", "id")[:6]
+    )
+
     return render(
         request,
         "www/home.html",
@@ -120,6 +144,10 @@ def home(request):
             "customers_section": customers_section,
             "clients": clients,
             "marquee_clients": clients * repeat,
+            "products_page": products_page,
+            "products_preview": products_preview,
+            "gallery_page": gallery_page,
+            "gallery_images": gallery_images,
         },
     )
 

@@ -47,6 +47,9 @@ export default {
                     DEFAULT: "#F59E0B",
                     dark: "#D97706",
                 },
+                // Legacy aliases used by older templates/partials.
+                "brand-navy": { light: "#0E4A75", DEFAULT: "#093E61", dark: "#06293F" },
+                "brand-orange": { DEFAULT: "#F59E0B", dark: "#D97706" },
                 ink: "#111827",
                 muted: "#4B5563",
                 surface: "#F9FAFB",

@@ -295,6 +295,17 @@ class HomeHeroSection(BaseModel):
         default=True, help_text="Only the first active hero is shown."
     )
 
+    # Closing call-to-action band at the bottom of the home page.
+    closing_eyebrow = models.CharField(max_length=100, blank=True, null=True)
+    closing_title = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text="Home page closing band, e.g. \"Your next collection. Our next conversation.\"",
+    )
+    closing_button_text = models.CharField(max_length=100, blank=True, null=True)
+    closing_button_url = models.CharField(max_length=200, blank=True, null=True)
+
     class Meta:
         verbose_name = "Home Hero"
         verbose_name_plural = "Home Hero"
@@ -488,7 +499,7 @@ class AboutSection(BaseSection, PageMixin):
 
     content = models.TextField(null=True, blank=True)
     image = OptimizedImageField(
-        upload_to="about/", max_dimensions=(1600, 1200), blank=True, null=True
+        upload_to="about/", max_dimensions=(1920, 1440), blank=True, null=True
     )
 
 
@@ -527,7 +538,7 @@ class TeamMember(BaseModel):
     )
     name = models.CharField(max_length=100)
     position = models.CharField(max_length=100)
-    image = OptimizedImageField(upload_to="team/", max_dimensions=(600, 800))
+    image = OptimizedImageField(upload_to="team/", max_dimensions=(400, 400))
     is_management = models.BooleanField(default=False)
     bio = models.TextField(blank=True, null=True)
     linkedin_url = models.URLField(blank=True, null=True)
@@ -1143,6 +1154,31 @@ class GalleryPage(BaseSection, PageMixin):
     )
     videos_title = models.CharField(
         max_length=100, blank=True, null=True, help_text='e.g. "Videos"'
+    )
+
+    # Home page: factory gallery heading + 360° virtual tour block.
+    home_eyebrow = models.CharField(max_length=100, blank=True, null=True)
+    home_title = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text="Heading of the factory gallery strip on the home page.",
+    )
+    tour_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="External 360° tour; opens in a new tab. Leave empty to hide the tour block.",
+    )
+    tour_eyebrow = models.CharField(max_length=100, blank=True, null=True)
+    tour_title = models.CharField(max_length=200, blank=True, null=True)
+    tour_text = models.CharField(max_length=500, blank=True, null=True)
+    tour_button_text = models.CharField(max_length=100, blank=True, null=True)
+    tour_image = OptimizedImageField(
+        upload_to="gallery/tour/",
+        max_dimensions=(2000, 1400),
+        blank=True,
+        null=True,
+        help_text="Preview image. Falls back to the first gallery image.",
     )
 
 

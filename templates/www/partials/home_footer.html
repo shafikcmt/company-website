@@ -1,0 +1,18 @@
+<footer class="home-footer">
+  <div class="home-shell home-footer-grid">
+    <div class="home-footer-company">
+      <a href="{% url 'home' %}" class="home-brand">{% if site.site_logo %}<img src="{{ site.site_logo.url }}" alt="{{ site.site_name|default:'Humana Apparels Ltd' }}" width="180" height="56">{% else %}{{ site.site_name|default:"Humana Apparels Ltd" }}{% endif %}</a>
+      {% if site.footer_description %}<p>{{ site.footer_description }}</p>{% endif %}
+      <div class="home-socials">
+        {% if site.facebook_url %}<a href="{{ site.facebook_url }}" aria-label="Facebook"><i class="ph ph-duotone ph-facebook-logo" aria-hidden="true"></i></a>{% endif %}
+        {% if site.linkedin_url %}<a href="{{ site.linkedin_url }}" aria-label="LinkedIn"><i class="ph ph-duotone ph-linkedin-logo" aria-hidden="true"></i></a>{% endif %}
+        {% if site.youtube_url %}<a href="{{ site.youtube_url }}" aria-label="YouTube"><i class="ph ph-duotone ph-youtube-logo" aria-hidden="true"></i></a>{% endif %}
+        {% if site.instagram_url %}<a href="{{ site.instagram_url }}" aria-label="Instagram"><i class="ph ph-duotone ph-instagram-logo" aria-hidden="true"></i></a>{% endif %}
+      </div>
+    </div>
+    <div><h2>Company</h2><a href="{% url 'about' %}">About us</a><a href="{% url 'customers' %}">Our customers</a><a href="{% url 'activities' %}">Activities</a><a href="{% url 'career' %}">Careers</a></div>
+    <div><h2>Explore</h2><a href="{% url 'products' %}">Products</a><a href="{% url 'gallery' %}">Our facilities</a><a href="{% url 'complience' %}">Compliance</a><a href="{% url 'sustainability' %}">Sustainability</a></div>
+    <div><h2>Start a conversation</h2><p>Connect with our team about your apparel requirements.</p><a class="home-text-link" href="{% url 'contact' %}">Contact Humana {% include "www/partials/home_arrow.html" %}</a></div>
+  </div>
+  <div class="home-shell home-footer-bottom"><p>{% if site.footer_copyright %}{{ site.footer_copyright }}{% else %}&copy; {% now "Y" %} {{ site.site_name|default:"Humana Apparels Ltd" }}. All rights reserved.{% endif %}</p><a href="#main-content">Back to top</a></div>
+</footer>

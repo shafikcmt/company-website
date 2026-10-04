@@ -1,3 +1,4 @@
+{% load public_content %}
 {% comment %}
   Site header — fixed, transparent over the navy page banners; condenses into
   a blurred navy bar on scroll (site.js toggles .is-scrolled). Nav items and
@@ -64,11 +65,11 @@
     {% endif %}
     {% if footer_socials %}
       <div class="mt-5 flex items-center justify-center gap-2">
-        {% for social in footer_socials %}
-          <a href="{{ social.url }}" target="_blank" rel="noopener" aria-label="{{ social.name }}" class="inline-flex size-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-amber hover:text-navy-800">
+        {% for social in footer_socials %}{% with social_url=social.url|public_social_url %}{% if social_url %}
+          <a href="{{ social_url }}" target="_blank" rel="noopener" aria-label="{{ social.name }}" class="inline-flex size-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-amber hover:text-navy-800">
             <i class="ph-duotone {{ social.icon }} text-lg" aria-hidden="true"></i>
           </a>
-        {% endfor %}
+        {% endif %}{% endwith %}{% endfor %}
       </div>
     {% endif %}
   </div>

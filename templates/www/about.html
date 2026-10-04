@@ -1,7 +1,12 @@
 {% extends "www/base.html" %}
+{% block title %}{% if page.meta_title %}{{ page.meta_title }}{% else %}About Us — {{ site.site_name|default:"Humana Apparels Ltd" }}{% endif %}{% endblock %}
 {% block content %}
 
-  {% include "partials/page_header.html" with heading=page.banner_title|default:"About Us" subtitle=page.banner_subtitle eyebrow=page.eyebrow bg_image=page.banner_image|default:page.image breadcrumb=page.banner_title|default:"About" %}
+  {% if page.banner_image %}
+    {% include "partials/page_header.html" with heading=page.banner_title|default:"About Us" subtitle=page.banner_subtitle eyebrow=page.eyebrow bg_image=page.banner_image breadcrumb=page.banner_title|default:"About" %}
+  {% else %}
+    {% include "partials/page_header.html" with heading=page.banner_title|default:"About Us" subtitle=page.banner_subtitle eyebrow=page.eyebrow bg_image=page.image breadcrumb=page.banner_title|default:"About" %}
+  {% endif %}
 
   {# ========================= COMPANY OVERVIEW ========================= #}
   {% if page.pk %}

@@ -1,4 +1,5 @@
 {% extends "www/base.html" %}
+{% block title %}{% if page.meta_title %}{{ page.meta_title }}{% else %}Sustainability — {{ site.site_name|default:"Humana Apparels Ltd" }}{% endif %}{% endblock %}
 {% block content %}
 
   {# SUSTAINABILITY = editorial impact story: image-led, emerald-accented zigzag. #}

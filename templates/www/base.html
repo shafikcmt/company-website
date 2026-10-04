@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {# Pages override `page_title` / `page_description`; SiteSettings supplies the defaults. #}
-    {% with default_title=site.meta_title|default:site.site_name|default:"Humana Apparels Ltd" default_description=site.meta_description|default:"Humana Apparels Ltd — a compliant, sustainability-driven garment manufacturer in Bangladesh delivering quality apparel to global brands." %}
+    {% firstof site.meta_title site.site_name "Humana Apparels Ltd" as site_title %}
+    {% with default_title=site_title default_description=site.meta_description|default:"Humana Apparels Ltd — a compliant, sustainability-driven garment manufacturer in Bangladesh delivering quality apparel to global brands." %}
       <title>{% block title %}{{ page.meta_title|default:default_title }}{% endblock %}</title>
       <meta name="description" content="{% block description %}{{ page.meta_description|default:default_description }}{% endblock %}">
       <meta property="og:type" content="website">
@@ -19,7 +20,7 @@
       {% endif %}
       <meta name="twitter:card" content="summary_large_image">
     {% endwith %}
-    {% if site.favicon_file %}<link rel="icon" href="{{ site.favicon_file.url }}">{% endif %}
+    {% include "www/partials/favicon.html" %}
     <meta name="theme-color" content="#093E61">
 
     {# Mark JS as available before first paint so reveal styles never flash. #}
@@ -32,7 +33,7 @@
     <link href="{% static 'css/phosphor-duotone.css' %}" rel="stylesheet">
     {% block extra_head %}{% endblock %}
   </head>
-  <body class="flex min-h-screen flex-col">
+  <body class="public-site flex min-h-screen flex-col {% block body_class %}{% endblock %}">
     <a href="#main" class="sr-only z-[70] rounded-lg bg-amber px-4 py-2 font-semibold text-navy-800 focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Skip to content</a>
 
     {% include "partials/header.html" %}

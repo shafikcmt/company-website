@@ -68,10 +68,14 @@ class AutoCleanupFileField(AutoCleanupFieldMixin, FileField):
     pass
 
 
-class AutoCleanupImageField(AutoCleanupFieldMixin, ImageField):
-    """
-    An ImageField that automatically deletes files when either
-    the file is replaced or the model is deleted.
+class AutoCleanupImageField(ImageField):
+    """Legacy field name; retain image files after replacement/clear/deletion.
+
+    Media storage is not transactional. Neither pre-save deletion nor on_commit
+    deletion can preserve files needed by a later database restore. Keeping old
+    images also protects files referenced by another record. Prune unreferenced
+    files only as a separate, backed-up maintenance operation after the rollback
+    retention window. Non-image AutoCleanupFileField behavior is unchanged.
     """
 
     pass

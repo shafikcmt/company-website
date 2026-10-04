@@ -22,6 +22,7 @@ from simple_history.admin import SimpleHistoryAdmin
 from unfold.admin import ModelAdmin, StackedInline, TabularInline
 from unfold.contrib.forms.widgets import WysiwygWidget
 
+from hapl.admin_content import ContentGuidanceMixin
 from hapl.models import (
     SiteSettings,
     NavbarSettings,
@@ -234,7 +235,7 @@ class SectionAdmin(SingletonAdminMixin, BaseAdmin):
 # Site settings
 # ===========================================================================
 @admin.register(SiteSettings)
-class SiteSettingsAdmin(SingletonAdminMixin, BaseAdmin):
+class SiteSettingsAdmin(ContentGuidanceMixin, SingletonAdminMixin, BaseAdmin):
     readonly_fields = ("logo_preview", "logo_light_preview", "favicon_preview", "og_preview")
     fieldsets = (
         (
@@ -412,6 +413,14 @@ class HomeHeroSectionAdmin(BaseAdmin):
             },
         ),
         (
+            "Closing band",
+            {
+                "classes": ["tab"],
+                "description": "Call-to-action band at the bottom of the home page.",
+                "fields": ("closing_eyebrow", "closing_title", ("closing_button_text", "closing_button_url")),
+            },
+        ),
+        (
             "Settings",
             {
                 "classes": ["tab"],
@@ -500,8 +509,9 @@ class ServiceAdmin(ImagePreviewMixin, BaseAdmin):
     readonly_fields = ("image_preview",)
 
 
-class CompanyStatsInline(SortableMixin, BaseTabularInline):
+class CompanyStatsInline(ContentGuidanceMixin, SortableMixin, BaseTabularInline):
     model = CompanyStats
+    ordering = ("order", "pk")
     fields = ("icon", "prefix", "number", "suffix", "label", "value", "order")
     tab = True
     verbose_name_plural = "Stats"
@@ -527,7 +537,8 @@ class HomeStatsSectionAdmin(SectionAdmin):
 
 
 @admin.register(CompanyStats)
-class CompanyStatsAdmin(BaseAdmin):
+class CompanyStatsAdmin(ContentGuidanceMixin, BaseAdmin):
+    ordering = ("order", "pk")
     list_display = ("display_label", "display_value", "icon", "section", "order")
     search_fields = ("label", "title", "value")
     ordering_field = "order"
@@ -543,7 +554,7 @@ class CompanyStatsAdmin(BaseAdmin):
 # About
 # ===========================================================================
 @admin.register(AboutSection)
-class AboutSectionAdmin(ImagePreviewMixin, PageAdmin):
+class AboutSectionAdmin(ContentGuidanceMixin, ImagePreviewMixin, PageAdmin):
     formfield_overrides = RICH_TEXT
     readonly_fields = ("banner_preview", "image_preview")
     fieldsets = (
@@ -577,8 +588,9 @@ class WhyUsFeatureAdmin(BaseAdmin):
     formfield_overrides = RICH_TEXT
 
 
-class TeamMemberInline(SortableMixin, ImagePreviewMixin, BaseTabularInline):
+class TeamMemberInline(ContentGuidanceMixin, SortableMixin, ImagePreviewMixin, BaseTabularInline):
     model = TeamMember
+    ordering = ("order", "pk")
     fields = ("image_preview", "image", "name", "position", "is_management", "linkedin_url", "order")
     readonly_fields = ("image_preview",)
     tab = True
@@ -587,12 +599,13 @@ class TeamMemberInline(SortableMixin, ImagePreviewMixin, BaseTabularInline):
 
 
 @admin.register(TeamSection)
-class TeamSectionAdmin(SectionAdmin):
+class TeamSectionAdmin(ContentGuidanceMixin, SectionAdmin):
     inlines = [TeamMemberInline]
 
 
 @admin.register(TeamMember)
-class TeamMemberAdmin(ImagePreviewMixin, BaseAdmin):
+class TeamMemberAdmin(ContentGuidanceMixin, ImagePreviewMixin, BaseAdmin):
+    ordering = ("order", "pk")
     list_display = ("image_preview", "name", "position", "is_management", "order")
     list_display_links = ("image_preview", "name")
     list_editable = ("is_management",)
@@ -603,8 +616,9 @@ class TeamMemberAdmin(ImagePreviewMixin, BaseAdmin):
     readonly_fields = ("image_preview",)
 
 
-class FAQInline(SortableMixin, BaseStackedInline):
+class FAQInline(ContentGuidanceMixin, SortableMixin, BaseStackedInline):
     model = FAQ
+    ordering = ("order", "pk")
     fields = ("question", "answer", "order")
     formfield_overrides = RICH_TEXT
     tab = True
@@ -612,12 +626,13 @@ class FAQInline(SortableMixin, BaseStackedInline):
 
 
 @admin.register(FAQSection)
-class FAQSectionAdmin(SectionAdmin):
+class FAQSectionAdmin(ContentGuidanceMixin, SectionAdmin):
     inlines = [FAQInline]
 
 
 @admin.register(FAQ)
-class FAQAdmin(BaseAdmin):
+class FAQAdmin(ContentGuidanceMixin, BaseAdmin):
+    ordering = ("order", "pk")
     list_display = ("question", "order")
     search_fields = ("question", "answer")
     ordering_field = "order"
@@ -1302,7 +1317,32 @@ class GallerySectionInline(SortableMixin, BaseTabularInline):
 @admin.register(GalleryPage)
 class GalleryPageAdmin(PageAdmin):
     inlines = [GallerySectionInline]
-    fieldsets = (section_content("all_tab_label", "videos_title"), PAGE_BANNER, PAGE_CTA, PAGE_SEO)
+    readonly_fields = ("banner_preview", "tour_preview")
+    fieldsets = (
+        section_content("all_tab_label", "videos_title"),
+        (
+            "Home page",
+            {
+                "classes": ["tab"],
+                "description": "Factory gallery strip and 360° tour on the home page. Leave the tour URL empty to hide the tour.",
+                "fields": (
+                    ("home_eyebrow", "home_title"),
+                    "tour_url",
+                    ("tour_eyebrow", "tour_title"),
+                    "tour_text",
+                    "tour_button_text",
+                    ("tour_image", "tour_preview"),
+                ),
+            },
+        ),
+        PAGE_BANNER,
+        PAGE_CTA,
+        PAGE_SEO,
+    )
+
+    @admin.display(description="Preview")
+    def tour_preview(self, obj):
+        return thumbnail(obj.tour_image, 80)
 
 
 class GalleryImageInline(SortableMixin, ImagePreviewMixin, BaseTabularInline):

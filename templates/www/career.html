@@ -1,7 +1,9 @@
 {% extends "www/base.html" %}
+{% block title %}{% if page.meta_title %}{{ page.meta_title }}{% else %}Careers — {{ site.site_name|default:"Humana Apparels Ltd" }}{% endif %}{% endblock %}
 {% block content %}
 
-  {% include "partials/page_header.html" with heading=page.banner_title|default:page.title|default:"Careers" subtitle=page.banner_subtitle|default:page.subtitle eyebrow=page.eyebrow bg_image=page.banner_image breadcrumb="Career" %}
+  {% firstof page.banner_title page.title "Careers" as heading %}{% firstof page.banner_subtitle page.subtitle as subheading %}
+  {% include "partials/page_header.html" with heading=heading subtitle=subheading eyebrow=page.eyebrow bg_image=page.banner_image breadcrumb="Career" %}
 
   <section class="section bg-surface">
     <div class="container-site">

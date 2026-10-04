@@ -1,11 +1,10 @@
 import os
-import dj_database_url
 from pathlib import Path
 from logging import getLogger
 from datetime import timedelta
 from dotenv import load_dotenv
 from common.unfold import UNFOLD_CONFIG
-from django.core.management.utils import get_random_secret_key
+from core.environment import read_environment
 
 
 # --- LOGGER ---
@@ -19,24 +18,28 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Environment variables from the .env file
 load_dotenv(BASE_DIR / ".env")
 
-# --- SECRET KEY ---
-# Secret key from the environment; generate a random one if not set
-SECRET_KEY = os.getenv("SECRET_KEY")
-if not SECRET_KEY:
+# Parse before application setup; invalid production configuration fails startup.
+environment = read_environment(BASE_DIR)
+DJANGO_ENV = environment["DJANGO_ENV"]
+SECRET_KEY = environment["SECRET_KEY"]
+DEBUG = environment["DEBUG"]
+ALLOWED_HOSTS = environment["ALLOWED_HOSTS"]
+CSRF_TRUSTED_ORIGINS = environment["CSRF_TRUSTED_ORIGINS"]
+SESSION_COOKIE_SECURE = environment["SESSION_COOKIE_SECURE"]
+CSRF_COOKIE_SECURE = environment["CSRF_COOKIE_SECURE"]
+SECURE_SSL_REDIRECT = environment["SECURE_SSL_REDIRECT"]
+SECURE_PROXY_SSL_HEADER = environment["SECURE_PROXY_SSL_HEADER"]
+SECURE_HSTS_SECONDS = environment["SECURE_HSTS_SECONDS"]
+SECURE_HSTS_INCLUDE_SUBDOMAINS = environment["SECURE_HSTS_INCLUDE_SUBDOMAINS"]
+SECURE_HSTS_PRELOAD = environment["SECURE_HSTS_PRELOAD"]
+if not os.getenv("SECRET_KEY"):
     log.warning(
         "SECRET_KEY is not set; generating a random one, do not use in production!"
     )
     SECRET_KEY = get_random_secret_key()
 
-# --- DEBUG ---
-# Debug mode based on the environment variable
-DEBUG = os.getenv("DEBUG", "False") == "True"
 if DEBUG:
     log.warning("DEBUG is set to True; this should not be used in production!")
-
-# --- ALLOWED HOSTS ---
-# Allowed hosts for the application
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(",")
 
 # --- APPLICATION DEFINITIONS ---
 INSTALLED_APPS = [
@@ -110,11 +113,8 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # --- DATABASE CONFIGURATION ---
-# Use SQLite if no database URL is provided
-DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
-DATABASES = {
-    "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600),
-}
+DATABASE_URL = environment["DATABASE_URL"]
+DATABASES = environment["DATABASES"]
 
 # --- AUTH USER MODEL ---
 AUTH_USER_MODEL = "users.User"
@@ -144,12 +144,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # --- CORS CONFIGURATION ---
 CORS_ALLOW_CREDENTIALS = True
-if DEBUG:
-    CORS_ALLOW_ALL_ORIGINS = True
-    ALLOWED_HOSTS = ["*"]
-else:
-    CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
-    ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+CORS_ALLOW_ALL_ORIGINS = DJANGO_ENV == "development" and DEBUG
+CORS_ALLOWED_ORIGINS = environment["CORS_ALLOWED_ORIGINS"]
 
 # --- INTERNATIONALIZATION ---
 LANGUAGE_CODE = "en-us"
@@ -218,9 +214,6 @@ LOGGING = {
         "level": "DEBUG" if DEBUG else "INFO",
     },
 }
-
-# --- TEST RUNNER ---
-TEST_RUNNER = "pytest_runner.runner.PytestTestRunner"
 
 # --- NINJA JWT CONFIGURATION ---
 NINJA_JWT = {

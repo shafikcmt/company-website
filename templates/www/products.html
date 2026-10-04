@@ -1,4 +1,5 @@
 {% extends "www/base.html" %}
+{% block title %}{% if page.meta_title %}{{ page.meta_title }}{% else %}Products — {{ site.site_name|default:"Humana Apparels Ltd" }}{% endif %}{% endblock %}
 {% block content %}
 
   {# ========================= BANNER (crossfading carousel) ========================= #}
@@ -23,8 +24,8 @@
       </nav>
       <div class="mt-6 max-w-3xl" data-reveal="up">
         {% if page.eyebrow %}<p class="eyebrow eyebrow-light">{{ page.eyebrow }}</p>{% endif %}
-        <h1 class="{% if page.eyebrow %}mt-4 {% endif %}text-4xl font-extrabold tracking-tight text-white md:text-5xl lg:text-6xl">{{ page.banner_title|default:page.title|default:"Our Products" }}</h1>
-        {% with sub=page.banner_subtitle|default:page.subtitle %}{% if sub %}<p class="mt-5 max-w-2xl text-base leading-relaxed text-white/75 md:text-lg">{{ sub }}</p>{% endif %}{% endwith %}
+        <h1 class="{% if page.eyebrow %}mt-4 {% endif %}text-4xl font-extrabold tracking-tight text-white md:text-5xl lg:text-6xl">{% firstof page.banner_title page.title "Our Products" %}</h1>
+        {% firstof page.banner_subtitle page.subtitle as sub %}{% if sub %}<p class="mt-5 max-w-2xl text-base leading-relaxed text-white/75 md:text-lg">{{ sub }}</p>{% endif %}
       </div>
     </div>
   </section>

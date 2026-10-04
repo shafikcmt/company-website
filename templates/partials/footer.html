@@ -1,3 +1,4 @@
+{% load public_content %}
 {% comment %}
   Site footer — 4 columns (about, quick links, contact, socials), all driven
   by SiteSettings, the nav menu and the shared Social model.
@@ -35,24 +36,30 @@
     {# Contact #}
     <div class="lg:col-span-3">
       <h2 class="text-sm font-semibold uppercase tracking-[0.16em] text-white">{{ site.footer_contact_title|default:"Get in Touch" }}</h2>
-      <ul class="mt-5 space-y-4 text-sm">
-        <li class="flex items-start gap-3">
-          <i class="ph-duotone ph-map-pin mt-0.5 text-lg text-amber" aria-hidden="true"></i>
-          <span>{{ site.footer_address|default:"Dhaka, Bangladesh" }}</span>
-        </li>
-        {% if site.footer_phone %}
-          <li class="flex items-center gap-3">
-            <i class="ph-duotone ph-phone text-lg text-amber" aria-hidden="true"></i>
-            <a href="tel:{{ site.footer_phone|cut:' ' }}" class="transition-colors hover:text-amber">{{ site.footer_phone }}</a>
-          </li>
-        {% endif %}
-        <li class="flex items-center gap-3">
-          <i class="ph-duotone ph-envelope-simple text-lg text-amber" aria-hidden="true"></i>
-          {% with email=site.footer_email|default:"info@humanaapparels.com" %}
-            <a href="mailto:{{ email }}" class="break-all transition-colors hover:text-amber">{{ email }}</a>
-          {% endwith %}
-        </li>
-      </ul>
+      {# Only verified contact details entered in Site Settings are published. #}
+      {% if site.footer_address or site.footer_phone or site.footer_email %}
+        <ul class="mt-5 space-y-4 text-sm">
+          {% if site.footer_address %}
+            <li class="flex items-start gap-3">
+              <i class="ph-duotone ph-map-pin mt-0.5 text-lg text-amber" aria-hidden="true"></i>
+              <span>{{ site.footer_address }}</span>
+            </li>
+          {% endif %}
+          {% if site.footer_phone %}
+            <li class="flex items-center gap-3">
+              <i class="ph-duotone ph-phone text-lg text-amber" aria-hidden="true"></i>
+              <a href="tel:{{ site.footer_phone|cut:' ' }}" class="transition-colors hover:text-amber">{{ site.footer_phone }}</a>
+            </li>
+          {% endif %}
+          {% if site.footer_email %}
+            <li class="flex items-center gap-3">
+              <i class="ph-duotone ph-envelope-simple text-lg text-amber" aria-hidden="true"></i>
+              <a href="mailto:{{ site.footer_email }}" class="break-all transition-colors hover:text-amber">{{ site.footer_email }}</a>
+            </li>
+          {% endif %}
+        </ul>
+      {% endif %}
+      <a href="{% url 'contact' %}" class="link-arrow mt-6 !text-sm !text-white hover:!text-amber">Contact page<i class="ph-duotone ph-arrow-right btn-arrow" aria-hidden="true"></i></a>
     </div>
 
     {# Socials + back to top #}
@@ -60,14 +67,14 @@
       <h2 class="text-sm font-semibold uppercase tracking-[0.16em] text-white">{{ site.footer_social_title|default:"Follow Us" }}</h2>
       {% if footer_socials %}
         <ul class="mt-5 flex flex-wrap gap-3">
-          {% for social in footer_socials %}
+          {% for social in footer_socials %}{% with social_url=social.url|public_social_url %}{% if social_url %}
             <li>
-              <a href="{{ social.url }}" target="_blank" rel="noopener" aria-label="{{ social.name }}" title="{{ social.name }}"
+              <a href="{{ social_url }}" target="_blank" rel="noopener" aria-label="{{ social.name }}" title="{{ social.name }}"
                  class="inline-flex size-11 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-white/10 transition hover:-translate-y-0.5 hover:bg-amber hover:text-navy-800">
                 <i class="ph-duotone {{ social.icon }} text-xl" aria-hidden="true"></i>
               </a>
             </li>
-          {% endfor %}
+          {% endif %}{% endwith %}{% endfor %}
         </ul>
       {% endif %}
       {% if site.header_cta_url or contact_visible %}

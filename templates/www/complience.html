@@ -1,4 +1,5 @@
 {% extends "www/base.html" %}
+{% block title %}{% if page.meta_title %}{{ page.meta_title }}{% else %}Compliance &amp; Certifications — {{ site.site_name|default:"Humana Apparels Ltd" }}{% endif %}{% endblock %}
 {% block content %}
 
   {# COMPLIANCE = trust / audit-trail document: structured, institutional, scannable. #}
