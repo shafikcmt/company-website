@@ -113,6 +113,15 @@ MEDIA_URL = "/media/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# Production serves content-hashed static file names (css/x.1a2b3c.css), so
+# every deploy changes the URLs and browsers/Cloudflare never keep a stale
+# stylesheet. collectstatic (docker/entrypoint.sh) writes the manifest.
+if DJANGO_ENV == "production":
+    STORAGES = {
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"},
+    }
+
 # Serve /static and /media from Django itself when no separate web server
 # (nginx) sits in front, e.g. the Docker deployment. See core/urls.py.
 SERVE_FILES = os.getenv("SERVE_FILES", "false").strip().lower() == "true"
