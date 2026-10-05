@@ -60,6 +60,11 @@ export default {
             maxWidth: {
                 site: "1600px",
             },
+            // Desktop width on a short screen (laptops at 100% zoom, e.g.
+            // 1366×650 or 1536×730): tighten the hero so it fits the viewport.
+            screens: {
+                short: { raw: "(min-width: 1024px) and (max-height: 860px)" },
+            },
             boxShadow: {
                 soft: "0 1px 2px rgb(9 62 97 / 0.04), 0 8px 24px -8px rgb(9 62 97 / 0.12)",
                 lift: "0 2px 4px rgb(9 62 97 / 0.04), 0 24px 48px -12px rgb(9 62 97 / 0.22)",

@@ -11,11 +11,11 @@
       <div class="container-site lg:-mt-16">
         <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-navy/10 shadow-lift ring-1 ring-navy/5 {% if stats|length >= 4 %}lg:grid-cols-4{% elif stats|length == 3 %}lg:grid-cols-3{% endif %}" data-reveal="up">
           {% for stat in stats %}
-            <div class="flex flex-col items-center bg-white px-4 py-8 text-center sm:px-6 lg:py-10">
+            <div class="flex flex-col items-center bg-white px-4 py-8 text-center sm:px-6 lg:py-10 short:py-7">
               {% if stat.icon %}
                 <i class="ph-duotone {{ stat.icon }} mb-3 text-3xl text-amber-dark" aria-hidden="true"></i>
               {% endif %}
-              <dd class="order-1 text-3xl font-extrabold tabular-nums tracking-tight text-navy sm:text-4xl xl:text-5xl">
+              <dd class="order-1 text-3xl font-extrabold tabular-nums tracking-tight text-navy sm:text-4xl xl:text-5xl short:text-4xl">
                 {% if stat.number is not None %}
                   <span data-count-to="{{ stat.number }}" data-prefix="{{ stat.prefix|default:'' }}" data-suffix="{{ stat.suffix|default:'' }}">{{ stat.display_value }}</span>
                 {% else %}
@@ -176,15 +176,9 @@
         {# A plain link (no iframe): no third-party requests until the visitor opts in. #}
         <a href="{{ tour_href }}" target="_blank" rel="noopener noreferrer"
            class="group card-media relative mt-12 block aspect-[16/10] overflow-hidden rounded-2xl bg-navy shadow-lift sm:aspect-[21/9]" data-reveal="up">
-          {% with factory=gallery_images.0 slide=slides.0 %}
-            {% if gallery_page.tour_image %}
-              <img src="{{ gallery_page.tour_image.url }}" alt="" class="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async">
-            {% elif factory %}
-              <img src="{{ factory.image.url }}" alt="" class="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async">
-            {% elif slide %}
-              <img src="{{ slide.image.url }}" alt="" class="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async">
-            {% endif %}
-          {% endwith %}
+          {% if tour_image %}
+            <img src="{{ tour_image.url }}" alt="" class="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async">
+          {% endif %}
           <span class="absolute inset-0 bg-gradient-to-t from-navy-900/90 via-navy-900/40 to-navy-900/20" aria-hidden="true"></span>
           <span class="absolute left-1/2 top-1/2 inline-flex size-24 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/40 backdrop-blur transition-transform duration-500 group-hover:scale-110 sm:size-32" aria-hidden="true">
             <span class="text-xl font-extrabold sm:text-2xl">360°</span>

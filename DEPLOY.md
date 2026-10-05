@@ -31,19 +31,37 @@ docker compose exec db pg_dump -U hapl hapl > backup.sql         # database back
 
 ## Public domain (Cloudflare Tunnel)
 
-humanaapparels.com lives in its own Cloudflare account, so it has its own
-tunnel, run by the `cloudflared` service in `docker-compose.yml` (profile
-`tunnel`), separate from the server's system cloudflared used by other sites.
+humanaapparels.com is served through the server's existing `cloudflared`
+service (tunnel `moslamart`, also used by moslamart.com and ksa.shafiqul.dev).
+The service reads `/etc/cloudflared/config.yml` (not `~/.cloudflared/`); the
+site's rules sit before the final 404 rule:
 
-1. Cloudflare (humanaapparels account) → Zero Trust → Networks → Tunnels →
-   Create tunnel (Cloudflared) → copy the token.
-2. Public hostnames: `humanaapparels.com` and `www.humanaapparels.com` →
-   service `HTTP` / `web:8000`. Leave mail records (MX, SPF/DMARC TXT,
-   autodiscover and DKIM CNAMEs) untouched and DNS-only.
-3. Switch `.env` to the `docker/env.production.example` values (keep the
-   existing `SECRET_KEY` and `POSTGRES_PASSWORD`), set
-   `COMPOSE_PROFILES=tunnel` and `CLOUDFLARE_TUNNEL_TOKEN`, then run
-   `bash scripts/deploy-docker.sh`.
+```yaml
+  - hostname: humanaapparels.com
+    service: http://localhost:3003
+  - hostname: www.humanaapparels.com
+    service: http://localhost:3003
+```
 
-With `SECURE_SSL_REDIRECT=true`, http://192.168.245.25:3003 redirects to
-HTTPS, so use the domain (admin included) from then on.
+After editing: `sudo cloudflared --config /etc/cloudflared/config.yml tunnel ingress validate`
+then `sudo systemctl restart cloudflared`.
+
+Cloudflare DNS (zone humanaapparels.com, same account as the tunnel):
+
+- `@` and `www`: CNAME → `3637430d-d86d-41e0-929e-2acbff274c3f.cfargotunnel.com`, proxied.
+- Mail (Microsoft 365), all DNS only, never proxied: MX → `humanaapparels-com.mail.protection.outlook.com`,
+  TXT SPF and `_dmarc`, CNAME `autodiscover`, `selector1._domainkey`,
+  `selector2._domainkey`, and A `smtp` → 91.204.209.30.
+- SSL/TLS mode: Full.
+
+`.env` uses the `docker/env.production.example` values (HTTPS cookies,
+`SECURE_PROXY_SSL_HEADER=HTTP_X_FORWARDED_PROTO,https`), so
+http://192.168.245.25:3003 redirects to HTTPS; use the domain, admin included.
+
+### Office network
+
+The office DNS server (192.168.245.218, Active Directory) has its own
+`humanaapparels.com` zone, so the bare domain resolves to the domain
+controller inside the office. That zone has `www` A records →
+104.21.74.146 and 172.67.159.96 (Cloudflare); inside the office use
+https://www.humanaapparels.com.

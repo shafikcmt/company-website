@@ -36,20 +36,6 @@ services:
       - ./logs:/app/logs
       - staticfiles:/app/staticfiles
 
-  # Cloudflare Tunnel for the public domain (humanaapparels.com). Runs only
-  # when COMPOSE_PROFILES=tunnel and CLOUDFLARE_TUNNEL_TOKEN are set in .env;
-  # its public hostnames point at http://web:8000. Kept separate from the
-  # server's own cloudflared service (other sites, other Cloudflare account).
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    profiles: ["tunnel"]
-    restart: unless-stopped
-    command: tunnel --no-autoupdate run
-    environment:
-      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:-}
-    depends_on:
-      - web
-
 volumes:
   pgdata:
   staticfiles:
