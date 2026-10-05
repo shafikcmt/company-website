@@ -58,6 +58,14 @@ def _page(obj, model):
     return obj if obj is not None else model()
 
 
+def _first_existing_file(*files):
+    """The first file field value that is set and present in storage."""
+    for file in files:
+        if file and file.storage.exists(file.name):
+            return file
+    return None
+
+
 def _stats():
     """Home stats in display order, scoped to the first stats section when one
     exists (legacy rows without a section are still shown when none does)."""
@@ -127,12 +135,22 @@ def home(request):
         GalleryImage.objects.select_related("section").order_by("section__order", "order", "id")[:6]
     )
 
+    slides = hero.active_slides if hero else []
+    # 360° tour preview: the tour image, else the first gallery photo, else the
+    # first hero slide — skipping files missing from storage (e.g. a database
+    # restored without its media folder) so the block never shows a broken image.
+    tour_image = _first_existing_file(
+        gallery_page.tour_image if gallery_page else None,
+        *(image.image for image in gallery_images[:1]),
+        *(slide.image for slide in slides[:1]),
+    )
+
     return render(
         request,
         "www/home.html",
         {
             "hero": hero,
-            "slides": hero.active_slides if hero else [],
+            "slides": slides,
             "intro": intro,
             "intro_features": list(intro.features.all()) if intro else [],
             "services_section": services_section,
@@ -148,6 +166,7 @@ def home(request):
             "products_preview": products_preview,
             "gallery_page": gallery_page,
             "gallery_images": gallery_images,
+            "tour_image": tour_image,
         },
     )
 

@@ -319,7 +319,7 @@
 
     /* Scales with the hero width (container query units). */
     .hero-title {
-        font-size: clamp(2.25rem, 3.7cqw, 4.5rem);
+        font-size: clamp(2.25rem, min(3.7cqw, 7svh), 4.5rem);
     }
 
     @media (max-width: 1023px) {
@@ -330,7 +330,7 @@
 
     @media (min-width: 1024px) {
         .hero {
-            min-height: clamp(600px, 92vh, 960px);
+            min-height: min(100svh, 960px);
         }
     }
 
@@ -345,6 +345,22 @@
     @media (min-width: 1024px) {
         .hero-panel {
             padding-right: 2.5rem;
+        }
+
+        /* Room for the stats strip that overlaps the bottom of the hero. */
+        .hero-panel.has-stats {
+            padding-bottom: 8rem;
+        }
+    }
+
+    @media (min-width: 1024px) and (max-height: 860px) {
+        .hero-panel {
+            padding-top: calc(var(--header-h) + 0.75rem);
+            padding-bottom: 2rem;
+        }
+
+        .hero-panel.has-stats {
+            padding-bottom: 5.5rem;
         }
     }
 
