@@ -36,27 +36,3 @@ class User(AbstractUser):
     class Meta:
         verbose_name = "User"
         verbose_name_plural = "Users"
-
-    def has_perm(self, perm, obj=None):
-        # Merge perms from department, roles, and user_permissions
-        if self.is_superuser:
-            return True
-
-        # Check user-level
-        if self.user_permissions.filter(codename=perm.split(".")[-1]).exists():
-            return True
-
-        # Check role-level
-        if self.roles.filter(permissions__codename=perm.split(".")[-1]).exists():
-            return True
-
-        # Check department-level
-        if (
-            self.department
-            and self.department.permissions.filter(
-                codename=perm.split(".")[-1]
-            ).exists()
-        ):
-            return True
-
-        return super().has_perm(perm, obj)

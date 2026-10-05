@@ -2,8 +2,20 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 
+def _view_permission(url_name):
+    """'admin:hapl_product_changelist' -> callback checking hapl.view_product,
+    so each editor only sees the sections their roles allow."""
+    app_model = url_name.split(":", 1)[1].rsplit("_", 1)[0]
+    app_label, model = app_model.split("_", 1)
+    perm = f"{app_label}.view_{model}"
+    return lambda request: request.user.has_perm(perm)
+
+
 def _link(title, icon, url_name):
-    return {"title": title, "icon": icon, "link": reverse_lazy(url_name)}
+    item = {"title": title, "icon": icon, "link": reverse_lazy(url_name)}
+    if url_name.endswith("_changelist"):
+        item["permission"] = _view_permission(url_name)
+    return item
 
 
 def _group(title, *items):
@@ -118,6 +130,7 @@ UNFOLD_CONFIG = {
             _group(
                 _("System"),
                 _link(_("Users"), "manage_accounts", "admin:users_user_changelist"),
+                _link(_("Roles"), "admin_panel_settings", "admin:users_role_changelist"),
                 _link(_("Audit log"), "history", "admin:auditlog_logentry_changelist"),
             ),
         ],

@@ -257,8 +257,10 @@
   {% endif %}
 
   {# ---------- Recent items ---------- #}
+  {% if show_activities or show_positions or show_applications %}
   <section class="hd-grid hd-panels">
 
+    {% if show_activities %}
     <div class="hd-card hd-panel">
       <div class="hd-panel-head">
         <h3><span class="material-symbols-outlined">volunteer_activism</span>Recent activities</h3>
@@ -284,7 +286,9 @@
       <p class="hd-empty">No activities yet.</p>
       {% endif %}
     </div>
+    {% endif %}
 
+    {% if show_positions %}
     <div class="hd-card hd-panel">
       <div class="hd-panel-head">
         <h3><span class="material-symbols-outlined">work</span>Open positions</h3>
@@ -306,7 +310,9 @@
       <p class="hd-empty">No open positions.</p>
       {% endif %}
     </div>
+    {% endif %}
 
+    {% if show_applications %}
     <div class="hd-card hd-panel">
       <div class="hd-panel-head">
         <h3><span class="material-symbols-outlined">inbox</span>Latest applications</h3>
@@ -328,7 +334,9 @@
       <p class="hd-empty">No applications yet.</p>
       {% endif %}
     </div>
+    {% endif %}
 
   </section>
+  {% endif %}
 </div>
 {% endblock content %}

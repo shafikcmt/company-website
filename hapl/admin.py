@@ -14,6 +14,7 @@ Conventions
 """
 
 from django.contrib import admin
+from django.core.exceptions import PermissionDenied
 from django.db import models
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -157,6 +158,8 @@ class SingletonAdminMixin:
         return False
 
     def changelist_view(self, request, extra_context=None):
+        if not self.has_view_or_change_permission(request):
+            raise PermissionDenied
         opts = self.model._meta
         obj = self.model.objects.order_by("pk").first()
         if obj is not None:
