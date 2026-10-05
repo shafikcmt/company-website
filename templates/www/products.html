@@ -3,7 +3,7 @@
 {% block content %}
 
   {# ========================= BANNER (crossfading carousel) ========================= #}
-  <section class="pt-header on-dark relative isolate flex min-h-[380px] items-end overflow-hidden bg-navy sm:min-h-[480px]" aria-label="{{ page.banner_title|default:'Our Products' }}">
+  <section class="pt-header on-dark relative isolate flex min-h-[380px] items-end overflow-hidden bg-navy sm:min-h-[480px] short:min-h-[380px]" aria-label="{{ page.banner_title|default:'Our Products' }}">
     {% if carousel %}
       <div class="absolute inset-0 -z-10" data-fader>
         {% for slide in carousel %}

@@ -14,7 +14,7 @@
     parent_label, parent_url   optional middle breadcrumb
     tone          "emerald" swaps the navy for the sustainability palette
 {% endcomment %}
-<section class="pt-header on-dark relative isolate flex min-h-[340px] items-end overflow-hidden {% if tone == 'emerald' %}bg-emerald-950{% else %}bg-navy{% endif %} sm:min-h-[440px]">
+<section class="pt-header on-dark relative isolate flex min-h-[340px] items-end overflow-hidden {% if tone == 'emerald' %}bg-emerald-950{% else %}bg-navy{% endif %} sm:min-h-[440px] short:min-h-[360px]">
   {% if bg_image %}
     <img src="{% if bg_image.url %}{{ bg_image.url }}{% else %}{{ bg_image }}{% endif %}" alt="" class="absolute inset-0 -z-10 h-full w-full object-cover" fetchpriority="high">
     <div class="absolute inset-0 -z-10 {% if tone == 'emerald' %}bg-gradient-to-t from-emerald-950 via-emerald-950/75 to-emerald-900/40{% else %}bg-gradient-to-t from-navy-800 via-navy/80 to-navy/50{% endif %}" aria-hidden="true"></div>

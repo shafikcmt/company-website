@@ -175,7 +175,7 @@
         </div>
         {# A plain link (no iframe): no third-party requests until the visitor opts in. #}
         <a href="{{ tour_href }}" target="_blank" rel="noopener noreferrer"
-           class="group card-media relative mt-12 block aspect-[16/10] overflow-hidden rounded-2xl bg-navy shadow-lift sm:aspect-[21/9]" data-reveal="up">
+           class="group card-media relative mt-12 block aspect-[16/10] overflow-hidden rounded-2xl bg-navy shadow-lift sm:aspect-[21/9] lg:aspect-auto lg:h-[min(62svh,560px)] short:mt-8" data-reveal="up">
           {% if tour_image %}
             <img src="{{ tour_image.url }}" alt="" class="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async">
           {% endif %}

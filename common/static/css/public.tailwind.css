@@ -31,6 +31,14 @@
         }
     }
 
+    /* Laptops (1024–1535px wide, usually 125% Windows scaling): everything
+       sized in rem shrinks ~6% so pages read like a desktop at 100% zoom. */
+    @media (min-width: 1024px) and (max-width: 1535px) {
+        html {
+            font-size: 15px;
+        }
+    }
+
     html {
         scroll-padding-top: var(--header-h-scrolled);
         -webkit-tap-highlight-color: transparent;
@@ -73,11 +81,11 @@
     }
 
     .section {
-        @apply py-20 lg:py-28;
+        @apply py-20 lg:py-28 short:py-20;
     }
 
     .section-sm {
-        @apply py-14 lg:py-20;
+        @apply py-14 lg:py-20 short:py-14;
     }
 
     /* Space reserved under the fixed header for the first block of a page. */
@@ -354,6 +362,10 @@
     }
 
     @media (min-width: 1024px) and (max-height: 860px) {
+        .hero-title {
+            font-size: clamp(2rem, min(3.4cqw, 6.4svh), 4.5rem);
+        }
+
         .hero-panel {
             padding-top: calc(var(--header-h) + 0.75rem);
             padding-bottom: 2rem;
